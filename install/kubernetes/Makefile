@@ -17,9 +17,11 @@ CILIUM_CHART_REGEX := '\([vV]ersion:\) '$(VERSION_REGEX)
 CILIUM_TAG_REGEX := '\(tag:\) \(v'$(VERSION_REGEX)'\|latest\)'
 CILIUM_PULLPOLICY_REGEX := '\(pullPolicy:\) .*'
 
+.DEFAULT_GOAL := $(QUICK_INSTALL)
+
 all: update-versions $(QUICK_INSTALL)
 
-$(QUICK_INSTALL): $(shell find cilium/ -type f)
+$(QUICK_INSTALL): $(shell find cilium/ -type f | sort )
 	$(QUIET)helm template cilium --namespace=kube-system $(OPTS) > $(QUICK_INSTALL)
 
 update-versions:

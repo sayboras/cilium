@@ -6,6 +6,16 @@ on:
       - 'install/kubernetes/**'
 
 jobs:
+  quick-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check quick-install.yaml
+        run: |
+          cd install/kubernetes
+          make
+          git diff --exit-code
+
   lint-test:
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +32,8 @@ jobs:
         uses: helm/kind-action@v1.0.0-alpha.3
         with:
           install_local_path_provisioner: true
-        if: steps.lint.outputs.changed == 'true'
+        #if: steps.lint.outputs.changed == 'true'
+
       # This test is just to make sure the helm chart can be installed. It will not replace existing integration tests
       - name: Run chart-testing (install)
         uses: helm/chart-testing-action@v1.0.0-rc.2
