@@ -1,0 +1,30 @@
+name: Helm Lint and Test Charts
+
+on:
+  pull_request:
+    paths:
+      - 'install/kubernetes/**'
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Run chart-testing (lint)
+        id: lint
+        uses: helm/chart-testing-action@v1.0.0-rc.2
+        with:
+          command: lint
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.0.0-alpha.3
+        with:
+          install_local_path_provisioner: true
+        if: steps.lint.outputs.changed == 'true'
+      # This test is just to make sure the helm chart can be installed. It will not replace existing integration tests
+      - name: Run chart-testing (install)
+        uses: helm/chart-testing-action@v1.0.0-rc.2
+        with:
+          command: install
