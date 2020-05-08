@@ -25,6 +25,8 @@ jobs:
       - name: Run chart-testing (lint)
         id: lint
         uses: helm/chart-testing-action@v1.0.0-rc.2
+        env:
+          CT_CHART_DIRS: install/kubernetes
         with:
           command: lint
 
@@ -37,5 +39,7 @@ jobs:
       # This test is just to make sure the helm chart can be installed. It will not replace existing integration tests
       - name: Run chart-testing (install)
         uses: helm/chart-testing-action@v1.0.0-rc.2
+        env:
+          CT_CHART_DIRS: install/kubernetes
         with:
           command: install
