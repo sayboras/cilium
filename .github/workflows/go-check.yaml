@@ -47,7 +47,5 @@ jobs:
         shell: bash
       - name: Check k8s generated files
         run: |
-          dpkg -s protobuf-compiler | grep Version
-
           cd src/github.com/cilium/cilium
           contrib/scripts/check-k8s-code-gen.sh
