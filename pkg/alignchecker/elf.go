@@ -87,6 +87,7 @@ func getDWARFFromELF(f *elf.File) (*dwarf.Data, error) {
 		}
 
 		for _, r := range f.Sections {
+			//nolint
 			if r.Type != elf.SHT_RELA && r.Type != elf.SHT_REL {
 				continue
 			}

@@ -119,7 +119,7 @@ func (l *localIdentityCache) lookupOrCreate(lbls labels.Labels) (*identity.Ident
 func (l *localIdentityCache) release(id *identity.Identity) bool {
 	l.mutex.Lock()
 	defer l.mutex.Unlock()
-
+	// nolint
 	stringRepresentation := string(id.Labels.SortedList())
 	if id, ok := l.identitiesByLabels[stringRepresentation]; ok {
 		switch {
@@ -154,7 +154,7 @@ func (l *localIdentityCache) release(id *identity.Identity) bool {
 func (l *localIdentityCache) lookup(lbls labels.Labels) *identity.Identity {
 	l.mutex.RLock()
 	defer l.mutex.RUnlock()
-
+	// nolint
 	stringRepresentation := string(lbls.SortedList())
 	if id, ok := l.identitiesByLabels[stringRepresentation]; ok {
 		return id

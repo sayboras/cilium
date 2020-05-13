@@ -32,7 +32,6 @@ import (
 	"github.com/cilium/cilium/pkg/metrics"
 	"github.com/cilium/cilium/pkg/option"
 	"github.com/cilium/cilium/pkg/policy/api"
-	"github.com/cilium/proxy/go/cilium/api"
 	cilium "github.com/cilium/proxy/go/cilium/api"
 )
 

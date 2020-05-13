@@ -27,7 +27,6 @@ import (
 	"github.com/cilium/cilium/pkg/option"
 	"github.com/cilium/cilium/pkg/policy/api"
 	"github.com/cilium/cilium/pkg/testutils/allocator"
-	"github.com/cilium/proxy/go/cilium/api"
 	cilium "github.com/cilium/proxy/go/cilium/api"
 
 	. "gopkg.in/check.v1"

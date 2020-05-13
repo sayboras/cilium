@@ -293,7 +293,7 @@ func showWhatWillBeRemoved(cleanups []cleanup) {
 		warning += fmt.Sprintf("- %s\n", warn)
 	}
 
-	fmt.Printf(warning)
+	fmt.Print(warning)
 }
 
 func confirmCleanup() bool {

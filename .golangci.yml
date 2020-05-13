@@ -10,7 +10,7 @@ run:
   issues-exit-code: 1
 
   # include test files or not, default is true
-  tests: true
+  tests: false
 
   # list of build tags, all linters use it. Default is empty list.
   # build-tags:
@@ -21,7 +21,8 @@ run:
   # from this option's value:
   #   	vendor$, third_party$, testdata$, examples$, Godeps$, builtin$
   skip-dirs:
-    - ^vendor$
+    - ^vendor.$
+    - ^test.*
 
   # which files to skip: they will be analyzed, but issues from them
   # won't be reported. Default value is empty list, but there is
@@ -34,9 +35,13 @@ run:
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
-    - linters: [golint]
-      text: "should not use dot imports|don't use an underscore in package name"
-
+    - linters: [gosimple]
+      text: "S1000: should use a simple channel send/receive instead of `select` with a single case"
+    - linters: [staticcheck]
+      # this is rule for deprecated method
+      text: "SA1019"
+    - linters: [staticcheck]
+      text: "SA9003: empty branch"
 linters:
   disable-all: true
   enable:
@@ -45,11 +50,11 @@ linters:
     - gofmt
     - goimports
     #    - golint
-    - gosimple
-    - govet
+    #    - gosimple
+    #    - govet
     - ineffassign
     - misspell
-    - staticcheck
+#    - staticcheck
 #    - structcheck
 #    - typecheck
 #    - unused
