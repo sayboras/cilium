@@ -240,7 +240,7 @@ func (l *Loader) Reinitialize(ctx context.Context, o datapath.BaseProgramOwner, 
 		}
 	}
 
-	if option.Config.EnableEndpointRoutes == true {
+	if option.Config.EnableEndpointRoutes {
 		args[initArgMode] = "routed"
 	}
 

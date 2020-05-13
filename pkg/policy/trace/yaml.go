@@ -23,7 +23,7 @@ import (
 	k8sConst "github.com/cilium/cilium/pkg/k8s/apis/cilium.io"
 	"github.com/cilium/cilium/pkg/labels"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/client-go/kubernetes/scheme"
 )
@@ -63,9 +63,9 @@ func GetLabelsFromYaml(file string) ([][]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		switch obj.(type) {
+		switch o := obj.(type) {
 		case *v1beta1.Deployment:
-			deployment := obj.(*v1beta1.Deployment)
+			deployment := o
 			var ns string
 			if deployment.Namespace != "" {
 				ns = deployment.Namespace
@@ -78,7 +78,7 @@ func GetLabelsFromYaml(file string) ([][]string, error) {
 				yamlLabels = append(yamlLabels, labels.GenerateK8sLabelString(k, v))
 			}
 		case *v1.ReplicationController:
-			controller := obj.(*v1.ReplicationController)
+			controller := o
 			var ns string
 			if controller.Namespace != "" {
 				ns = controller.Namespace
@@ -91,7 +91,7 @@ func GetLabelsFromYaml(file string) ([][]string, error) {
 				yamlLabels = append(yamlLabels, labels.GenerateK8sLabelString(k, v))
 			}
 		case *v1beta1.ReplicaSet:
-			rep := obj.(*v1beta1.ReplicaSet)
+			rep := o
 			var ns string
 			if rep.Namespace != "" {
 				ns = rep.Namespace

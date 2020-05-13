@@ -82,8 +82,7 @@ var _ = Describe("K8sKafkaPolicyTest", func() {
 		// a command repeatedly until it succeeds, or a timeout occurs
 		waitForKafkaBroker := func(pod string, cmd string) error {
 			body := func() bool {
-				err := kubectl.ExecKafkaPodCmd(helpers.DefaultNamespace, pod, cmd)
-				if err != nil {
+				if err := kubectl.ExecKafkaPodCmd(helpers.DefaultNamespace, pod, cmd); err != nil {
 					return false
 				}
 				return true
@@ -95,9 +94,7 @@ var _ = Describe("K8sKafkaPolicyTest", func() {
 		waitForDNSResolution := func(pod, service string) error {
 			body := func() bool {
 				dnsLookupCmd := fmt.Sprintf("nslookup %s", service)
-				res := kubectl.ExecPodCmd(helpers.DefaultNamespace, pod, dnsLookupCmd)
-
-				if !res.WasSuccessful() {
+				if res := kubectl.ExecPodCmd(helpers.DefaultNamespace, pod, dnsLookupCmd); !res.WasSuccessful() {
 					return false
 				}
 				return true

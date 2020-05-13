@@ -229,7 +229,7 @@ func (n *NameManager) ForceGenerateDNS(ctx context.Context, namesToRegen []strin
 	n.Mutex.Lock()
 	defer n.Mutex.Unlock()
 
-	affectedFQDNSels := make(map[api.FQDNSelector]struct{}, 0)
+	affectedFQDNSels := make(map[api.FQDNSelector]struct{})
 	for _, dnsName := range namesToRegen {
 		for fqdnSel, fqdnRegEx := range n.allSelectors {
 			if fqdnRegEx.MatchString(dnsName) {

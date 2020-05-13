@@ -109,7 +109,7 @@ func (v *EPPolicyValue) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(v) 
 func (k EndpointKey) NewValue() bpf.MapValue { return &EPPolicyValue{} }
 
 func writeEndpoint(keys []*lxcmap.EndpointKey, fd int) error {
-	if option.Config.SockopsEnable == false {
+	if !option.Config.SockopsEnable {
 		return nil
 	}
 
@@ -117,7 +117,7 @@ func writeEndpoint(keys []*lxcmap.EndpointKey, fd int) error {
 		return fmt.Errorf("WriteEndpoint invalid policy fd %d", fd)
 	}
 
-	/* Casting file desriptor into uint32 required by BPF syscall */
+	/* Casting file descriptor into uint32 required by BPF syscall */
 	epFd := &EPPolicyValue{Fd: uint32(fd)}
 
 	for _, v := range keys {

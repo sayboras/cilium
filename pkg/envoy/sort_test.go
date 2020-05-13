@@ -19,7 +19,7 @@ package envoy
 import (
 	"github.com/cilium/cilium/pkg/checker"
 
-	"github.com/cilium/proxy/go/cilium/api"
+	cilium "github.com/cilium/proxy/go/cilium/api"
 	envoy_api_v2_core "github.com/cilium/proxy/go/envoy/api/v2/core"
 	envoy_api_v2_route "github.com/cilium/proxy/go/envoy/api/v2/route"
 	. "gopkg.in/check.v1"

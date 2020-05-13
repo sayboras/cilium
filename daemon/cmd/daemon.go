@@ -276,7 +276,7 @@ func NewDaemon(ctx context.Context, dp datapath.Datapath) (*Daemon, *endpointRes
 	)
 	policymap.InitMapInfo(option.Config.PolicyMapEntries)
 
-	if option.Config.DryMode == false {
+	if !option.Config.DryMode {
 		if err := bpf.ConfigureResourceLimits(); err != nil {
 			log.WithError(err).Fatal("Unable to set memory resource limits")
 		}

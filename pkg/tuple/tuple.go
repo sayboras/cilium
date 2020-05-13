@@ -50,7 +50,6 @@ type buff256uint8 [256]uint8
 // DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *buff256uint8) DeepCopyInto(out *buff256uint8) {
 	copy(out[:], in[:])
-	return
 }
 
 // TupleValStub is a dummy, unused.

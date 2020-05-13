@@ -26,7 +26,7 @@ import (
 	"github.com/cilium/cilium/pkg/metrics"
 
 	"github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (

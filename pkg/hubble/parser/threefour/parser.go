@@ -93,8 +93,7 @@ func (p *Parser) Decode(payload *pb.Payload, decoded *pb.Flow) error {
 	}
 
 	var packetOffset int
-	var eventType uint8
-	eventType = payload.Data[0]
+	var eventType = payload.Data[0]
 	var dn *monitor.DropNotify
 	var tn *monitor.TraceNotify
 	var pvn *monitor.PolicyVerdictNotify

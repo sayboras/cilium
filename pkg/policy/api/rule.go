@@ -72,11 +72,7 @@ func NewRule() *Rule {
 
 // DeepEquals returns true if the specified rule is deeply the same.
 func (r *Rule) DeepEquals(r2 *Rule) bool {
-	if reflect.DeepEqual(r, r2) {
-		return true
-	}
-
-	return false
+	return reflect.DeepEqual(r, r2)
 }
 
 // WithEndpointSelector configures the Rule with the specified selector.

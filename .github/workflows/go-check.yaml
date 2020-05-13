@@ -22,6 +22,18 @@ jobs:
           go mod vendor
           git diff --exit-code
 
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v0.2.0
+        with:
+          version: v1.26
+          # start with simple rules gofmt and goimports only. Can improve later via .golangci.yaml config file
+          args: --disable-all -E gofmt -E goimports ./...
+
   generate-k8s-api:
     runs-on: ubuntu-latest
     steps:

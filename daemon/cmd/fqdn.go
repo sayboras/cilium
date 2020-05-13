@@ -405,7 +405,7 @@ func (d *Daemon) lookupSecIDByIP(ip net.IP) (secID ipcache.Identity, exists bool
 		maskedStr := fmt.Sprintf("%s/%d", ip, prefixLen)
 		_, cidr, _ := net.ParseCIDR(maskedStr)
 		secID, exists = ipcache.IPIdentityCache.LookupByPrefix(cidr.String())
-		if exists == true {
+		if exists {
 			break
 		}
 	}

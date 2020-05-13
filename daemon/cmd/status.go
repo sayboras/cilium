@@ -126,9 +126,7 @@ func (d *Daemon) getKubeProxyReplacementStatus() *models.KubeProxyReplacement {
 	}
 
 	devices := make([]string, len(option.Config.Devices))
-	for i, iface := range option.Config.Devices {
-		devices[i] = iface
-	}
+	copy(devices, option.Config.Devices)
 
 	features := &models.KubeProxyReplacementFeatures{
 		NodePort:              &models.KubeProxyReplacementFeaturesNodePort{},
@@ -460,7 +458,7 @@ func (d *Daemon) startStatusCollector() {
 					state = models.StatusStateFailure
 					msg = fmt.Sprintf("Err: %s", status.Err)
 				case ok:
-					msg = fmt.Sprintf("%s", info)
+					msg = info
 				}
 
 				d.statusCollectMutex.Lock()
@@ -692,6 +690,4 @@ func (d *Daemon) startStatusCollector() {
 	}
 
 	d.statusCollector = status.NewCollector(probes, status.Config{})
-
-	return
 }

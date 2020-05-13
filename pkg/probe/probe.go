@@ -68,13 +68,11 @@ func HaveFullLPM() bool {
 	if err != nil {
 		return false
 	}
-	err = bpf.UpdateElement(m.GetFd(), unsafe.Pointer(&probeKey{}),
-		unsafe.Pointer(&probeValue{}), bpf.BPF_ANY)
-	if err != nil {
+	if err = bpf.UpdateElement(m.GetFd(), unsafe.Pointer(&probeKey{}),
+		unsafe.Pointer(&probeValue{}), bpf.BPF_ANY); err != nil {
 		return false
 	}
-	err = bpf.GetNextKey(m.GetFd(), nil, unsafe.Pointer(&probeKey{}))
-	if err != nil {
+	if err = bpf.GetNextKey(m.GetFd(), nil, unsafe.Pointer(&probeKey{})); err != nil {
 		return false
 	}
 	return true

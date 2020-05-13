@@ -126,7 +126,6 @@ type pad4uint32 [4]uint32
 // DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *pad4uint32) DeepCopyInto(out *pad4uint32) {
 	copy(out[:], in[:])
-	return
 }
 
 // EndpointInfo represents the value of the endpoints BPF map.

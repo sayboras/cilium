@@ -91,7 +91,7 @@ func k8sServiceHandler() {
 func startSynchronizingServices() {
 	log.Info("Starting to synchronize k8s services to kvstore...")
 
-	readyChan := make(chan struct{}, 0)
+	readyChan := make(chan struct{})
 
 	go func() {
 		store, err := store.JoinSharedStore(store.Configuration{

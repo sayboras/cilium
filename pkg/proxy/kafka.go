@@ -17,10 +17,11 @@ package proxy
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/cilium/cilium/pkg/revert"
 	"io"
 	"net"
 	"strconv"
+
+	"github.com/cilium/cilium/pkg/revert"
 
 	"github.com/cilium/cilium/pkg/completion"
 	"github.com/cilium/cilium/pkg/datapath/linux/linux_defaults"

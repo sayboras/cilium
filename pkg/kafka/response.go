@@ -19,8 +19,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/optiopay/kafka/proto"
 	"io"
+
+	"github.com/optiopay/kafka/proto"
 )
 
 // ResponseMessage represents a Kafka response message.

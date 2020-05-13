@@ -68,7 +68,6 @@ type pad3uint16 [3]uint16
 // DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (in *pad3uint16) DeepCopyInto(out *pad3uint16) {
 	copy(out[:], in[:])
-	return
 }
 
 // Key must be in sync with struct metrics_key in <bpf/lib/common.h>

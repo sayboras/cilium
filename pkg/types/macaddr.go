@@ -32,5 +32,4 @@ func (addr MACAddr) String() string {
 // DeepCopyInto is a deepcopy function, copying the receiver, writing into out. in must be non-nil.
 func (addr *MACAddr) DeepCopyInto(out *MACAddr) {
 	copy(out[:], addr[:])
-	return
 }

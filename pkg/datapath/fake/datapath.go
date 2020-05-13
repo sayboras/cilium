@@ -89,7 +89,6 @@ func (f *fakeDatapath) TransientRulesStart(ifName string) error {
 	return nil
 }
 func (f *fakeDatapath) TransientRulesEnd(quiet bool) {
-	return
 }
 
 func (f *fakeDatapath) Loader() datapath.Loader {

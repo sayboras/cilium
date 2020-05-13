@@ -320,7 +320,7 @@ func (s *SSHMeta) GetEndpointsIdentityIds() (map[string]string, error) {
 // GetEndpointsNames returns the container-name field of each Cilium endpoint.
 func (s *SSHMeta) GetEndpointsNames() ([]string, error) {
 	data := s.ListEndpoints()
-	if data.WasSuccessful() == false {
+	if !data.WasSuccessful() {
 		return nil, fmt.Errorf("`cilium endpoint list` was not successful")
 	}
 
@@ -344,7 +344,7 @@ func (s *SSHMeta) BasePath() string {
 }
 
 // MonitorStart starts the  monitor command in background and returns a callback
-// function wich stops the monitor when the user needs. When the callback is
+// function which stops the monitor when the user needs. When the callback is
 // called the command will stop and monitor's output is saved on
 // `monitorLogFileName` file.
 func (s *SSHMeta) MonitorStart() func() error {
@@ -494,7 +494,7 @@ func (s *SSHMeta) PolicyImportAndWait(path string, timeout time.Duration) (int, 
 		logfields.Path: path}).Info("validating policy before importing")
 
 	res := s.ExecCilium(fmt.Sprintf("policy validate %s", path))
-	if res.WasSuccessful() == false {
+	if !res.WasSuccessful() {
 		s.logger.WithFields(logrus.Fields{
 			logfields.Path: path,
 		}).Errorf("could not validate policy %s: %s", path, res.CombineOutput())
@@ -502,7 +502,7 @@ func (s *SSHMeta) PolicyImportAndWait(path string, timeout time.Duration) (int, 
 	}
 
 	res = s.ExecCilium(fmt.Sprintf("policy import %s", path))
-	if res.WasSuccessful() == false {
+	if !res.WasSuccessful() {
 		s.logger.WithFields(logrus.Fields{
 			logfields.Path: path,
 		}).Errorf("could not import policy: %s", res.CombineOutput())
@@ -784,7 +784,7 @@ func (s *SSHMeta) ServiceIsSynced(id int) (bool, error) {
 		svc.Status.Realized.FrontendAddress.IP,
 		fmt.Sprintf("%d", svc.Status.Realized.FrontendAddress.Port))
 	lb, ok := bpfLB[frontendAddr]
-	if ok == false {
+	if !ok {
 		return false, fmt.Errorf(
 			"frontend address from the service %d does not have it's corresponding frontend address(%s) on bpf maps",
 			id, frontendAddr)
@@ -802,7 +802,7 @@ func (s *SSHMeta) ServiceIsSynced(id int) (bool, error) {
 				result = true
 			}
 		}
-		if result == false {
+		if !result {
 			return false, fmt.Errorf(
 				"backend address %s does not exists on BPF load balancer metadata id=%d", target, id)
 		}

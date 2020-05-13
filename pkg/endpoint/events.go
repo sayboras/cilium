@@ -70,7 +70,6 @@ func (ev *EndpointRegenerationEvent) Handle(res chan interface{}) {
 	res <- &EndpointRegenerationResult{
 		err: err,
 	}
-	return
 }
 
 // EndpointRegenerationResult contains the results of an endpoint regeneration.
@@ -177,5 +176,4 @@ func (ev *EndpointPolicyVisibilityEvent) Handle(res chan interface{}) {
 	res <- &EndpointRegenerationResult{
 		err: nil,
 	}
-	return
 }

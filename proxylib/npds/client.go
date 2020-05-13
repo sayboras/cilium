@@ -24,7 +24,7 @@ import (
 	"github.com/cilium/cilium/pkg/lock"
 	"github.com/cilium/cilium/proxylib/proxylib"
 
-	"github.com/cilium/proxy/go/cilium/api"
+	cilium "github.com/cilium/proxy/go/cilium/api"
 	envoy_api_v2 "github.com/cilium/proxy/go/envoy/api/v2"
 	envoy_api_v2_core "github.com/cilium/proxy/go/envoy/api/v2/core"
 	log "github.com/sirupsen/logrus"
@@ -126,7 +126,7 @@ func NewClient(path, nodeId string, updater proxylib.PolicyUpdater) proxylib.Pol
 	}()
 
 	// Block until we know if the first connection try succeeded or failed
-	_ = <-startErr
+	<-startErr
 	return c
 }
 

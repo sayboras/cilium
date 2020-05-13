@@ -180,7 +180,7 @@ func (p *PreFilter) Delete(revision int64, cidrs []net.IPNet) error {
 			return fmt.Errorf("No map enabled for CIDR string %s", cidr.String())
 		}
 		// Lets check obvious cases first, so we don't need to painfully unroll
-		if p.maps[which].CIDRExists(cidr) == false {
+		if !p.maps[which].CIDRExists(cidr) {
 			return fmt.Errorf("No map entry for CIDR string %s", cidr.String())
 		}
 	}
@@ -221,27 +221,27 @@ func (p *PreFilter) initOneMap(which preFilterMapType) error {
 		prefixdyn = true
 		maxelems = maxLKeys
 		path = bpf.MapPath(cidrmap.MapName + "v4_dyn")
-		skip = p.config.dyn4Enabled == false
+		skip = !p.config.dyn4Enabled
 	case prefixesV4Fix:
 		prefixlen = net.IPv4len * 8
 		prefixdyn = false
 		maxelems = maxHKeys
 		path = bpf.MapPath(cidrmap.MapName + "v4_fix")
-		skip = p.config.fix4Enabled == false
+		skip = !p.config.fix4Enabled
 	case prefixesV6Dyn:
 		prefixlen = net.IPv6len * 8
 		prefixdyn = true
 		maxelems = maxLKeys
 		path = bpf.MapPath(cidrmap.MapName + "v6_dyn")
-		skip = p.config.dyn6Enabled == false
+		skip = !p.config.dyn6Enabled
 	case prefixesV6Fix:
 		prefixlen = net.IPv6len * 8
 		prefixdyn = false
 		maxelems = maxHKeys
 		path = bpf.MapPath(cidrmap.MapName + "v6_fix")
-		skip = p.config.fix4Enabled == false
+		skip = !p.config.fix4Enabled
 	}
-	if skip == false {
+	if !skip {
 		p.maps[which], _, err = cidrmap.OpenMapElems(path, prefixlen, prefixdyn, maxelems)
 		if err != nil {
 			return err

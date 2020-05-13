@@ -125,7 +125,7 @@ func (c *customChain) add(waitArgs []string) error {
 	if option.Config.EnableIPv4 {
 		err = runProg("iptables", append(waitArgs, "-t", c.table, "-N", c.name), false)
 	}
-	if err == nil && option.Config.EnableIPv6 && c.ipv6 == true {
+	if err == nil && option.Config.EnableIPv6 && c.ipv6 {
 		err = runProg("ip6tables", append(waitArgs, "-t", c.table, "-N", c.name), false)
 	}
 	return err
@@ -169,7 +169,7 @@ func (m *IptablesManager) removeCiliumRules(table, prog, match string) {
 		// -A POSTROUTING -m comment --comment "cilium-feeder: CILIUM_POST" -j CILIUM_POST
 		if strings.Contains(rule, match) {
 			// do not remove feeder for chains that are set to be disabled
-			// ie catch the begining of the rule like -A POSTROUTING to match it against
+			// ie catch the beginning of the rule like -A POSTROUTING to match it against
 			// disabled chains
 			skipFeeder := false
 			for _, disabledChain := range option.Config.DisableIptablesFeederRules {
@@ -217,7 +217,7 @@ func (c *customChain) remove(waitArgs []string, quiet bool) {
 			log.WithError(err).WithField(logfields.Object, args).Warnf("Unable to delete Cilium %s chain", prog)
 		}
 	}
-	if option.Config.EnableIPv6 && c.ipv6 == true {
+	if option.Config.EnableIPv6 && c.ipv6 {
 		prog := "ip6tables"
 		args := append(waitArgs, "-t", c.table, "-F", c.name)
 		err := runProg(prog, args, true)
@@ -246,7 +246,7 @@ func (c *customChain) installFeeder(waitArgs []string) error {
 				return err
 			}
 		}
-		if option.Config.EnableIPv6 && c.ipv6 == true {
+		if option.Config.EnableIPv6 && c.ipv6 {
 			err := runProg("ip6tables", append(append(waitArgs, "-t", c.table, installMode, c.hook), getFeedRule(c.name, feedArgs)...), true)
 			if err != nil {
 				return err
@@ -791,7 +791,7 @@ func (m *IptablesManager) InstallRules(ifName string) error {
 			// do not return error for chain creation that are linked to disabled feeder rules
 			skipFeeder := false
 			for _, disabledChain := range option.Config.DisableIptablesFeederRules {
-				if strings.ToLower(c.hook) == strings.ToLower(disabledChain) {
+				if strings.EqualFold(c.hook, disabledChain) {
 					skipFeeder = true
 					break
 				}
@@ -1001,7 +1001,7 @@ func (m *IptablesManager) InstallRules(ifName string) error {
 		// do not install feeder for chains that are set to be disabled
 		skipFeeder := false
 		for _, disabledChain := range option.Config.DisableIptablesFeederRules {
-			if strings.ToLower(c.hook) == strings.ToLower(disabledChain) {
+			if strings.EqualFold(c.hook, disabledChain) {
 				log.WithField("chain", c.hook).Infof("Skipping the install of feeder rule")
 				skipFeeder = true
 				break
@@ -1041,7 +1041,7 @@ func (m *IptablesManager) ciliumNoTrackXfrmRules(prog, input string) error {
 // and 0x*e00 for encryption, colliding with existing rules. Needed
 // for kube-proxy for example.
 func (m *IptablesManager) addCiliumAcceptXfrmRules() error {
-	if option.Config.EnableIPSec == false {
+	if !option.Config.EnableIPSec {
 		return nil
 	}
 	insertAcceptXfrm := func(table, chain string) error {

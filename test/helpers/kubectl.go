@@ -2013,7 +2013,7 @@ func (kub *Kubectl) CiliumEndpointWaitReady() error {
 		close(queue)
 
 		for status := range queue {
-			if status == false {
+			if !status {
 				return false, nil
 			}
 		}

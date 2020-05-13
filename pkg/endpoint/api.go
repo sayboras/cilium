@@ -87,7 +87,7 @@ func NewEndpointFromChangeModel(ctx context.Context, owner regeneration.Owner, p
 		DNSZombies:       fqdn.NewDNSZombieMappings(option.Config.ToFQDNsMaxDeferredConnectionDeletes),
 		state:            "",
 		status:           NewEndpointStatus(),
-		hasBPFProgram:    make(chan struct{}, 0),
+		hasBPFProgram:    make(chan struct{}),
 		desiredPolicy:    policy.NewEndpointPolicy(owner.GetPolicyRepository()),
 		controllers:      controller.NewManager(),
 		regenFailedChan:  make(chan struct{}, 1),
@@ -542,22 +542,22 @@ func (e *Endpoint) ProcessChangeRequest(newEp *Endpoint, validPatchTransitionSta
 		}
 	}
 
-	if len(newEp.mac) != 0 && bytes.Compare(e.mac, newEp.mac) != 0 {
+	if len(newEp.mac) != 0 && !bytes.Equal(e.mac, newEp.mac) {
 		e.mac = newEp.mac
 		changed = true
 	}
 
-	if len(newEp.nodeMAC) != 0 && bytes.Compare(e.GetNodeMAC(), newEp.nodeMAC) != 0 {
+	if len(newEp.nodeMAC) != 0 && !bytes.Equal(e.GetNodeMAC(), newEp.nodeMAC) {
 		e.nodeMAC = newEp.nodeMAC
 		changed = true
 	}
 
-	if ip := newEp.IPv6; len(ip) != 0 && bytes.Compare(e.IPv6, newEp.IPv6) != 0 {
+	if ip := newEp.IPv6; len(ip) != 0 && !bytes.Equal(e.IPv6, newEp.IPv6) {
 		e.IPv6 = newEp.IPv6
 		changed = true
 	}
 
-	if ip := newEp.IPv4; len(ip) != 0 && bytes.Compare(e.IPv4, newEp.IPv4) != 0 {
+	if ip := newEp.IPv4; len(ip) != 0 && !bytes.Equal(e.IPv4, newEp.IPv4) {
 		e.IPv4 = newEp.IPv4
 		changed = true
 	}

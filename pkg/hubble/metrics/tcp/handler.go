@@ -16,7 +16,7 @@ package tcp
 
 import (
 	pb "github.com/cilium/cilium/api/v1/flow"
-	"github.com/cilium/cilium/pkg/hubble/api/v1"
+	v1 "github.com/cilium/cilium/pkg/hubble/api/v1"
 	"github.com/cilium/cilium/pkg/hubble/metrics/api"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -40,7 +40,7 @@ func (h *tcpHandler) Init(registry *prometheus.Registry, options api.Options) er
 	h.tcpFlags = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: api.DefaultPrometheusNamespace,
 		Name:      "tcp_flags_total",
-		Help:      "TCP flag occurences",
+		Help:      "TCP flag occurrences",
 	}, labels)
 
 	registry.MustRegister(h.tcpFlags)

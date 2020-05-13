@@ -16,7 +16,7 @@ package types
 
 import (
 	"github.com/cilium/cilium/api/v1/models"
-	"github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
+	v2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

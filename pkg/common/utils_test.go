@@ -24,10 +24,11 @@ import (
 	"github.com/cilium/cilium/pkg/logging"
 	"github.com/cilium/cilium/pkg/logging/logfields"
 
-	"gopkg.in/check.v1"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"gopkg.in/check.v1"
 )
 
 // Hook up gocheck into the "go test" runner.

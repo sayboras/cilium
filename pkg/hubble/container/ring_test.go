@@ -43,7 +43,7 @@ func BenchmarkRingWrite(b *testing.B) {
 func BenchmarkRingRead(b *testing.B) {
 	entry := &v1.Event{}
 	s := NewRing(b.N)
-	a := make([]*v1.Event, b.N, b.N)
+	a := make([]*v1.Event, b.N)
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		s.Write(entry)
@@ -59,7 +59,7 @@ func BenchmarkRingRead(b *testing.B) {
 func BenchmarkTimeLibListRead(b *testing.B) {
 	entry := &v1.Event{}
 	s := list.New()
-	a := make([]*v1.Event, b.N, b.N)
+	a := make([]*v1.Event, b.N)
 	i := 0
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
@@ -74,7 +74,7 @@ func BenchmarkTimeLibListRead(b *testing.B) {
 func BenchmarkTimeLibRingRead(b *testing.B) {
 	entry := &v1.Event{}
 	s := ring.New(b.N)
-	a := make([]*v1.Event, b.N, b.N)
+	a := make([]*v1.Event, b.N)
 	i := 0
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -476,7 +476,7 @@ func TestRing_LastWrite(t *testing.T) {
 func TestRingFunctionalityInParallel(t *testing.T) {
 	r := NewRing(0xf)
 	if len(r.data) != 0x10 {
-		t.Errorf("r.data should have a lenght of 0x10. Got %x", len(r.data))
+		t.Errorf("r.data should have a length of 0x10. Got %x", len(r.data))
 	}
 	if r.mask != 0xf {
 		t.Errorf("r.mask should be 0xf. Got %x", r.mask)
@@ -521,7 +521,7 @@ func TestRingFunctionalityInParallel(t *testing.T) {
 func TestRingFunctionalitySerialized(t *testing.T) {
 	r := NewRing(0xf)
 	if len(r.data) != 0x10 {
-		t.Errorf("r.data should have a lenght of 0x10. Got %x", len(r.data))
+		t.Errorf("r.data should have a length of 0x10. Got %x", len(r.data))
 	}
 	if r.mask != 0xf {
 		t.Errorf("r.mask should be 0xf. Got %x", r.mask)
@@ -565,10 +565,10 @@ func TestRing_ReadFrom_Test_1(t *testing.T) {
 		goleak.IgnoreTopFunction("io.(*pipe).Read"))
 	r := NewRing(0xf)
 	if len(r.data) != 0x10 {
-		t.Errorf("r.data should have a lenght of 0x10. Got %x", len(r.data))
+		t.Errorf("r.data should have a length of 0x10. Got %x", len(r.data))
 	}
 	if r.dataLen != 0x10 {
-		t.Errorf("r.dataLen should have a lenght of 0x10. Got %x", r.dataLen)
+		t.Errorf("r.dataLen should have a length of 0x10. Got %x", r.dataLen)
 	}
 	if r.mask != 0xf {
 		t.Errorf("r.mask should be 0xf. Got %x", r.mask)

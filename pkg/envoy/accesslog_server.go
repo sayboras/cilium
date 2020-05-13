@@ -25,8 +25,8 @@ import (
 	"github.com/cilium/cilium/pkg/flowdebug"
 	"github.com/cilium/cilium/pkg/proxy/accesslog"
 	"github.com/cilium/cilium/pkg/proxy/logger"
+	cilium "github.com/cilium/proxy/go/cilium/api"
 
-	"github.com/cilium/proxy/go/cilium/api"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"

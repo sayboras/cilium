@@ -411,7 +411,7 @@ func NewEndpointWithState(owner regeneration.Owner, proxy EndpointProxy, allocat
 		DNSHistory:      fqdn.NewDNSCacheWithLimit(option.Config.ToFQDNsMinTTL, option.Config.ToFQDNsMaxIPsPerHost),
 		DNSZombies:      fqdn.NewDNSZombieMappings(option.Config.ToFQDNsMaxDeferredConnectionDeletes),
 		state:           state,
-		hasBPFProgram:   make(chan struct{}, 0),
+		hasBPFProgram:   make(chan struct{}),
 		controllers:     controller.NewManager(),
 		eventQueue:      eventqueue.NewEventQueueBuffered(fmt.Sprintf("endpoint-%d", ID), option.Config.EndpointQueueSize),
 		desiredPolicy:   policy.NewEndpointPolicy(owner.GetPolicyRepository()),
@@ -730,7 +730,7 @@ func parseEndpoint(ctx context.Context, owner regeneration.Owner, strEp string) 
 	ep.SetDefaultOpts(ep.Options)
 
 	// Initialize fields to values which are non-nil that are not serialized.
-	ep.hasBPFProgram = make(chan struct{}, 0)
+	ep.hasBPFProgram = make(chan struct{})
 	ep.desiredPolicy = policy.NewEndpointPolicy(owner.GetPolicyRepository())
 	ep.realizedPolicy = ep.desiredPolicy
 	ep.controllers = controller.NewManager()

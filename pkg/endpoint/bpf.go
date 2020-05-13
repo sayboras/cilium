@@ -1336,7 +1336,7 @@ func (e *Endpoint) GetPolicyVerdictLogFilter() uint32 {
 type linkCheckerFunc func(string) error
 
 // ValidateConnectorPlumbing checks whether the endpoint is correctly plumbed
-// depending on if it is conected via veth or IPVLAN.
+// depending on if it is connected via veth or IPVLAN.
 func (e *Endpoint) ValidateConnectorPlumbing(linkChecker linkCheckerFunc) error {
 	if e.HasIpvlanDataPath() {
 		// FIXME: We cannot check whether ipvlan slave netdev exists,

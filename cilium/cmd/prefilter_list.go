@@ -59,7 +59,7 @@ func listFilters(cmd *cobra.Command, args []string) {
 	str = fmt.Sprintf("Revision: %d", spec.Status.Realized.Revision)
 	fmt.Fprintln(w, str)
 	for _, pfx := range spec.Status.Realized.Deny {
-		str = fmt.Sprintf("%s", pfx)
+		str = pfx
 		fmt.Fprintln(w, str)
 	}
 	w.Flush()

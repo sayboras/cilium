@@ -16,6 +16,7 @@ package RuntimeTest
 
 import (
 	"fmt"
+
 	. "github.com/cilium/cilium/test/ginkgo-ext"
 	"github.com/cilium/cilium/test/helpers"
 	"github.com/cilium/cilium/test/helpers/constants"

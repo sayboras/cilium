@@ -15,7 +15,6 @@
 package ipmasq
 
 import (
-	"fmt"
 	"net"
 	"unsafe"
 
@@ -37,7 +36,7 @@ type Key4 struct {
 
 func (k *Key4) GetKeyPtr() unsafe.Pointer { return unsafe.Pointer(k) }
 func (k *Key4) NewValue() bpf.MapValue    { return &Value{} }
-func (k *Key4) String() string            { return fmt.Sprintf("%s", k.Address) }
+func (k *Key4) String() string            { return k.Address.String() }
 
 // +k8s:deepcopy-gen=true
 // +k8s:deepcopy-gen:interfaces=github.com/cilium/cilium/pkg/bpf.MapValue

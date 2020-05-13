@@ -312,7 +312,7 @@ func (kr *PortRuleKafka) Sanitize() error {
 		}
 		// This check allows suffix and prefix matching
 		// for topic.
-		if KafkaTopicValidChar.MatchString(kr.Topic) == false {
+		if !KafkaTopicValidChar.MatchString(kr.Topic) {
 			return fmt.Errorf("invalid Kafka Topic name \"%s\"", kr.Topic)
 		}
 	}

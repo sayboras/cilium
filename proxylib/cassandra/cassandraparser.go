@@ -23,7 +23,7 @@ import (
 
 	. "github.com/cilium/cilium/proxylib/proxylib"
 
-	"github.com/cilium/proxy/go/cilium/api"
+	cilium "github.com/cilium/proxy/go/cilium/api"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -263,7 +263,7 @@ func (p *CassandraParser) OnData(reply, endStream bool, dataArray [][]byte) (OpT
 		} else if len(parts) == 4 {
 			fields["query_action"] = parts[2]
 			fields["query_table"] = parts[3]
-		} else if unpreparedQuery == true {
+		} else if unpreparedQuery {
 			fields["error"] = "unknown prepared query id"
 		} else {
 			// do not log non-query accesses

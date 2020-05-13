@@ -17,7 +17,7 @@ package container
 import (
 	"container/heap"
 
-	"github.com/cilium/cilium/pkg/hubble/api/v1"
+	v1 "github.com/cilium/cilium/pkg/hubble/api/v1"
 )
 
 // PriorityQueue is a priority queue of events that implements heap.Interface.
