@@ -412,9 +412,12 @@ govet:
     ./test/k8sT/... \
     ./tools/...
 
-ineffassign:
-	@$(ECHO_CHECK) ineffassign
-	$(QUIET) ineffassign .
+lint:
+	#TODO remove once Vagrant version is updated
+	$(QUIET) curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.27.0
+	@$(ECHO_CHECK) golangci-lint
+	$(QUIET) $$(go env GOPATH)/bin/golangci-lint cache clean
+	$(QUIET) $$(go env GOPATH)/bin/golangci-lint run
 
 logging-subsys-field:
 	@$(ECHO_CHECK) contrib/scripts/check-logging-subsys-field.sh
@@ -446,7 +449,7 @@ microk8s: check-microk8s
 ci-precheck: precheck
 	$(QUIET) $(MAKE) $(SUBMAKEOPTS) -C bpf build_all
 
-precheck: ineffassign logging-subsys-field
+precheck: lint logging-subsys-field
 ifeq ($(SKIP_K8S_CODE_GEN_CHECK),"false")
 	@$(ECHO_CHECK) contrib/scripts/check-k8s-code-gen.sh
 	$(QUIET) contrib/scripts/check-k8s-code-gen.sh
