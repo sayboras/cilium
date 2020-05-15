@@ -29,6 +29,7 @@ jobs:
         with:
           command: lint
           config: install/kubernetes/chart-testing-lint.yaml
+          wait: 120s
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1

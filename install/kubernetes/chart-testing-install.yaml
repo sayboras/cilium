@@ -6,6 +6,7 @@ debug: true
 validate-maintainers: false
 check-version-increment: false
 namespace: kube-system
+release-label: cilium
 helm-extra-args: |
   --timeout 10m0s
   --set global.nodeinit.enabled=true
