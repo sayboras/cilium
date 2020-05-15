@@ -1,0 +1,13 @@
+global:
+  nodeinit:
+    enabled: true
+  kubeProxyReplacement: partial
+  hostServices:
+    enabled: false
+  externalIPs:
+    enabled: true
+  nodePort:
+    enabled: true
+  hostPort:
+    enabled: true
+  pullPolicy: IfNotPresent
