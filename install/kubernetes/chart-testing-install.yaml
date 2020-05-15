@@ -1,0 +1,15 @@
+# See https://github.com/helm/chart-testing#configuration
+chart-dirs:
+  - install/kubernetes
+all: true
+debug: true
+validate-maintainers: false
+check-version-increment: false
+helm-extra-args: --timeout 10m0s --namespace kube-system \
+  --set global.nodeinit.enabled=true \
+  --set global.kubeProxyReplacement=partial \
+  --set global.hostServices.enabled=false \
+  --set global.externalIPs.enabled=true \
+  --set global.nodePort.enabled=true \
+  --set global.hostPort.enabled=true \
+  --set global.pullPolicy=IfNotPresent
