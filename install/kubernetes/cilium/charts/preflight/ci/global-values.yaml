@@ -1,0 +1,4 @@
+global:
+  registry: docker.io/cilium
+  etcd:
+    enabled: true

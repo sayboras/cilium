@@ -75,7 +75,7 @@ spec:
 {{- end }}
 {{- end }}
 
-{{- if ne .Values.tofqdnsPreCache "" }}
+{{- if .Values.tofqdnsPreCache }}
 {{- if contains "/" .Values.image }}
         - image: "{{ .Values.image }}"
 {{- else }}

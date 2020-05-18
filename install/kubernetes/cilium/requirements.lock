@@ -1,0 +1,30 @@
+dependencies:
+- name: agent
+  repository: ""
+  version: 1.7.90
+- name: config
+  repository: ""
+  version: 1.7.90
+- name: hubble-cli
+  repository: ""
+  version: 1.7.90
+- name: hubble-relay
+  repository: ""
+  version: 1.7.90
+- name: hubble-ui
+  repository: ""
+  version: 1.7.90
+- name: operator
+  repository: ""
+  version: 1.7.90
+- name: managed-etcd
+  repository: ""
+  version: 1.7.90
+- name: preflight
+  repository: ""
+  version: 1.7.90
+- name: nodeinit
+  repository: ""
+  version: 1.7.90
+digest: sha256:78e4101a1cac1b938e661b8baa641075f22eab95e0bd3424a33d7d9d76b2c047
+generated: "2020-05-18T13:43:33.742684454Z"

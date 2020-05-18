@@ -1,0 +1,36 @@
+global:
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  hubble:
+    metrics:
+      enabled:
+        - drop
+      serviceMonitor:
+        enabled: false
+  psp:
+    enabled: true
+  agent:
+    healthPort: 9876
+  ci:
+    kubeCacheMutationDetector: false
+  cni:
+    install: true
+  debug:
+    enabled: true
+  containerRuntime:
+    integration: none
+  etcd:
+    enabled: false
+  ipMasqAgent:
+    enabled: false
+  encryption:
+    enabled: false
+  nodeinit:
+    enabled: false
+    bootstrapFile: ""
+  daemon:
+    runPath: "/var/run/cilium"
+  tls:
+    secretsBackend: local

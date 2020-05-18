@@ -1,0 +1,53 @@
+global:
+  etcd:
+    enabled: false
+  debug:
+    enabled: false
+  agent:
+    healthPort: 9876
+  prometheus:
+    enabled: false
+  operatorPrometheus:
+    enabled: false
+  cni:
+    customConf: false
+    chainingMode: "none"
+  bpf:
+    clockProbe: true
+  proxy:
+    sidecarImageRegex: "cilium/istio_proxy"
+  cluster:
+    name: default
+  gke:
+    enabled: false
+  azure:
+    enabled: false
+  flannel:
+    enabled: false
+  ipMasqAgent:
+    enabled: false
+  encryption:
+    enabled: false
+  pprof:
+    enabled: false
+  sockops:
+    enabled: false
+  k8s:
+    requireIPv4PodCIDR: false
+  ipam:
+    mode: "cluster-pool"
+    operator:
+      clusterPoolIPv4PodCIDR: "10.0.0.0/8"
+      clusterPoolIPv4MaskSize: 24
+      clusterPoolIPv6PodCIDR: "fd00::/104"
+      clusterPoolIPv6MaskSize: 120
+  ipv4:
+    enabled: true
+  ipv6:
+    enabled: false
+  endpointRoutes:
+    enabled: false
+  wellKnownIdentities:
+    enabled: false
+  hubble:
+    enabled: false

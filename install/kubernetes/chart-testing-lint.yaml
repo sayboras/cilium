@@ -1,0 +1,9 @@
+# See https://github.com/helm/chart-testing#configuration
+chart-dirs:
+  - install/kubernetes
+  - install/kubernetes/cilium/charts
+all: true
+debug: true
+validate-maintainers: false
+check-version-increment: false
+helm-extra-args: --with-subcharts --values install/kubernetes/cilium/values.yaml

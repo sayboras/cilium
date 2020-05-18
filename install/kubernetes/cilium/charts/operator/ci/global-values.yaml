@@ -1,0 +1,23 @@
+global:
+  prometheus:
+    enabled: false
+    port: 9090
+    serviceMonitor:
+      enabled: false
+  psp:
+    enabled: false
+  ci:
+    kubeCacheMutationDetector: false
+  azure:
+    enabled: false
+    resourceGroup: group1
+    subscriptionID: 00000000-0000-0000-0000-000000000000
+    tenantID: 00000000-0000-0000-0000-000000000000
+    clientID: 00000000-0000-0000-0000-000000000000
+    clientSecret: 00000000-0000-0000-0000-000000000000
+  ipv4:
+    enabled: true
+  ipv6:
+    enabled: false
+  etcd:
+    enabled: false

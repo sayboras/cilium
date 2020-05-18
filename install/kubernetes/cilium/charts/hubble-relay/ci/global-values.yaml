@@ -1,0 +1,3 @@
+global:
+  hubble:
+    enable: true
