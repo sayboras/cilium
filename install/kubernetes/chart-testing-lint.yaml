@@ -6,4 +6,4 @@ all: true
 debug: true
 validate-maintainers: false
 check-version-increment: false
-helm-extra-args: --with-subcharts --values install/kubernetes/cilium/values.yaml
+helm-extra-args: --timeout 10m0s

@@ -555,6 +555,9 @@ endif
 	@$(ECHO_CHECK) contrib/scripts/check-assert-deep-equals.sh
 	$(QUIET) contrib/scripts/check-assert-deep-equals.sh
 
+helm-lint:
+	$(QUIET) contrib/scripts/check-helm-lint.sh -c lint --config install/kubernetes/chart-testing-lint.yaml
+
 pprof-help:
 	@echo "Available pprof targets:"
 	@echo "  pprof-heap"
