@@ -55,4 +55,4 @@ jobs:
         uses: helm/chart-testing-action@v1.0.0-rc.2
         with:
           command: install
-          config: install/kubernetes/chart-testing-lint.yaml
+          config: install/kubernetes/chart-testing-install.yaml
