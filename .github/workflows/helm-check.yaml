@@ -45,11 +45,8 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
         with:
-          install_local_path_provisioner: true
-
-      - name: Run kind load images
+          version: v0.8.1
         run: |
-          docker images
           kind load docker-image --name chart-testing alpine:3.9
 
       # This test is just to make sure the helm chart can be installed. It will not replace existing integration tests
