@@ -3,12 +3,14 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
     kubeadmConfigPatches:
-      # To make sure that there is no taint for master node. Otherwise one more worker node is required.
+      # To make sure that there is no taint for master node.
+      # Otherwise additional worker node might be required for conformance testing.
       - |
         apiVersion: kubeadm.k8s.io/v1beta2
         kind: InitConfiguration
         nodeRegistration:
-          taints:
+          taints: []
+
   - role: worker
 networking:
   disableDefaultCNI: true
