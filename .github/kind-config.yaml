@@ -3,6 +3,7 @@ apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
   - role: control-plane
     kubeadmConfigPatches:
+      # To make sure that there is no taint for master node. Otherwise one more worker node is required.
       - |
         apiVersion: kubeadm.k8s.io/v1beta2
         kind: InitConfiguration

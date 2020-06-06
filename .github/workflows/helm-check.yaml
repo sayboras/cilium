@@ -60,10 +60,10 @@ jobs:
           config: .github/kind-config.yaml
           wait: 120s
 
-      - name: Load local images into kind cluster
-        run: |
-          kind load docker-image --name chart-testing cilium/cilium:latest
-          kind load docker-image --name chart-testing cilium/operator:latest
+#      - name: Load local images into kind cluster
+#        run: |
+#          kind load docker-image --name chart-testing cilium/cilium:latest
+#          kind load docker-image --name chart-testing cilium/operator:latest
 
       - name: Install cilium chart
         run: |
