@@ -48,10 +48,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build docker images
-        run: |
-          make docker-image-no-clean
-          make docker-operator-image
+#      - name: Build docker images
+#        run: |
+#          make docker-image-no-clean
+#          make docker-operator-image
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
@@ -76,7 +76,7 @@ jobs:
              --set global.externalIPs.enabled=true \
              --set global.nodePort.enabled=true \
              --set global.hostPort.enabled=true \
-             --set global.pullPolicy=Never
+             --set global.pullPolicy=IfNotPresent
 
       - name: Run conformance test (e.g. connectivity check)
         env:
