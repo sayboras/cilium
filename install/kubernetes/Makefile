@@ -3,8 +3,6 @@
 
 include ../../Makefile.defs
 
-MANAGED_ETCD_VERSION := "v2.0.7"
-
 QUICK_INSTALL := "$(ROOT_DIR)/$(RELATIVE_DIR)/quick-install.yaml"
 MANAGED_ETCD_PATH := "$(ROOT_DIR)/$(RELATIVE_DIR)/cilium/charts/managed-etcd/values.yaml"
 CILIUM_CHARTS := "$(ROOT_DIR)/$(RELATIVE_DIR)/cilium/"
@@ -40,7 +38,7 @@ update-versions:
 			sed -i 's/'$(CILIUM_PULLPOLICY_REGEX)'/\1 IfNotPresent/' $(CILIUM_VALUES);	\
 		fi
 	@# Fix up the managed etcd version, as that has its own scheme
-	$(QUIET)sed -i 's/'$(VERSION)'/'$(MANAGED_ETCD_VERSION)'/' $(MANAGED_ETCD_PATH)
+	$(QUIET)sed -i 's/'$(VERSION)'/'$(ETCD_VERSION)'/' $(MANAGED_ETCD_PATH)
 
 clean:
 	$(RM) $(QUICK_INSTALL)
