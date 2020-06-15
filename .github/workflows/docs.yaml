@@ -7,12 +7,23 @@ on:
       - master
 
 jobs:
-    build-html:
-        name: Validate & Build HTML
-        runs-on: ubuntu-18.04
-        steps:
-            - uses: actions/checkout@v1
-            - uses: docker://cilium/docs-builder:latest
-              with:
-                entrypoint: ./Documentation/check-build.sh
-                args: html
+  build-html:
+    name: Validate & Build HTML
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Building htlm site
+        run: |
+          make -C Documentation default
+
+  docs-check:
+    name: Validate and Check cmdref and examples
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run make check
+        run: |
+          make -C Documentation check
+          git diff --exit-code
