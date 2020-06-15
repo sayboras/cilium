@@ -6,6 +6,11 @@ on:
     branches:
       - master
 
+env:
+  QUICK_INSTALL_FILE: install/kubernetes/quick-install.yaml
+  EXP_INSTALL_FILE: install/kubernetes/experimental-install.yaml
+  CONNECTIVITY_CHECK_FILE: examples/kubernetes/connectivity-check/connectivity-check.yaml
+
 jobs:
   preflight-clusterrole:
     runs-on: ubuntu-latest
@@ -25,16 +30,73 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check quick-install.yaml and experimental-install.yaml
+      - name: Check quick-install.yaml
         run: |
-          cd install/kubernetes
-          make all
+          make -C install/kubernetes quick-install
           git diff --exit-code
-  lint-test:
+
+      - name: Create kind cluster
+        run: |
+          kind create cluster --config=.github/kind-config.yaml
+
+      - name: Build docker images
+        run: |
+          make docker-image-no-clean
+          make docker-operator-generic-image
+
+      - name: Load local images into kind cluster
+        run: |
+          kind load docker-image cilium/cilium:latest
+          kind load docker-image cilium/operator-generic:latest
+
+      - name: Run quick install
+        run: |
+          kubectl apply -f $QUICK_INSTALL_FILE
+          kubectl wait -n kube-system --for=condition=Available --all pod --timeout=300s
+
+      - name: Run conformance test (e.g. connectivity check)
+        run: |
+          kubectl apply -f $CONNECTIVITY_CHECK_FILE
+          kubectl wait --for=condition=Available --all deployment --timeout=300s
+
+  experimental-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Check experimental-install.yaml
+        run: |
+          make -C install/kubernetes experimental-install
+          git diff --exit-code
+
+      - name: Create kind cluster
+        run: |
+          kind create cluster --config=.github/kind-config.yaml
+
+      - name: Build docker images
+        run: |
+          make docker-image-no-clean
+          make docker-operator-generic-image
+
+      - name: Load local images into kind cluster
+        run: |
+          kind load docker-image cilium/cilium:latest
+          kind load docker-image cilium/operator-generic:latest
+
+      - name: Run experimental install
+        run: |
+          kubectl apply -f $EXP_INSTALL_FILE
+          kubectl wait -n kube-system --for=condition=Available --all pod --timeout=300s
+
+      - name: Run conformance test (e.g. connectivity check)
+        run: |
+          kubectl apply -f $CONNECTIVITY_CHECK_FILE
+          kubectl wait --for=condition=Available --all deployment --timeout=300s
+
+  conformance-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Run helm lint
         run: |
@@ -46,35 +108,28 @@ jobs:
           make docker-image-no-clean
           make docker-operator-generic-image
 
-      - name: Prevent K8s from pulling images
-        run: |
-          sed -i 's;pullPolicy: Always;pullPolicy: Never;g' install/kubernetes/cilium/values.yaml
-
       - name: Create kind cluster
-        uses: helm/kind-action@v1.0.0-rc.1
-        with:
-          version: v0.8.1
+        run: |
+          kind create cluster --config=.github/kind-config.yaml
 
       - name: Load local images into kind cluster
         run: |
-          kind load docker-image --name chart-testing cilium/cilium:latest
-          kind load docker-image --name chart-testing cilium/operator-generic:latest
+          kind load docker-image cilium/cilium:latest
+          kind load docker-image cilium/operator-generic:latest
 
-      # This test is just to make sure the helm chart can be installed. It will not replace existing integration tests
-      - name: Run chart-testing (install)
-        uses: helm/chart-testing-action@v1.0.0-rc.2
-        with:
-          command: install
-          config: install/kubernetes/chart-testing.yaml
-
-      - name: Install ginkgo
+      - name: Install cilium chart
         run: |
-          cd $HOME
-          go get -u github.com/onsi/ginkgo/ginkgo
-          go get -u github.com/onsi/gomega/...
-
-      - name: Run test suite
+          helm install cilium ./install/kubernetes/cilium \
+             --wait \
+             --namespace kube-system \
+             --set global.nodeinit.enabled=true \
+             --set global.kubeProxyReplacement=partial \
+             --set global.hostServices.enabled=false \
+             --set global.externalIPs.enabled=true \
+             --set global.nodePort.enabled=true \
+             --set global.hostPort.enabled=true \
+             --set global.pullPolicy=Never
+      - name: Run conformance test (e.g. connectivity check)
         run: |
-          cd test
-          export PATH=$PATH:$HOME/go/bin
-          ginkgo -v --focus="K8sConformance Portmap Chaining Check one node" -- -cilium.provision=false -test.v --cilium.kubeconfig=${HOME}/.kube/config -cilium.image=cilium/cilium:latest -cilium.operator-image=cilium/operator-generic:latest
+          kubectl apply -f $CONNECTIVITY_CHECK_FILE
+          kubectl wait --for=condition=Available --all deployment --timeout=300s

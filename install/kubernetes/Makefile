@@ -26,10 +26,10 @@ EXPERIMENTAL_OPTIONS := \
 
 all: update-versions $(QUICK_INSTALL) $(EXPERIMENTAL_INSTALL)
 
-$(QUICK_INSTALL): $(shell find cilium/ -type f)
+$(QUICK_INSTALL) quick-install: $(shell find cilium/ -type f)
 	$(QUIET)helm template cilium --namespace=kube-system $(OPTS) > $(QUICK_INSTALL)
 
-$(EXPERIMENTAL_INSTALL): $(shell find cilium/ -type f)
+$(EXPERIMENTAL_INSTALL) experimental-install: $(shell find cilium/ -type f)
 	$(QUIET)helm template cilium --namespace=kube-system $(EXPERIMENTAL_OPTIONS) > $(EXPERIMENTAL_INSTALL)
 
 update-versions:
