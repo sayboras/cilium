@@ -117,6 +117,7 @@ jobs:
              --set global.nodePort.enabled=true \
              --set global.hostPort.enabled=true \
              --set global.pullPolicy=Never
+
       - name: Run conformance test (e.g. connectivity check)
         run: |
           kubectl apply -f $CONNECTIVITY_CHECK_FILE
