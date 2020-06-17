@@ -40,8 +40,8 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
         with:
-          version: {{ KIND_VERSION }}
-          config: {{ KIND_CONFIG }}
+          version: ${{ env.KIND_VERSION }}
+          config: ${{ env.KIND_CONFIG }}
 
       - name: Run quick install
         run: |
@@ -65,8 +65,8 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
         with:
-          version: {{ KIND_VERSION }}
-          config: {{ KIND_CONFIG }}
+          version: ${{ env.KIND_VERSION }}
+          config: ${{ env.KIND_CONFIG }}
 
       - name: Run experimental install
         run: |
@@ -97,8 +97,8 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
         with:
-          version: {{ KIND_VERSION }}
-          config: {{ KIND_CONFIG }}
+          version: ${{ env.KIND_VERSION }}
+          config: ${{ env.KIND_CONFIG }}
 
       - name: Load local images into kind cluster
         run: |
