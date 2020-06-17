@@ -572,7 +572,7 @@ spec:
               key: custom-cni-conf
               name: cilium-config
               optional: true
-        image: "docker.io/cilium/cilium:latest"
+        image: "docker.io/cilium/cilium:v1.8"
         imagePullPolicy: Always
         lifecycle:
           postStart:
@@ -640,7 +640,7 @@ spec:
               key: wait-bpf-mount
               name: cilium-config
               optional: true
-        image: "docker.io/cilium/cilium:latest"
+        image: "docker.io/cilium/cilium:v1.8"
         imagePullPolicy: Always
         name: clean-cilium-state
         securityContext:
@@ -740,7 +740,7 @@ spec:
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: hubble-relay
-          image: "docker.io/cilium/hubble-relay:latest"
+          image: "docker.io/cilium/hubble-relay:v1.8"
           imagePullPolicy: Always
           command:
             - "hubble-relay"
@@ -879,7 +879,7 @@ spec:
               key: AWS_DEFAULT_REGION
               name: cilium-aws
               optional: true
-        image: "docker.io/cilium/operator-generic:latest"
+        image: "docker.io/cilium/operator-generic:v1.8"
         imagePullPolicy: Always
         name: cilium-operator
         livenessProbe:
