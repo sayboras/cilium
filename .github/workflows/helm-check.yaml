@@ -8,6 +8,7 @@ on:
 
 env:
   KIND_VERSION: v0.8.1
+  KIND_CONFIG: .github/kind-config.yaml
   QUICK_INSTALL_FILE: install/kubernetes/quick-install.yaml
   EXP_INSTALL_FILE: install/kubernetes/experimental-install.yaml
   CONNECTIVITY_CHECK_FILE: examples/kubernetes/connectivity-check/connectivity-check.yaml
