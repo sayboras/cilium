@@ -7,6 +7,7 @@ on:
       - master
 
 env:
+  KIND_VERSION: v0.8.1
   QUICK_INSTALL_FILE: install/kubernetes/quick-install.yaml
   EXP_INSTALL_FILE: install/kubernetes/experimental-install.yaml
   CONNECTIVITY_CHECK_FILE: examples/kubernetes/connectivity-check/connectivity-check.yaml
@@ -36,18 +37,10 @@ jobs:
           git diff --exit-code
 
       - name: Create kind cluster
-        run: |
-          kind create cluster --config=.github/kind-config.yaml
-
-      - name: Build docker images
-        run: |
-          make docker-image-no-clean
-          make docker-operator-generic-image
-
-      - name: Load local images into kind cluster
-        run: |
-          kind load docker-image cilium/cilium:latest
-          kind load docker-image cilium/operator-generic:latest
+        uses: helm/kind-action@v1.0.0-rc.1
+        with:
+          version: {{ KIND_VERSION }}
+          config: {{ KIND_CONFIG }}
 
       - name: Run quick install
         run: |
@@ -69,18 +62,10 @@ jobs:
           git diff --exit-code
 
       - name: Create kind cluster
-        run: |
-          kind create cluster --config=.github/kind-config.yaml
-
-      - name: Build docker images
-        run: |
-          make docker-image-no-clean
-          make docker-operator-generic-image
-
-      - name: Load local images into kind cluster
-        run: |
-          kind load docker-image cilium/cilium:latest
-          kind load docker-image cilium/operator-generic:latest
+        uses: helm/kind-action@v1.0.0-rc.1
+        with:
+          version: {{ KIND_VERSION }}
+          config: {{ KIND_CONFIG }}
 
       - name: Run experimental install
         run: |
@@ -109,8 +94,10 @@ jobs:
           make docker-operator-generic-image
 
       - name: Create kind cluster
-        run: |
-          kind create cluster --config=.github/kind-config.yaml
+        uses: helm/kind-action@v1.0.0-rc.1
+        with:
+          version: {{ KIND_VERSION }}
+          config: {{ KIND_CONFIG }}
 
       - name: Load local images into kind cluster
         run: |
