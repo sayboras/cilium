@@ -32,10 +32,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check quick-install.yaml
-        run: |
-          make -C install/kubernetes quick-install
-          git diff --exit-code
+      #      - name: Check quick-install.yaml
+      #        run: |
+      #          make -C install/kubernetes quick-install
+      #          git diff --exit-code
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
@@ -57,10 +57,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Check experimental-install.yaml
-        run: |
-          make -C install/kubernetes experimental-install
-          git diff --exit-code
+      #      - name: Check experimental-install.yaml
+      #        run: |
+      #          make -C install/kubernetes experimental-install
+      #          git diff --exit-code
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
