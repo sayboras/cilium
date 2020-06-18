@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - master
+env:
+  KIND_VERSION: v0.8.1
+  KIND_CONFIG: .github/kind-config.yaml
+  TIME_OUT: 300s
 
 jobs:
   preflight-clusterrole:
@@ -56,8 +60,8 @@ jobs:
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0-rc.1
         with:
-          version: v0.8.1
-          config: .github/kind-config.yaml
+          version: ${{ env.KIND_VERSION }}
+          config: ${{ env.KIND_CONFIG }}
 
       - name: Load local images into kind cluster
         run: |
@@ -77,9 +81,12 @@ jobs:
              --set global.hostPort.enabled=true \
              --set global.pullPolicy=Never
 
+          # To make sure that deamon pod is ready
+          kubectl wait --for=condition=Ready --all pod -n kube-system --timeout=$TIMEOUT
+
       - name: Run conformance test (e.g. connectivity check)
         env:
           CONFORMANCE_TEMPLATE: examples/kubernetes/connectivity-check/connectivity-check.yaml
         run: |
           kubectl apply -f $CONFORMANCE_TEMPLATE
-          kubectl wait --for=condition=Available --all deployment --timeout=300s
+          kubectl wait --for=condition=Available --all deployment --timeout=$TIMEOUT
