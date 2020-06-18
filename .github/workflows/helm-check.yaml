@@ -8,7 +8,6 @@ on:
 env:
   KIND_VERSION: v0.8.1
   KIND_CONFIG: .github/kind-config.yaml
-  TIME_OUT: 300s
 
 jobs:
   preflight-clusterrole:
@@ -82,11 +81,11 @@ jobs:
              --set global.pullPolicy=Never
 
           # To make sure that deamon pod is ready
-          kubectl wait --for=condition=Ready --all pod -n kube-system --timeout=$TIMEOUT
+          kubectl wait --for=condition=Ready --all pod -n kube-system --timeout=300s
 
       - name: Run conformance test (e.g. connectivity check)
         env:
           CONFORMANCE_TEMPLATE: examples/kubernetes/connectivity-check/connectivity-check.yaml
         run: |
           kubectl apply -f $CONFORMANCE_TEMPLATE
-          kubectl wait --for=condition=Available --all deployment --timeout=$TIMEOUT
+          kubectl wait --for=condition=Available --all deployment --timeout=300s
