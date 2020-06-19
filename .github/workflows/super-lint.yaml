@@ -48,8 +48,4 @@ jobs:
         env:
           VALIDATE_ANSIBLE: false
           ACTIONS_RUNNER_DEBUG: true
-          VALIDATE_GO: true
           VALIDATE_DOCKER: true
-          VALIDATE_JSON: true
-          VALIDATE_YAML: true
-          VALIDATE_BASH: true
