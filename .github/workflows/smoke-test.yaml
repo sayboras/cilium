@@ -11,7 +11,7 @@ env:
 
 jobs:
   preflight-clusterrole:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - name: Check pre-flight clusterrole
@@ -25,7 +25,7 @@ jobs:
              preflight/templates/clusterrole.yaml
 
   quick-install:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - name: Check quick-install.yaml and experimental-install.yaml
@@ -35,7 +35,7 @@ jobs:
           git diff --exit-code
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -46,7 +46,7 @@ jobs:
           helm lint --with-subcharts --values values.yaml
 
   conformance-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v2
