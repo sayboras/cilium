@@ -43,7 +43,7 @@ jobs:
             template: install/kubernetes/quick-install.yaml
           - name: experimental-install
             template: install/kubernetes/experimental-install.yaml
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       - name: Check ${{ matrix.target.template }}
@@ -52,13 +52,14 @@ jobs:
           git diff --exit-code
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.0.0-rc.1
+        uses: sayboras/kind-action@feature/clean-up
         with:
           version: ${{ env.KIND_VERSION }}
           config: ${{ env.KIND_CONFIG }}
 
       - name: Run ${{ matrix.target.name }}
         run: |
+          sed -i 's/\(ipam:\) .*/\1 "kubernetes"/' ${{ matrix.target.template }}
           kubectl apply -f ${{ matrix.target.template }}
           kubectl wait -n kube-system --for=condition=Ready --all pod --timeout=5m
           # To make sure that cilium CRD is available (default timeout is 5m)
@@ -69,6 +70,41 @@ jobs:
         run: |
           kubectl apply -f ${{ env.CONFORMANCE_TEMPLATE }}
           kubectl wait --for=condition=Available --all deployment --timeout=5m
+
+      - name: Dump cilium related logs and events
+        if: ${{ always() }}
+        env:
+          LOG_TIME: 30m
+        run: |
+          kubectl -n kube-system describe daemonsets.apps cilium
+          kubectl -n kube-system logs daemonset/cilium --all-containers --since=$LOG_TIME
+
+      - name: Dump connectivity related logs and event
+        if: ${{ always() }}
+        env:
+          LOG_TIME: 30m
+        run: |
+          kubectl describe service echo-a
+          kubectl logs service echo-a --all-containers --since=$LOG_TIME
+          kubectl describe service echo-b
+          kubectl logs service echo-b --all-containers --since=$LOG_TIME
+          kubectl describe service echo-b-headless
+          kubectl logs service echo-b-headless --all-containers --since=$LOG_TIME
+          kubectl describe service eecho-b-host-headless
+          kubectl logs service echo-b-host-headless --all-containers --since=$LOG_TIME
+
+      - name: Dump hubble related logs and event
+        if: ${{ always() &&  matrix.target.name == 'experimental-install' }}
+        env:
+          LOG_TIME: 30m
+        run: |
+          echo '---- Hubble services -----'
+          kubectl -n kube-system describe service hubble-metrics
+          kubectl -n kube-system logs service/hubble-metrics --all-containers --since=$LOG_TIME
+          kubectl -n kube-system describe service hubble-relay
+          kubectl -n kube-system logs service/hubble-relay --all-containers --since=$LOG_TIME
+          kubectl -n kube-system describe service hubble-ui
+          kubectl -n kube-system logs service/hubble-ui --all-containers --since=$LOG_TIME
 
   conformance-test:
     runs-on: ubuntu-latest
