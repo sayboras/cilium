@@ -71,7 +71,7 @@ jobs:
           kubectl wait --for=condition=Available --all deployment --timeout=5m
 
       - name: Dump cilium related logs and events
-        if: ${{ failure() }}
+        if: ${{ always() }}
         env:
           LOG_TIME: 30m
         run: |
@@ -79,7 +79,7 @@ jobs:
           kubectl -n kube-system logs daemonset/cilium --all-containers --since=$LOG_TIME
 
       - name: Dump connectivity related logs and events
-        if: ${{ failure() }}
+        if: ${{ always() }}
         env:
           LOG_TIME: 30m
         run: |
@@ -93,7 +93,7 @@ jobs:
           kubectl logs service/echo-b-host-headless --all-containers --since=$LOG_TIME
 
       - name: Dump hubble related logs and events
-        if: ${{ failure() &&  matrix.target.name == 'experimental-install' }}
+        if: ${{ always() &&  matrix.target.name == 'experimental-install' }}
         env:
           LOG_TIME: 30m
         run: |
@@ -151,7 +151,7 @@ jobs:
           kubectl wait --for=condition=Available --all deployment --timeout=5m
 
       - name: Dump cilium related logs and events
-        if: ${{ failure() }}
+        if: ${{ always() }}
         env:
           LOG_TIME: 30m
         run: |
@@ -159,7 +159,7 @@ jobs:
           kubectl -n kube-system logs daemonset/cilium --all-containers --since=$LOG_TIME
 
       - name: Dump connectivity related logs and events
-        if: ${{ failure() }}
+        if: ${{ always() }}
         env:
           LOG_TIME: 30m
         run: |
