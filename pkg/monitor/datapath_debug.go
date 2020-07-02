@@ -491,7 +491,7 @@ func (n *DebugCapture) getJSON(data []byte, cpuPrefix string) (string, error) {
 func (n *DebugCapture) DumpJSON(data []byte, cpuPrefix string) {
 	resp, err := n.getJSON(data, cpuPrefix)
 	if err != nil {
-		fmt.Println(fmt.Sprintf(`{"type":"debug_capture_error","message":%q}`, err.Error()))
+		fmt.Printf(`{"type":"debug_capture_error","message":%q}\n`, err.Error())
 		return
 	}
 	fmt.Println(resp)

@@ -106,7 +106,7 @@ func getMTUFromIf(ip net.IP) (int, error) {
 				continue
 			}
 
-			if myIP.Equal(ip) == true {
+			if myIP.Equal(ip) {
 				myMTU := iface.MTU
 				log.WithFields(logrus.Fields{
 					logfields.Device: iface.Name,

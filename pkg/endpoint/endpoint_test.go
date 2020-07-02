@@ -731,7 +731,6 @@ func (i *ipReleaserDummy) ReleaseIP(ip net.IP) error {
 type monitorOwnerDummy struct{}
 
 func (m *monitorOwnerDummy) NotifyMonitorDeleted(e *Endpoint) {
-	return
 }
 
 type dummyManager struct{}

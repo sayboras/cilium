@@ -273,7 +273,7 @@ func (kr *PortRule) Sanitize() error {
 		if len(kr.Topic) > MaxTopicLen {
 			return fmt.Errorf("kafka topic exceeds maximum len of %d", MaxTopicLen)
 		}
-		if TopicValidChar.MatchString(kr.Topic) == false {
+		if !TopicValidChar.MatchString(kr.Topic) {
 			return fmt.Errorf("invalid Kafka Topic name %q", kr.Topic)
 		}
 	}

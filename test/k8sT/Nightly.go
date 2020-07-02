@@ -62,10 +62,8 @@ var _ = Describe("NightlyEpsMeasurement", func() {
 			"%s delete --all pods,svc,cnp -n %s --grace-period=0 --force",
 			helpers.KubectlCmd, helpers.DefaultNamespace))
 
-		select {
-		case <-ctx.Done():
-			logger.Errorf("DeleteAll: delete all pods,services failed after %s", helpers.HelperTimeout)
-		}
+		<-ctx.Done()
+		logger.Errorf("DeleteAll: delete all pods,services failed after %s", helpers.HelperTimeout)
 	}
 
 	AfterAll(func() {

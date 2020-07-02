@@ -244,7 +244,7 @@ func Init() {
 		os.Setenv("HUBBLE_RELAY_TAG", config.CiliumTestConfig.HubbleRelayTag)
 	}
 
-	if config.CiliumTestConfig.ProvisionK8s == false {
+	if !config.CiliumTestConfig.ProvisionK8s {
 		os.Setenv("SKIP_K8S_PROVISION", "true")
 	}
 
@@ -1194,24 +1194,21 @@ func (kub *Kubectl) PprofReport() {
 	}
 
 	for {
-		select {
-		case <-ticker.C:
+		<-ticker.C
 
-			testPath, err := CreateReportDirectory()
-			if err != nil {
-				log.WithError(err).Errorf("cannot create test result path '%s'", testPath)
-				return
-			}
+		testPath, err := CreateReportDirectory()
+		if err != nil {
+			log.WithError(err).Errorf("cannot create test result path '%s'", testPath)
+			return
+		}
 
-			pods, err := kub.GetCiliumPods()
-			if err != nil {
-				log.Errorf("cannot get cilium pods")
-			}
+		pods, err := kub.GetCiliumPods()
+		if err != nil {
+			log.Errorf("cannot get cilium pods")
+		}
 
-			for _, pod := range pods {
-				retrievePProf(pod, testPath)
-			}
-
+		for _, pod := range pods {
+			retrievePProf(pod, testPath)
 		}
 	}
 }
@@ -2102,10 +2099,7 @@ func (kub *Kubectl) WaitCleanAllTerminatingPodsInNs(ns string, timeout time.Dura
 
 		podsTerminating := len(strings.Split(res.Stdout(), " "))
 		kub.Logger().WithField("Terminating pods", podsTerminating).Info("List of pods terminating")
-		if podsTerminating > 0 {
-			return false
-		}
-		return true
+		return podsTerminating <= 0
 	}
 
 	err := WithTimeout(
@@ -2606,7 +2600,7 @@ func (kub *Kubectl) CiliumEndpointWaitReady() error {
 		close(queue)
 
 		for status := range queue {
-			if status == false {
+			if !status {
 				return false, nil
 			}
 		}

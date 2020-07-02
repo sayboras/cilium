@@ -283,7 +283,7 @@ func NewDaemon(ctx context.Context, epMgr *endpointmanager.EndpointManager, dp d
 	policymap.InitMapInfo(option.Config.PolicyMapEntries)
 	lbmap.InitMapInfo(option.Config.SockRevNatEntries, option.Config.LBMapEntries)
 
-	if option.Config.DryMode == false {
+	if !option.Config.DryMode {
 		if err := bpf.ConfigureResourceLimits(); err != nil {
 			log.WithError(err).Fatal("Unable to set memory resource limits")
 		}

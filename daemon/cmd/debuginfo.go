@@ -47,7 +47,7 @@ func (h *getDebugInfo) Handle(params restapi.GetDebuginfoParams) middleware.Resp
 	if kver, err := linux.GetKernelVersion(); err != nil {
 		dr.KernelVersion = fmt.Sprintf("Error: %s\n", err)
 	} else {
-		dr.KernelVersion = fmt.Sprintf("%s", kver)
+		dr.KernelVersion = kver.String()
 	}
 
 	status := d.getStatus(false)

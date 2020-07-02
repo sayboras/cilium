@@ -627,5 +627,4 @@ func runServer(cmd *cobra.Command) {
 
 	<-shutdownSignal
 	log.Info("Received termination signal. Shutting down")
-	return
 }

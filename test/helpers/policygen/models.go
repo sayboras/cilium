@@ -409,11 +409,10 @@ func (t *TestSpec) Destroy(delay time.Duration, base string) error {
 	done := time.After(delay)
 
 	for {
-		select {
-		case <-done:
-			for _, manifest := range manifestToDestroy {
-				t.Kub.Delete(manifest)
-			}
+		<-done
+		for _, manifest := range manifestToDestroy {
+			t.Kub.Delete(manifest)
+
 		}
 	}
 }

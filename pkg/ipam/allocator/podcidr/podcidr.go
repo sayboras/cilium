@@ -400,7 +400,6 @@ func (n *NodesPodCIDRManager) Delete(nodeName string) {
 		op: k8sOpDelete,
 	}
 	n.k8sReSync.Trigger()
-	return
 }
 
 // Resync resyncs the nodes with k8s.
@@ -873,9 +872,9 @@ func getCIDRAllocatorsInfo(cidrAllocators []CIDRAllocator, netTypes string) stri
 	}
 
 	for index, cidrAllocator := range cidrAllocators {
-		cidrAllocatorsInfo.WriteString(fmt.Sprintf("%s", cidrAllocator.String()))
+		cidrAllocatorsInfo.WriteString(cidrAllocator.String())
 		if index < cidrAllocatorsLength-1 {
-			cidrAllocatorsInfo.WriteString(fmt.Sprintf(", "))
+			cidrAllocatorsInfo.WriteString(", ")
 		}
 	}
 

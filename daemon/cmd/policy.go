@@ -436,8 +436,6 @@ func (d *Daemon) policyAdd(sourceRules policyAPI.Rules, opts *policy.AddOptions,
 		// Regenerate all endpoints unconditionally.
 		d.TriggerPolicyUpdates(false, "policy rules added")
 	}
-
-	return
 }
 
 // PolicyReactionEvent is an event which needs to be serialized after changes
@@ -637,8 +635,6 @@ func (d *Daemon) policyDelete(labels labels.LabelArray, res chan interface{}) {
 	if err != nil {
 		log.WithError(err).WithField(logfields.PolicyRevision, rev).Warn("Failed to send policy update as monitor notification")
 	}
-
-	return
 }
 
 type deletePolicy struct {

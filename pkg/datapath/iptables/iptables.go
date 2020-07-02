@@ -81,7 +81,7 @@ func getVersion(prog string) (go_version.Version, error) {
 	if err != nil {
 		return go_version.Version{}, err
 	}
-	v := regexp.MustCompile("v([0-9]+(\\.[0-9]+)+)")
+	v := regexp.MustCompile(`v([0-9]+(.[0-9]+)+)`)
 	vString := v.FindStringSubmatch(string(b))
 	if vString == nil {
 		return go_version.Version{}, fmt.Errorf("no iptables version found in string: %s", string(b))
@@ -134,7 +134,7 @@ func (c *customChain) add(waitArgs []string) error {
 	if option.Config.EnableIPv4 {
 		err = runProg("iptables", append(waitArgs, "-t", c.table, "-N", c.name), false)
 	}
-	if err == nil && option.Config.EnableIPv6 && c.ipv6 == true {
+	if err == nil && option.Config.EnableIPv6 && c.ipv6 {
 		err = runProg("ip6tables", append(waitArgs, "-t", c.table, "-N", c.name), false)
 	}
 	return err
@@ -257,7 +257,7 @@ func (c *customChain) installFeeder(waitArgs []string) error {
 				return err
 			}
 		}
-		if option.Config.EnableIPv6 && c.ipv6 == true {
+		if option.Config.EnableIPv6 && c.ipv6 {
 			err := runProg("ip6tables", append(append(waitArgs, "-t", c.table, installMode, c.hook), getFeedRule(c.name, feedArgs)...), true)
 			if err != nil {
 				return err
@@ -1138,7 +1138,7 @@ func (m *IptablesManager) ciliumNoTrackXfrmRules(prog, input string) error {
 // and 0x*e00 for encryption, colliding with existing rules. Needed
 // for kube-proxy for example.
 func (m *IptablesManager) addCiliumAcceptXfrmRules() error {
-	if option.Config.EnableIPSec == false {
+	if !option.Config.EnableIPSec {
 		return nil
 	}
 	insertAcceptXfrm := func(table, chain string) error {

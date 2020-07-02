@@ -644,7 +644,7 @@ func (d *Daemon) startStatusCollector() {
 					state = models.StatusStateFailure
 					msg = fmt.Sprintf("Err: %s", status.Err)
 				case ok:
-					msg = fmt.Sprintf("%s", info)
+					msg = info
 				}
 
 				d.statusCollectMutex.Lock()
@@ -897,5 +897,4 @@ func (d *Daemon) startStatusCollector() {
 
 		}
 	})
-	return
 }

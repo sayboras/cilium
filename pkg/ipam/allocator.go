@@ -331,9 +331,7 @@ func (ipam *IPAM) Dump() (allocv4 map[string]string, allocv6 map[string]string, 
 		allocv4, st4 = ipam.IPv4Allocator.Dump()
 		st4 = "IPv4: " + st4
 		for ip := range allocv4 {
-			owner, _ := ipam.owner[ip]
-			// If owner is not available, report IP but leave owner empty
-			allocv4[ip] = owner
+			allocv4[ip] = ipam.owner[ip]
 		}
 	}
 
@@ -341,9 +339,7 @@ func (ipam *IPAM) Dump() (allocv4 map[string]string, allocv6 map[string]string, 
 		allocv6, st6 = ipam.IPv6Allocator.Dump()
 		st6 = "IPv6: " + st6
 		for ip := range allocv6 {
-			owner, _ := ipam.owner[ip]
-			// If owner is not available, report IP but leave owner empty
-			allocv6[ip] = owner
+			allocv6[ip] = ipam.owner[ip]
 		}
 	}
 

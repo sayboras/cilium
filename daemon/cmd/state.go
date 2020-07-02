@@ -230,14 +230,12 @@ func (d *Daemon) restoreOldEndpoints(state *endpointRestoreState, clean bool) er
 		"failed":   failed,
 	}).Info("Endpoints restored")
 
-	if existingEndpoints != nil {
-		for hostIP, info := range existingEndpoints {
-			if ip := net.ParseIP(hostIP); !info.IsHost() && ip != nil {
-				if err := lxcmap.DeleteEntry(ip); err != nil {
-					log.WithError(err).Warn("Unable to delete obsolete endpoint from BPF map")
-				} else {
-					log.Debugf("Removed outdated endpoint %d from endpoint map", info.LxcID)
-				}
+	for hostIP, info := range existingEndpoints {
+		if ip := net.ParseIP(hostIP); !info.IsHost() && ip != nil {
+			if err := lxcmap.DeleteEntry(ip); err != nil {
+				log.WithError(err).Warn("Unable to delete obsolete endpoint from BPF map")
+			} else {
+				log.Debugf("Removed outdated endpoint %d from endpoint map", info.LxcID)
 			}
 		}
 	}
@@ -246,7 +244,7 @@ func (d *Daemon) restoreOldEndpoints(state *endpointRestoreState, clean bool) er
 }
 
 func (d *Daemon) regenerateRestoredEndpoints(state *endpointRestoreState) (restoreComplete chan struct{}) {
-	restoreComplete = make(chan struct{}, 0)
+	restoreComplete = make(chan struct{})
 
 	log.WithField("numRestored", len(state.restored)).Info("Regenerating restored endpoints")
 

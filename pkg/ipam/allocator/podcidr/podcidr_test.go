@@ -218,7 +218,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Create(c *C) {
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -277,7 +276,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Create(c *C) {
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -364,7 +362,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Create(c *C) {
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -428,7 +425,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Create(c *C) {
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -536,7 +532,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Delete(c *C) {
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -609,7 +604,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Resync(c *C) {
 				return &fields{
 					k8sReSync: mustNewTrigger(func() {
 						atomic.AddInt32(&reSyncCalls, 1)
-						return
 					}, time.Millisecond),
 				}
 			},
@@ -673,7 +667,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Update(c *C) {
 					nodes:            map[string]*nodeCIDRs{},
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
-						return
 					}, time.Second),
 				}
 			},
@@ -730,7 +723,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Update(c *C) {
 					nodes:            map[string]*nodeCIDRs{},
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
-						return
 					}, time.Second),
 				}
 			},
@@ -823,7 +815,6 @@ func (s *PodCIDRSuite) TestNodesPodCIDRManager_Update(c *C) {
 					},
 					ciliumNodesToK8s: map[string]*ciliumNodeK8sOp{},
 					k8sReSync: mustNewTrigger(func() {
-						return
 					}, time.Second),
 				}
 			},

@@ -2130,7 +2130,7 @@ var _ = Describe("K8sServicesTest", func() {
 						"loadBalancer.mode":         "hybrid",
 						"tunnel":                    "disabled",
 						"autoDirectNodeRoutes":      "true",
-						"devices":                   fmt.Sprintf(`'{}'`), // Revert back to auto-detection after XDP.
+						"devices":                   `'{}'`, // Revert back to auto-detection after XDP.
 					})
 					testNodePortExternal(true, false)
 				})

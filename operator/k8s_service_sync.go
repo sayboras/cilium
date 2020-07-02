@@ -98,7 +98,7 @@ func startSynchronizingServices() {
 		log.WithError(err).Fatal("Error creating service option modifier")
 	}
 
-	readyChan := make(chan struct{}, 0)
+	readyChan := make(chan struct{})
 
 	go func() {
 		store, err := store.JoinSharedStore(store.Configuration{

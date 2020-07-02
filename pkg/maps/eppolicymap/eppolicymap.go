@@ -109,7 +109,7 @@ func (v *EPPolicyValue) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(v) 
 func (k EndpointKey) NewValue() bpf.MapValue { return &EPPolicyValue{} }
 
 func writeEndpoint(keys []*lxcmap.EndpointKey, fd int) error {
-	if option.Config.SockopsEnable == false {
+	if !option.Config.SockopsEnable {
 		return nil
 	}
 

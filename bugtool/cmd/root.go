@@ -392,7 +392,7 @@ func writeCmdToFile(cmdDir, prompt string, k8sPods []string, enableMarkdown bool
 		// Already contains Markdown, print as is.
 		fmt.Fprint(f, output)
 	} else if enableMarkdown && len(output) > 0 {
-		fmt.Fprint(f, fmt.Sprintf("# %s\n\n```\n%s\n```\n", prompt, output))
+		fmt.Fprintf(f, "# %s\n\n```\n%s\n```\n", prompt, output)
 	} else {
 		// Empty file
 		os.Remove(f.Name())

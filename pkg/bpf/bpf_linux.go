@@ -534,7 +534,7 @@ recreate:
 			maxEntries,
 			flags,
 		)
-		if redo == true {
+		if redo {
 			ObjClose(fd)
 			goto recreate
 		}

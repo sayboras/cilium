@@ -58,8 +58,8 @@ var ipSecKeysGlobal = make(map[string]*ipSecKey)
 
 func getIPSecKeys(ip net.IP) *ipSecKey {
 	key, scoped := ipSecKeysGlobal[ip.String()]
-	if scoped == false {
-		key, _ = ipSecKeysGlobal[""]
+	if !scoped {
+		key = ipSecKeysGlobal[""]
 	}
 	return key
 }

@@ -75,6 +75,7 @@ linters:
   enable:
     - goerr113
     - gofmt
+    - gosimple
     - govet
     - ineffassign
     - misspell
@@ -88,7 +89,6 @@ linters:
 #    - goimports
 #    - golint
 #    - gosec
-#    - gosimple
 #    - lll
 #    - maligned
 #    - misspell

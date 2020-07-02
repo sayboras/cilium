@@ -127,7 +127,7 @@ func NewClient(path, nodeId string, updater proxylib.PolicyUpdater) proxylib.Pol
 	}()
 
 	// Block until we know if the first connection try succeeded or failed
-	_ = <-startErr
+	<-startErr
 	return c
 }
 

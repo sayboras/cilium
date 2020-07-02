@@ -149,7 +149,7 @@ func getMetricValue(state string) int64 {
 func assertOnMetric(c *C, state string, expected int64) {
 	_, _, line, _ := runtime.Caller(1)
 
-	obtainedValues := make(map[int64]struct{}, 0)
+	obtainedValues := make(map[int64]struct{})
 	err := testutils.WaitUntil(func() bool {
 		obtained := getMetricValue(state)
 		obtainedValues[obtained] = struct{}{}

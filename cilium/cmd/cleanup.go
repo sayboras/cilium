@@ -258,7 +258,7 @@ func runCleanup() {
 	cleanBPF = viper.GetBool(bpfFlagName) || viper.GetBool(cleanBpfEnvVar)
 
 	// if no flags are specified then clean all
-	if (cleanAll || cleanBPF) == false {
+	if !(cleanAll || cleanBPF) {
 		cleanAll = true
 	}
 

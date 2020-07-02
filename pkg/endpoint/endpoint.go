@@ -387,10 +387,7 @@ func (e *Endpoint) bpfProgramInstalled() bool {
 
 // HasIpvlanDataPath returns whether the daemon is running in ipvlan mode.
 func (e *Endpoint) HasIpvlanDataPath() bool {
-	if e.datapathMapID > 0 {
-		return true
-	}
-	return false
+	return e.datapathMapID > 0
 }
 
 // waitForProxyCompletions blocks until all proxy changes have been completed.
@@ -443,7 +440,7 @@ func createEndpoint(owner regeneration.Owner, proxy EndpointProxy, allocator cac
 		DNSZombies:      fqdn.NewDNSZombieMappings(option.Config.ToFQDNsMaxDeferredConnectionDeletes),
 		state:           "",
 		status:          NewEndpointStatus(),
-		hasBPFProgram:   make(chan struct{}, 0),
+		hasBPFProgram:   make(chan struct{}),
 		desiredPolicy:   policy.NewEndpointPolicy(owner.GetPolicyRepository()),
 		controllers:     controller.NewManager(),
 		regenFailedChan: make(chan struct{}, 1),
@@ -798,7 +795,7 @@ func parseEndpoint(ctx context.Context, owner regeneration.Owner, bEp []byte) (*
 	ep.SetDefaultOpts(ep.Options)
 
 	// Initialize fields to values which are non-nil that are not serialized.
-	ep.hasBPFProgram = make(chan struct{}, 0)
+	ep.hasBPFProgram = make(chan struct{})
 	ep.desiredPolicy = policy.NewEndpointPolicy(owner.GetPolicyRepository())
 	ep.realizedPolicy = ep.desiredPolicy
 	ep.controllers = controller.NewManager()
@@ -1782,11 +1779,7 @@ func (e *Endpoint) UpdateLabels(ctx context.Context, identityLabels, infoLabels 
 func (e *Endpoint) identityResolutionIsObsolete(myChangeRev int) bool {
 	// Check if the endpoint has since received a new identity revision, if
 	// so, abort as a new resolution routine will have been started.
-	if myChangeRev != e.identityRevision {
-		return true
-	}
-
-	return false
+	return myChangeRev != e.identityRevision
 }
 
 // runIdentityResolver resolves the numeric identity for the set of labels that

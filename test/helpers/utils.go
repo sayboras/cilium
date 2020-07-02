@@ -166,10 +166,9 @@ func RepeatUntilTrue(body func() bool, config *TimeoutConfig) error {
 			}
 			// Provide some form of rate-limiting here before running next
 			// execution in case body() returns at a fast rate.
-			select {
-			case <-ticker.C:
-				go asyncBody(bodyChan)
-			}
+			<-ticker.C
+			go asyncBody(bodyChan)
+
 		case <-done:
 			return fmt.Errorf("%s timeout expired", config.Timeout)
 		}
@@ -474,7 +473,7 @@ func failIfContainsBadLogMsg(logs, label string, blacklist map[string][]string) 
 					}
 				}
 				if !ok {
-					count, _ := uniqueFailures[fail]
+					count := uniqueFailures[fail]
 					uniqueFailures[fail] = count + 1
 				}
 			}
