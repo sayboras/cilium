@@ -45,6 +45,16 @@ run:
   #  - ".*\\.my\\.go$"
   #  - lib/bad.go
 
+# all available settings of specific linters
+linters-settings:
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Default is to use a neutral variety of English.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    # locale: US
+    ignore-words:
+      - rela
+
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
@@ -60,6 +70,7 @@ linters:
     - gofmt
     - govet
     - ineffassign
+    - misspell
     - staticcheck
 
 # To enable later if makes sense
