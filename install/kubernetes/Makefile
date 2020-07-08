@@ -22,7 +22,8 @@ EXPERIMENTAL_OPTIONS := \
     --set global.hubble.listenAddress=":4244" \
     --set global.hubble.metrics.enabled="{dns,drop,tcp,flow,port-distribution,icmp,http}" \
     --set global.hubble.relay.enabled=true \
-    --set global.hubble.ui.enabled=true
+    --set global.hubble.ui.enabled=true \
+    --set global.psp.enabled=true
 
 all: update-versions $(QUICK_INSTALL) $(EXPERIMENTAL_INSTALL)
 
