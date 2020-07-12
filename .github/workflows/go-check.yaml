@@ -33,7 +33,6 @@ jobs:
         with:
           reporter: github-pr-review
           github_token: ${{ secrets.API_TOKEN }}
-          golangci_lint_flags: "-E gosimple"
 
   generate-k8s-api:
     runs-on: ubuntu-latest
