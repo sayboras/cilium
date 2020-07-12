@@ -29,7 +29,7 @@ import (
 
 // bpfCtListCmd represents the bpf_ct_list command
 var bpfCtListCmd = &cobra.Command{
-	Use:     "list ( <endpoint identifier> | global )",
+	Use: "list ( <endpoint identifier> | global )",
 	Aliases: []string{"ls"},
 	Short:   "List connection tracking entries",
 	PreRun:  requireEndpointIDorGlobal,
