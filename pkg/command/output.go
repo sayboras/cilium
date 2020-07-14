@@ -27,7 +27,7 @@ import (
 
 var (
 	outputOpt string
-	re        = regexp.MustCompile(`^jsonpath\=(.*)`)
+	re = regexp.MustCompile(`^jsonpath\=(.*)`)
 )
 
 // OutputJSON returns true if the JSON output option was specified
