@@ -1,0 +1,83 @@
+---
+###########################
+###########################
+## Linter GitHub Actions ##
+###########################
+###########################
+name: Lint Code Base
+
+#
+# Documentation:
+# https://help.github.com/en/articles/workflow-syntax-for-github-actions
+#
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  pull_request: {}
+  push:
+    branches:
+      - master
+
+###############
+# Set the Job #
+###############
+jobs:
+  build:
+    # Name the Job
+    name: Lint Code Base
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@master
+
+      ################################
+      # Run Linter against code base #
+      ################################
+      - name: Lint Code Base
+        uses: docker://bznein/superlinter:latest
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          LINTER_RULES_PATH: .
+          VALIDATE_YAML: false
+          VALIDATE_JSON: false
+          VALIDATE_XML: false
+          VALIDATE_MD: false
+          VALIDATE_BASH: false
+          VALIDATE_PERL: false
+          VALIDATE_RAKU: false
+          VALIDATE_PHP: false
+          VALIDATE_PYTHON: false
+          VALIDATE_RUBY: false
+          #RUBY_CONFIG_FILE: .ruby-lint.yml
+          VALIDATE_COFFEE: false
+          VALIDATE_ANSIBLE: false
+          VALIDATE_JAVASCRIPT_ES: false
+          VALIDATE_JSX: false
+          VALIDATE_TSX: false
+          VALIDATE_TYPESCRIPT_ES: false
+          VALIDATE_TYPESCRIPT_STANDARD: false
+          VALIDATE_DOCKER: false
+          VALIDATE_GO: true
+          VALIDATE_POWERSHELL: false
+          VALIDATE_ARM: false
+          VALIDATE_TERRAFORM: false
+          VALIDATE_CSS: false
+          VALIDATE_ENV: false
+          VALIDATE_CLOJURE: false
+          VALIDATE_HTML: false
+          VALIDATE_KOTLIN: false
+          VALIDATE_OPENAPI: false
+          VALIDATE_CLOUDFORMATION: false
+          VALIDATE_PROTOBUF: false
+          VALIDATE_EDITORCONFIG: false
+          ACTIONS_RUNNER_DEBUG: true
