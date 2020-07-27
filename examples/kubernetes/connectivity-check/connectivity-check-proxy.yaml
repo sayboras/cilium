@@ -6,6 +6,7 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -56,6 +57,7 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -117,6 +119,7 @@ metadata:
     topology: intra-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -194,6 +197,7 @@ metadata:
     topology: multi-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -271,6 +275,7 @@ metadata:
     topology: intra-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -348,6 +353,7 @@ metadata:
     topology: multi-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -425,6 +431,7 @@ metadata:
     topology: intra-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -502,6 +509,7 @@ metadata:
     topology: multi-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -579,9 +587,11 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
+  ipFamily: IPv4
   selector:
     name: echo-c
   type: ClusterIP
@@ -595,9 +605,11 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
+  ipFamily: IPv4
   selector:
     name: echo-c
   type: ClusterIP
@@ -612,8 +624,10 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports: []
+  ipFamily: IPv4
   selector:
     name: echo-c-host
   type: ClusterIP
@@ -628,6 +642,7 @@ metadata:
     topology: intra-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -670,6 +685,7 @@ metadata:
     topology: multi-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -712,6 +728,7 @@ metadata:
     topology: intra-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -754,6 +771,7 @@ metadata:
     topology: multi-node
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -796,6 +814,7 @@ metadata:
     topology: any
     component: proxy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -821,6 +840,7 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -870,9 +890,11 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
+  ipFamily: IPv4
   selector:
     name: echo-a
   type: ClusterIP
@@ -887,6 +909,7 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -937,10 +960,12 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
     nodePort: 31313
+  ipFamily: IPv4
   selector:
     name: echo-b
   type: NodePort
@@ -955,6 +980,7 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -1017,8 +1043,10 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports: []
+  ipFamily: IPv4
   selector:
     name: echo-b-host
   type: ClusterIP

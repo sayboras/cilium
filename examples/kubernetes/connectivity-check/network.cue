@@ -11,4 +11,5 @@ deployment: "pod-to-a":             _networkCheck
 deployment: "pod-to-external-1111": _networkCheck & {
 	_probeTarget: "1.1.1.1"
 	_probePath:   ""
+	_ipFamily: "IPv6"
 }

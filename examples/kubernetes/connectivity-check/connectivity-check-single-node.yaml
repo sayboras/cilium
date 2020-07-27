@@ -6,6 +6,7 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -55,6 +56,7 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -105,6 +107,7 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -166,6 +169,7 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -218,6 +222,7 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -270,6 +275,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -314,6 +320,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -366,6 +373,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -418,9 +426,11 @@ metadata:
     topology: any
     component: network-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
+  ipFamily: IPv4
   selector:
     name: echo-a
   type: ClusterIP
@@ -434,10 +444,12 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
     nodePort: 31313
+  ipFamily: IPv4
   selector:
     name: echo-b
   type: NodePort
@@ -451,9 +463,11 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports:
   - port: 80
+  ipFamily: IPv4
   selector:
     name: echo-b
   type: ClusterIP
@@ -468,8 +482,10 @@ metadata:
     topology: any
     component: services-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   ports: []
+  ipFamily: IPv4
   selector:
     name: echo-b-host
   type: ClusterIP
@@ -484,6 +500,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -515,6 +532,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -553,6 +571,7 @@ metadata:
     topology: any
     component: policy-check
     quarantine: "false"
+    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:

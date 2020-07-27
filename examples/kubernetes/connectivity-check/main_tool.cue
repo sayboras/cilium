@@ -24,6 +24,7 @@ ccCommand: {
 		topology:   *"any" | "single-node"                                                        @tag(topology,short=any|single-node)
 		kind:       *"" | "Deployment" | "Service" | "CiliumNetworkPolicy"                        @tag(kind,short=Deployment|Service|CiliumNetworkPolicy)
 		quarantine: *"false" | "true"                                                             @tag(quarantine,short=false|true)
+		ipFamily:   *"IPv4" | string                                                              @tag(ipFamily,short=IPv4|IPv6)
 	}
 
 	task: filterComponent: {
@@ -42,6 +43,10 @@ ccCommand: {
 	task: filterQuarantine: {
 		resources: [ for x in task.filterComponent.resources if x.metadata.labels.quarantine == #flags.quarantine {x}]
 	}
+
+    task: filterIPFamily: {
+        resources: [ for x in task.filterComponent.resources if x.metadata.labels.ipFamily == #flags.ipFamily {x}]
+    }
 
 	task: filterTopology: {
 		if #flags.topology == "any" {

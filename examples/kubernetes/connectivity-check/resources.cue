@@ -85,6 +85,7 @@ _spec: {
 			topology:   *"any" | string
 			component:  *"invalid" | string
 			quarantine: *"false" | "true"
+			ipFamily: *"IPv4" | string
 		}
 	}
 	spec: {
@@ -146,6 +147,7 @@ deployment: [ID=_]: _spec & {
 service: [ID=_]: {
 	_name:     ID
 	_selector: ID | string
+    _ipFamily: *"IPv4" | string
 
 	apiVersion: "v1"
 	kind:       "Service"
@@ -156,9 +158,11 @@ service: [ID=_]: {
 			topology:   *"any" | string
 			component:  *"invalid" | string
 			quarantine: *"false" | "true"
+			ipFamily: *"IPv4" | string
 		}
 	}
 	spec: {
+	    ipFamily: _ipFamily
 		type: *"ClusterIP" | string
 		selector: name: _selector
 	}
@@ -176,6 +180,7 @@ _cnp: {
 			topology:   *"any" | string
 			component:  *"invalid" | string
 			quarantine: *"false" | "true"
+			ipFamily: *"IPv4" | string
 		}
 	}
 	spec: endpointSelector: matchLabels: name: _name
@@ -273,6 +278,7 @@ for x in [deployment] for k, v in x {
 				component:  v.metadata.labels.component
 				topology:   *"any" | string
 				quarantine: *"false" | "true"
+				ipFamily: *"IPv4" | string
 			}
 			spec: selector:  v.spec.template.metadata.labels
 			spec: clusterIP: "None"
