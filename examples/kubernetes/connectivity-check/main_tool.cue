@@ -73,13 +73,13 @@ ccCommand: {
 
 	task: filterIPFamily: {
         if #flags.ipFamily == "IPv6" {
-            resources: [ for x in task.filterKind.resources if x.metadata.labels.ipFamily != "IPv4"  {x}]
+            resources: [ for x in task.filterName.resources if x.metadata.labels.ipFamily != "IPv4"  {x}]
         }
 		if #flags.ipFamily == "IPv4" {
-            resources: [ for x in task.filterKind.resources if x.metadata.labels.ipFamily != "IPv6"  {x}]
+            resources: [ for x in task.filterName.resources if x.metadata.labels.ipFamily != "IPv6"  {x}]
         }
 		if #flags.ipFamily == "dual" {
-            resources: task.filterKind.resources
+            resources: task.filterName.resources
         }
     }
 
