@@ -5,8 +5,8 @@ metadata:
     name: echo-c
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -56,8 +56,8 @@ metadata:
     name: echo-c-host
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -118,8 +118,8 @@ metadata:
     name: pod-to-a-intra-node-proxy-egress-policy
     topology: intra-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -196,8 +196,8 @@ metadata:
     name: pod-to-a-multi-node-proxy-egress-policy
     topology: multi-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -274,8 +274,8 @@ metadata:
     name: pod-to-c-intra-node-proxy-ingress-policy
     topology: intra-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -352,8 +352,8 @@ metadata:
     name: pod-to-c-multi-node-proxy-ingress-policy
     topology: multi-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -430,8 +430,8 @@ metadata:
     name: pod-to-c-intra-node-proxy-to-proxy-policy
     topology: intra-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -508,8 +508,8 @@ metadata:
     name: pod-to-c-multi-node-proxy-to-proxy-policy
     topology: multi-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -586,12 +586,12 @@ metadata:
     name: echo-c
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-c
   type: ClusterIP
@@ -604,12 +604,12 @@ metadata:
     name: echo-c-headless
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-c
   type: ClusterIP
@@ -623,11 +623,11 @@ metadata:
     name: echo-c-host-headless
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports: []
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-c-host
   type: ClusterIP
@@ -641,8 +641,8 @@ metadata:
     name: pod-to-a-intra-node-proxy-egress-policy
     topology: intra-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -684,8 +684,8 @@ metadata:
     name: pod-to-a-multi-node-proxy-egress-policy
     topology: multi-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -727,8 +727,8 @@ metadata:
     name: pod-to-c-intra-node-proxy-to-proxy-policy
     topology: intra-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -770,8 +770,8 @@ metadata:
     name: pod-to-c-multi-node-proxy-to-proxy-policy
     topology: multi-node
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -813,8 +813,8 @@ metadata:
     name: echo-c
     topology: any
     component: proxy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -839,8 +839,8 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -889,12 +889,12 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-a
   type: ClusterIP
@@ -908,8 +908,8 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -959,13 +959,13 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
     nodePort: 31313
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b
   type: NodePort
@@ -979,8 +979,8 @@ metadata:
     name: echo-b-host
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -1042,11 +1042,11 @@ metadata:
     name: echo-b-host-headless
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports: []
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b-host
   type: ClusterIP

@@ -7,9 +7,12 @@ package connectivity_check
 _networkCheck: {
 	metadata: labels: component: "network-check"
 }
+
+_ipFamilyCheck: {
+    metadata: labels: ipFamily: "IPv4"
+}
 deployment: "pod-to-a":             _networkCheck
-deployment: "pod-to-external-1111": _networkCheck & {
+deployment: "pod-to-external-1111": _networkCheck & _ipFamilyCheck & {
 	_probeTarget: "1.1.1.1"
 	_probePath:   ""
-	_ipFamily: "IPv6"
 }

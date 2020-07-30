@@ -5,8 +5,8 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -55,8 +55,8 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -106,8 +106,8 @@ metadata:
     name: echo-b-host
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -168,8 +168,8 @@ metadata:
     name: pod-to-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -221,8 +221,8 @@ metadata:
     name: pod-to-external-1111
     topology: any
     component: network-check
-    quarantine: "false"
     ipFamily: IPv4
+    quarantine: "false"
 spec:
   template:
     metadata:
@@ -274,8 +274,8 @@ metadata:
     name: pod-to-a-denied-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -319,8 +319,8 @@ metadata:
     name: pod-to-a-allowed-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -372,8 +372,8 @@ metadata:
     name: pod-to-external-fqdn-allow-google-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -425,12 +425,12 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-a
   type: ClusterIP
@@ -443,13 +443,13 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
     nodePort: 31313
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b
   type: NodePort
@@ -462,12 +462,12 @@ metadata:
     name: echo-b-headless
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b
   type: ClusterIP
@@ -481,11 +481,11 @@ metadata:
     name: echo-b-host-headless
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports: []
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b-host
   type: ClusterIP
@@ -499,8 +499,8 @@ metadata:
     name: pod-to-a-denied-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -531,8 +531,8 @@ metadata:
     name: pod-to-a-allowed-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -570,8 +570,8 @@ metadata:
     name: pod-to-external-fqdn-allow-google-cnp
     topology: any
     component: policy-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:

@@ -15,7 +15,7 @@ objectSets: [
 	ingressCNP,
 ]
 
-globalFlags: "[-t component=<component>] [-t kind=<kind>] [-t name=<name>] [-t topology=<topology>] [-t quarantine=true]"
+globalFlags: "[-t component=<component>] [-t kind=<kind>] [-t name=<name>] [-t topology=<topology>] [-t quarantine=true] [-t ipFamily=IPv4]"
 
 ccCommand: {
 	#flags: {
@@ -24,7 +24,7 @@ ccCommand: {
 		topology:   *"any" | "single-node"                                                        @tag(topology,short=any|single-node)
 		kind:       *"" | "Deployment" | "Service" | "CiliumNetworkPolicy"                        @tag(kind,short=Deployment|Service|CiliumNetworkPolicy)
 		quarantine: *"false" | "true"                                                             @tag(quarantine,short=false|true)
-		ipFamily:   *"IPv4" | string                                                              @tag(ipFamily,short=IPv4|IPv6)
+		ipFamily:   *"dual" | "IPv4" | "IPv6"                                                     @tag(ipFamily,short=dual|IPv4|IPv6)
 	}
 
 	task: filterComponent: {
@@ -45,7 +45,12 @@ ccCommand: {
 	}
 
     task: filterIPFamily: {
-        resources: [ for x in task.filterComponent.resources if x.metadata.labels.ipFamily == #flags.ipFamily {x}]
+        if #flags.ipFamily == "dual" {
+            resources: objects
+        }
+        if #flags.ipFamily != "dual" {
+            resources: [ for x in task.filterComponent.resources if x.metadata.labels.ipFamily == #flags.ipFamily {x}]
+        }
     }
 
 	task: filterTopology: {

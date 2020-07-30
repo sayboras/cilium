@@ -5,8 +5,8 @@ metadata:
     name: pod-to-a-multi-node-hostport-proxy-egress
     topology: multi-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -83,8 +83,8 @@ metadata:
     name: pod-to-a-intra-node-hostport-proxy-egress
     topology: intra-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -161,8 +161,8 @@ metadata:
     name: pod-to-c-multi-node-hostport-proxy-ingress
     topology: multi-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -239,8 +239,8 @@ metadata:
     name: pod-to-c-intra-node-hostport-proxy-ingress
     topology: intra-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -317,8 +317,8 @@ metadata:
     name: pod-to-c-multi-node-hostport-proxy-to-proxy
     topology: multi-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -395,8 +395,8 @@ metadata:
     name: pod-to-c-intra-node-hostport-proxy-to-proxy
     topology: intra-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -473,8 +473,8 @@ metadata:
     name: pod-to-a-multi-node-hostport-proxy-egress
     topology: multi-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -513,8 +513,8 @@ metadata:
     name: pod-to-a-intra-node-hostport-proxy-egress
     topology: intra-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -553,8 +553,8 @@ metadata:
     name: pod-to-c-multi-node-hostport-proxy-to-proxy
     topology: multi-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -593,8 +593,8 @@ metadata:
     name: pod-to-c-intra-node-hostport-proxy-to-proxy
     topology: intra-node
     component: hostport-check
+    ipFamily: dual
     quarantine: "true"
-    ipFamily: IPv4
 spec:
   endpointSelector:
     matchLabels:
@@ -635,8 +635,8 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -685,12 +685,12 @@ metadata:
     name: echo-a
     topology: any
     component: network-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-a
   type: ClusterIP
@@ -704,8 +704,8 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -755,13 +755,13 @@ metadata:
     name: echo-b
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports:
   - port: 80
     nodePort: 31313
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b
   type: NodePort
@@ -775,8 +775,8 @@ metadata:
     name: echo-b-host
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   template:
     metadata:
@@ -838,11 +838,11 @@ metadata:
     name: echo-b-host-headless
     topology: any
     component: services-check
+    ipFamily: dual
     quarantine: "false"
-    ipFamily: IPv4
 spec:
   ports: []
-  ipFamily: IPv4
+  ipFamily: dual
   selector:
     name: echo-b-host
   type: ClusterIP

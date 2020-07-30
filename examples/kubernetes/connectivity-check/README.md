@@ -6,6 +6,9 @@ liveness and readiness checks. An unhealthy/unready pod indicates a problem.
 ## Connectivity checks
 
 * [Standard connectivity checks](./connectivity-check.yaml)
+* [Standard connectivity checks (github action with IPv6)](./connectivity-check-ipv6.yaml)
+  * This file is used in github action conformation test only.
+  * Same as standard connectivity checks except external traffic check to 1.1.1.1 and www.google.com
 * [Standard connectivity checks with hostport](./connectivity-check-hostport.yaml)
   * Requires either eBPF hostport to be enabled or portmap CNI chaining.
 * [Single-node connectivity checks](./connectivity-check-single-node.yaml)
