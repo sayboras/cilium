@@ -6,6 +6,7 @@ _spec: {
 	_name:  string
 	_image: string
 	_command: [...string]
+	_ipFamily: *"dual" | "IPv4" | "IPv6"	
 
 	_affinity:        *"" | string
 	_antiAffinity:    *"" | string
@@ -85,7 +86,7 @@ _spec: {
 			topology:   *"any" | string
 			component:  *"invalid" | string
 			quarantine: *"false" | "true"
-			ipFamily:   *"dual" | "IPv4" | "IPv6"
+			ipFamily:   _ipFamily
 		}
 	}
 	spec: {
@@ -164,7 +165,6 @@ service: [ID=_]: {
 	spec: {
 		type: *"ClusterIP" | string
 		selector: name: _selector
-		ipFamily: _ipFamily
 	}
 }
 

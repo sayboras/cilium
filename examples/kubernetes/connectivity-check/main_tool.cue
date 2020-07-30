@@ -44,15 +44,6 @@ ccCommand: {
 		resources: [ for x in task.filterComponent.resources if x.metadata.labels.quarantine == #flags.quarantine {x}]
 	}
 
-    task: filterIPFamily: {
-        if #flags.ipFamily == "dual" {
-            resources: objects
-        }
-        if #flags.ipFamily != "dual" {
-            resources: [ for x in task.filterComponent.resources if x.metadata.labels.ipFamily == #flags.ipFamily {x}]
-        }
-    }
-
 	task: filterTopology: {
 		if #flags.topology == "any" {
 			resources: task.filterQuarantine.resources
@@ -80,8 +71,20 @@ ccCommand: {
 		}
 	}
 
+	task: filterIPFamily: {
+        if #flags.ipFamily == "IPv6" {
+            resources: [ for x in task.filterKind.resources if x.metadata.labels.ipFamily != "IPv4"  {x}]
+        }
+		if #flags.ipFamily == "IPv4" {
+            resources: [ for x in task.filterKind.resources if x.metadata.labels.ipFamily != "IPv6"  {x}]
+        }
+		if #flags.ipFamily == "dual" {
+            resources: task.filterKind.resources
+        }
+    }
+
 	task: filter: {
-		resources: task.filterName.resources
+		resources: task.filterIPFamily.resources
 	}
 }
 

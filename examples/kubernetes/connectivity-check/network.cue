@@ -11,6 +11,7 @@ _networkCheck: {
 _ipFamilyCheck: {
     metadata: labels: ipFamily: "IPv4"
 }
+
 deployment: "pod-to-a":             _networkCheck
 deployment: "pod-to-external-1111": _networkCheck & _ipFamilyCheck & {
 	_probeTarget: "1.1.1.1"

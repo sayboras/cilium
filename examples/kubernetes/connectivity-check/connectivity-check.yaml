@@ -372,7 +372,7 @@ metadata:
     name: pod-to-external-fqdn-allow-google-cnp
     topology: any
     component: policy-check
-    ipFamily: dual
+    ipFamily: IPv4
     quarantine: "false"
 spec:
   template:
@@ -684,7 +684,6 @@ metadata:
 spec:
   ports:
   - port: 80
-  ipFamily: dual
   selector:
     name: echo-a
   type: ClusterIP
@@ -703,7 +702,6 @@ spec:
   ports:
   - port: 80
     nodePort: 31313
-  ipFamily: dual
   selector:
     name: echo-b
   type: NodePort
@@ -721,7 +719,6 @@ metadata:
 spec:
   ports:
   - port: 80
-  ipFamily: dual
   selector:
     name: echo-b
   type: ClusterIP
@@ -739,7 +736,6 @@ metadata:
     quarantine: "false"
 spec:
   ports: []
-  ipFamily: dual
   selector:
     name: echo-b-host
   type: ClusterIP
@@ -824,7 +820,7 @@ metadata:
     name: pod-to-external-fqdn-allow-google-cnp
     topology: any
     component: policy-check
-    ipFamily: dual
+    ipFamily: IPv4
     quarantine: "false"
 spec:
   endpointSelector:
