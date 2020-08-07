@@ -16,6 +16,7 @@ package envoy
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -90,7 +91,9 @@ func (a *admin) transact(query string) error {
 	// Use a custom dialer to use a Unix domain socket for a HTTP connection.
 	client := &http.Client{
 		Transport: &http.Transport{
-			Dial: func(_, _ string) (net.Conn, error) { return net.Dial("unix", a.unixPath) },
+			DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
+				return net.Dial("unix", a.unixPath)
+			},
 		},
 	}
 
