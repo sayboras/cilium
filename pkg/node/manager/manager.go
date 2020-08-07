@@ -183,7 +183,7 @@ func NewManager(name string, dp datapath.NodeHandler, ipcache IPCache, c Configu
 		Subsystem: "nodes",
 		Name:      name + "_events_received_total",
 		Help:      "Number of node events received",
-	}, []string{"eventType", "source"})
+	}, []string{"event_type", "source"})
 
 	m.metricNumNodes = prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: metrics.Namespace,

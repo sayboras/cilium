@@ -166,7 +166,7 @@ const (
 	LabelOperation = "operation"
 
 	// LabelMapName is the label for the BPF map name
-	LabelMapName = "mapName"
+	LabelMapName = "map_name"
 
 	// LabelVersion is the label for the version number
 	LabelVersion = "version"
@@ -461,17 +461,17 @@ type Configuration struct {
 func DefaultMetrics() map[string]struct{} {
 	return map[string]struct{}{
 		Namespace + "_" + SubsystemAgent + "_api_process_time_seconds":               {},
-		Namespace + "_endpoint_regenerations":                                        {},
+		Namespace + "_endpoint_regenerations_total":                                  {},
 		Namespace + "_endpoint_state":                                                {},
 		Namespace + "_endpoint_regeneration_time_stats_seconds":                      {},
-		Namespace + "_policy_count":                                                  {},
+		Namespace + "_policy":                                                        {},
 		Namespace + "_policy_regeneration_total":                                     {},
 		Namespace + "_policy_regeneration_time_stats_seconds":                        {},
 		Namespace + "_policy_max_revision":                                           {},
-		Namespace + "_policy_import_errors":                                          {},
+		Namespace + "_policy_import_errors_total":                                    {},
 		Namespace + "_policy_endpoint_enforcement_status":                            {},
 		Namespace + "_policy_implementation_delay":                                   {},
-		Namespace + "_identity_count":                                                {},
+		Namespace + "_identity":                                                      {},
 		Namespace + "_event_ts":                                                      {},
 		Namespace + "_proxy_redirects":                                               {},
 		Namespace + "_policy_l7_total":                                               {},
@@ -498,7 +498,7 @@ func DefaultMetrics() map[string]struct{} {
 		Namespace + "_kubernetes_events_total":                                       {},
 		Namespace + "_kubernetes_events_received_total":                              {},
 		Namespace + "_" + SubsystemK8sClient + "_api_latency_time_seconds":           {},
-		Namespace + "_" + SubsystemK8sClient + "_api_calls_counter":                  {},
+		Namespace + "_" + SubsystemK8sClient + "_api_calls_total":                    {},
 		Namespace + "_" + SubsystemK8s + "_cnp_status_completion_seconds":            {},
 		Namespace + "_ipam_events_total":                                             {},
 		Namespace + "_" + SubsystemKVStore + "_operations_duration_seconds":          {},
@@ -534,10 +534,10 @@ func CreateConfiguration(metricsEnabled []string) (Configuration, []prometheus.C
 			collectors = append(collectors, APIInteractions)
 			c.APIInteractionsEnabled = true
 
-		case Namespace + "_endpoint_regenerations":
+		case Namespace + "_endpoint_regenerations_total":
 			EndpointRegenerationCount = prometheus.NewCounterVec(prometheus.CounterOpts{
 				Namespace: Namespace,
-				Name:      "endpoint_regenerations",
+				Name:      "endpoint_regenerations_total",
 				Help:      "Count of all endpoint regenerations that have completed, tagged by outcome",
 			}, []string{"outcome"})
 
@@ -567,10 +567,10 @@ func CreateConfiguration(metricsEnabled []string) (Configuration, []prometheus.C
 			collectors = append(collectors, EndpointRegenerationTimeStats)
 			c.EndpointRegenerationTimeStatsEnabled = true
 
-		case Namespace + "_policy_count":
+		case Namespace + "_policy":
 			PolicyCount = prometheus.NewGauge(prometheus.GaugeOpts{
 				Namespace: Namespace,
-				Name:      "policy_count",
+				Name:      "policy",
 				Help:      "Number of policies currently loaded",
 			})
 
@@ -607,10 +607,10 @@ func CreateConfiguration(metricsEnabled []string) (Configuration, []prometheus.C
 			collectors = append(collectors, PolicyRevision)
 			c.PolicyRegenerationTimeStatsEnabled = true
 
-		case Namespace + "_policy_import_errors":
+		case Namespace + "_policy_import_errors_total":
 			PolicyImportErrors = prometheus.NewCounter(prometheus.CounterOpts{
 				Namespace: Namespace,
-				Name:      "policy_import_errors",
+				Name:      "policy_import_errors_total",
 				Help:      "Number of times a policy import has failed",
 			})
 
@@ -637,10 +637,10 @@ func CreateConfiguration(metricsEnabled []string) (Configuration, []prometheus.C
 			collectors = append(collectors, PolicyImplementationDelay)
 			c.PolicyImplementationDelayEnabled = true
 
-		case Namespace + "_identity_count":
+		case Namespace + "_identity":
 			IdentityCount = prometheus.NewGauge(prometheus.GaugeOpts{
 				Namespace: Namespace,
-				Name:      "identity_count",
+				Name:      "identity",
 				Help:      "Number of identities currently allocated",
 			})
 
@@ -943,11 +943,11 @@ func CreateConfiguration(metricsEnabled []string) (Configuration, []prometheus.C
 			collectors = append(collectors, KubernetesAPIInteractions)
 			c.KubernetesAPIInteractionsEnabled = true
 
-		case Namespace + "_" + SubsystemK8sClient + "_api_calls_counter":
+		case Namespace + "_" + SubsystemK8sClient + "_api_calls_total":
 			KubernetesAPICalls = prometheus.NewCounterVec(prometheus.CounterOpts{
 				Namespace: Namespace,
 				Subsystem: SubsystemK8sClient,
-				Name:      "api_calls_counter",
+				Name:      "api_calls_total",
 				Help:      "Number of API calls made to kube-apiserver labeled by host, method and return code.",
 			}, []string{"host", LabelMethod, LabelAPIReturnCode})
 

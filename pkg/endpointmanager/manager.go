@@ -156,7 +156,7 @@ func (mgr *EndpointManager) InitMetrics() {
 		// It must be thread-safe.
 		metrics.EndpointCount = prometheus.NewGaugeFunc(prometheus.GaugeOpts{
 			Namespace: metrics.Namespace,
-			Name:      "endpoint_count",
+			Name:      "endpoint",
 			Help:      "Number of endpoints managed by this agent",
 		},
 			func() float64 { return float64(len(mgr.GetEndpoints())) },

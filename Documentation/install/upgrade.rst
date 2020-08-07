@@ -329,9 +329,19 @@ Renamed Metrics
 
 The following metrics have been renamed:
 
+* ``cilium_endpoint_regenerations`` to ``cilium_endpoint_regenerations_total``
+* ``cilium_k8s_client_api_calls_counter`` to ``cilium_k8s_client_api_calls_total``
+* ``cilium_identity_count`` to ``cilium_identity``
 * ``cilium_operator_ipam_ec2_resync`` to ``cilium_operator_ipam_resync``
+* ``cilium_policy_count`` to ``cilium_policy``
+* ``cilium_policy_import_errors`` to ``cilium_policy_import_errors_total``
 * ``ipam_cilium_operator_api_duration_seconds`` to ``cilium_operator_ec2_api_duration_seconds``
 * ``ipam_cilium_operator_api_rate_limit_duration_seconds`` to ``cilium_operator_ec2_api_rate_limit_duration_seconds``
+
+The following metric labels have been renamed:
+
+* ``cilium_bpf_map_ops_total{mapName}`` to ``cilium_bpf_map_ops_total{map_name}``
+* ``cilium_nodes_all_events_received_total{eventType}`` to ``cilium_nodes_all_events_received_total{event_type}``
 
 New Metrics
 ~~~~~~~~~~~

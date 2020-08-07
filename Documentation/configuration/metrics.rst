@@ -176,7 +176,7 @@ Endpoint
 Name                                         Labels                                             Description
 ============================================ ================================================== ========================================================
 ``endpoint_count``                                                                              Number of endpoints managed by this agent
-``endpoint_regenerations``                   ``outcome``                                        Count of all endpoint regenerations that have completed
+``endpoint_regenerations_total``             ``outcome``                                        Count of all endpoint regenerations that have completed
 ``endpoint_regeneration_time_stats_seconds`` ``scope``                                          Endpoint regeneration time stats
 ``endpoint_state``                           ``state``                                          Count of all endpoints
 ============================================ ================================================== ========================================================
@@ -238,11 +238,11 @@ Policy
 ========================================== ================================================== ========================================================
 Name                                       Labels                                             Description
 ========================================== ================================================== ========================================================
-``policy_count``                                                                              Number of policies currently loaded
+``policy``                                                                                    Number of policies currently loaded
 ``policy_regeneration_total``                                                                 Total number of policies regenerated successfully
 ``policy_regeneration_time_stats_seconds`` ``scope``                                          Policy regeneration time stats labeled by the scope
 ``policy_max_revision``                                                                       Highest policy revision number in the agent
-``policy_import_errors``                                                                      Number of times a policy import has failed
+``policy_import_errors_total``                                                                Number of times a policy import has failed
 ``policy_endpoint_enforcement_status``                                                        Number of endpoints labeled by policy enforcement status
 ========================================== ================================================== ========================================================
 
@@ -263,7 +263,7 @@ Identity
 ======================================== ================================================== ========================================================
 Name                                     Labels                                             Description
 ======================================== ================================================== ========================================================
-``identity_count``                                                                          Number of identities currently allocated
+``identity``                                                                                Number of identities currently allocated
 ======================================== ================================================== ========================================================
 
 Events external to Cilium
