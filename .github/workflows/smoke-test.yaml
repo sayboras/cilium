@@ -86,6 +86,7 @@ jobs:
           helm install cilium ./install/kubernetes/cilium \
              --wait \
              --namespace kube-system \
+             --set global.debug.enabled=true \
              --set global.nodeinit.enabled=true \
              --set global.kubeProxyReplacement=partial \
              --set global.hostServices.enabled=false \

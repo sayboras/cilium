@@ -57,6 +57,7 @@ jobs:
         run: |
           helm upgrade -i cilium ./install/kubernetes/cilium \
             --namespace kube-system \
+            --set global.debug.enabled=true \
             --set global.nodeinit.enabled=true \
             --set global.kubeProxyReplacement=strict \
             --set config.ipam=kubernetes \
