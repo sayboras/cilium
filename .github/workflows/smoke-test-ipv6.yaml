@@ -11,7 +11,7 @@ env:
   KIND_CONFIG: .github/kind-config-ipv6.yaml
   # Skip external traffic (e.g. 1.1.1.1 and www.google.com) due to no support for IPv6 in github action
   CONFORMANCE_TEMPLATE: examples/kubernetes/connectivity-check/connectivity-check-internal.yaml
-  TIMEOUT: 5m
+  TIMEOUT: 2m
   LOG_TIME: 30m
 
 jobs:
@@ -37,10 +37,10 @@ jobs:
           sudo sysctl net.ipv6.conf.all.forwarding=1
           sudo systemctl restart docker
 
-      - name: Build docker images
-        run: |
-          make docker-cilium-image
-          make docker-operator-generic-image
+#      - name: Build docker images
+#        run: |
+#          make docker-cilium-image
+#          make docker-operator-generic-image
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.0.0
@@ -48,10 +48,10 @@ jobs:
           version: ${{ env.KIND_VERSION }}
           config: ${{ env.KIND_CONFIG }}
 
-      - name: Load local images into kind cluster
-        run: |
-          kind load docker-image --name chart-testing cilium/cilium:latest
-          kind load docker-image --name chart-testing cilium/operator-generic:latest
+#      - name: Load local images into kind cluster
+#        run: |
+#          kind load docker-image --name chart-testing cilium/cilium:latest
+#          kind load docker-image --name chart-testing cilium/operator-generic:latest
 
       - name: Install cilium chart
         run: |
@@ -75,6 +75,11 @@ jobs:
         run: |
           kubectl apply -f ${{ env.CONFORMANCE_TEMPLATE }}
           kubectl wait --for=condition=Available --all deployment --timeout=${{ env.TIMEOUT }}
+
+      - name: Get coredns log
+        if: ${{ failure() }}
+        run: |
+          kubectl log -n kube-system deployment/coredns
 
       - name: Capture cilium-sysdump
         if: ${{ failure() }}

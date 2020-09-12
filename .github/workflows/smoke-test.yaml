@@ -123,6 +123,11 @@ jobs:
           go get -u github.com/prometheus/prometheus/cmd/promtool
           egrep -v "${{ env.DEPRECATED_METRICS }}" metrics.prom | $HOME/go/bin/promtool check metrics
 
+      - name: Get coredns log
+        if: ${{ failure() }}
+        run: |
+          kubectl log -n kube-system deployment/coredns
+
       - name: Capture cilium-sysdump
         if: ${{ failure() }}
         run: |

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 kind delete cluster || true
-kind create cluster --wait 3m --config=.github/kind-config-ipv6.yaml
+kind create cluster --wait 2m --config=.github/kind-config-ipv6.yaml
 
 # Install cilium
 echo "Installing cilium"
@@ -22,8 +22,8 @@ helm upgrade -i cilium ./install/kubernetes/cilium \
   --set global.hubble.metrics.enabled="{dns,drop,tcp,flow,port-distribution,icmp,http}"
 
 echo "Waiting for cilium"
-kubectl wait -n kube-system --for=condition=Ready --all pod --timeout=5m
-kubectl wait --for condition=Established crd/ciliumnetworkpolicies.cilium.io --timeout=5m
+kubectl wait -n kube-system --for=condition=Ready --all pod --timeout=3m
+kubectl wait --for condition=Established crd/ciliumnetworkpolicies.cilium.io --timeout=3m
 
 echo "Installing connectivity"
 kubectl apply -f examples/kubernetes/connectivity-check/connectivity-check-internal.yaml
