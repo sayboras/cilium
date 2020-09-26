@@ -96,7 +96,8 @@ func (s *regenerationStatistics) GetMap() map[string]*spanstat.SpanStat {
 		"proxyWaitForAck":        &s.proxyWaitForAck,
 		"mapSync":                &s.mapSync,
 		"prepareBuild":           &s.prepareBuild,
-		logfields.BuildDuration:  &s.totalTime,
+		"totalTime":              &s.totalTime,
+		logfields.BuildDuration:  &s.totalTime, // deprecated, will be removed in 1.10
 	}
 	for k, v := range s.datapathRealization.GetMap() {
 		result[k] = v
@@ -123,7 +124,8 @@ func (ps *policyRegenerationStatistics) GetMap() map[string]*spanstat.SpanStat {
 		"waitingForIdentityCache":    &ps.waitingForIdentityCache,
 		"waitingForPolicyRepository": &ps.waitingForPolicyRepository,
 		"policyCalculation":          &ps.policyCalculation,
-		logfields.BuildDuration:      &ps.totalTime,
+		"totalTime":                  &ps.totalTime,
+		logfields.BuildDuration:      &ps.totalTime, // deprecated, will be removed in 1.10
 	}
 }
 
