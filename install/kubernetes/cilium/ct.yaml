@@ -1,0 +1,8 @@
+# See https://github.com/helm/chart-testing#configuration
+remote: origin
+chart-dirs:
+  - install/kubernetes
+chart-repos:
+  - cilium=https://helm.cilium.io/
+helm-extra-args: --timeout 200s
+check-version-increment: false
