@@ -6,3 +6,4 @@ chart-repos:
   - cilium=https://helm.cilium.io/
 helm-extra-args: --timeout 200s
 check-version-increment: false
+validate-maintainers: false
