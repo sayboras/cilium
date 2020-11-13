@@ -206,7 +206,7 @@ bpf:
   # policyMapMax is the maximum number of entries in endpoint policy map (per endpoint)
   policyMapMax: 16384
 
-  #mapDynamicSizeRatio: 0.0025
+  # mapDynamicSizeRatio: 0.0025
 
   # monitorAggregation is the level of aggregation for datapath trace events
   monitorAggregation: medium
@@ -220,7 +220,7 @@ bpf:
   monitorFlags: "all"
 
   # TODO: Add documentation
-  #masquerade: true
+  # masquerade: true
 
   # tproxy enables the use of eBPF-based TPROXY to reduce reliance on iptables
   # rules for implementing Layer 7 policy.
@@ -416,8 +416,6 @@ hostServices:
 
   # protocols is the list of protocols to support
   protocols: tcp,udp
-
-
 
 # Configuration for certgen.
 # If hubble.tls.auto.method=cronJob, these values are used
@@ -698,8 +696,6 @@ hubble:
       #      - chart-example.local
 
 
-
-
 # TODO: Add documentation
 identityAllocationMode: "crd"
 
@@ -902,7 +898,7 @@ resourceQuotas:
 
 # Need to document default
 ##################
-#sessionAffinity: false
+# sessionAffinity: false
 
 # Do not run Cilium agent when running with clean mode. Useful to completely
 # uninstall Cilium as it will stop Cilium from starting and create artifacts
@@ -1081,8 +1077,6 @@ operator:
             - operator
         topologyKey: kubernetes.io/hostname
 
-
-  
   ## Additional cilium-etcd-operator container arguments
   ##
   extraArgs: {}
@@ -1156,8 +1150,6 @@ operator:
   endpointGCInterval: "5m0s"
   identityGCInterval: "15m0s"
   identityHeartbeatTimeout: "30m0s"
-
-
 
   # prometheus enables serving metrics on the configured port at /metrics
   prometheus:
