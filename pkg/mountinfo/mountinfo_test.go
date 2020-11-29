@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/cilium/cilium/pkg/checker"
-	"golang.org/x/sys/unix"
 
 	. "gopkg.in/check.v1"
 )
@@ -605,7 +604,8 @@ func (s *MountInfoTestSuite) TestGetMountInfo(c *C) {
 // system and machine to have any predictable mounts, but let's try a couple
 // of very well known paths.
 func (s *MountInfoTestSuite) TestIsMountFS(c *C) {
-	mounted, matched, err := IsMountFS(unix.PROC_SUPER_MAGIC, "/proc")
+	// hardcode value from unix.PROC_SUPER_MAGIC mainly for compilation in different platform/arch
+	mounted, matched, err := IsMountFS(0x9fa0, "/proc")
 	c.Assert(err, IsNil)
 	c.Assert(mounted, Equals, true)
 	c.Assert(matched, Equals, true)

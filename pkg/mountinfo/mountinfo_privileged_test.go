@@ -46,7 +46,8 @@ func (s *MountInfoPrivilegedTestSuite) TestIsMountFSbyMount(c *C) {
 	defer unix.Unmount(tmpDir, unix.MNT_DETACH)
 
 	// deliberately check with wrong fstype
-	mounted, matched, err = IsMountFS(unix.PROC_SUPER_MAGIC, tmpDir)
+	// hardcode value from unix.PROC_SUPER_MAGIC mainly for compilation in different platform/arch
+	mounted, matched, err = IsMountFS(0x9fa0, tmpDir)
 	c.Assert(err, IsNil)
 	c.Assert(mounted, Equals, true)
 	c.Assert(matched, Equals, false)

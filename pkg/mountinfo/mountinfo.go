@@ -30,8 +30,12 @@ import (
 const (
 	// FilesystemType superblock magic numbers for filesystems,
 	// to be used for IsMountFS.
-	FilesystemTypeBPFFS   = unix.BPF_FS_MAGIC
-	FilesystemTypeCgroup2 = unix.CGROUP2_SUPER_MAGIC
+
+	// Hardcoded value from unix.BPF_FS_MAGIC mainly for compilation in different platform/arch
+	FilesystemTypeBPFFS = 0xcafe4a11 // value from unix.BPF_FS_MAGIC
+
+	// Hardcoded value from unix.CGROUP2_SUPER_MAGIC mainly for compilation in different platform/arch
+	FilesystemTypeCgroup2 = 0x63677270 // value from unix.CGROUP2_SUPER_MAGIC
 
 	mountInfoFilepath = "/proc/self/mountinfo"
 )
@@ -169,6 +173,6 @@ func IsMountFS(mntType int64, path string) (bool, bool, error) {
 		return true, false, &os.PathError{Op: "statfs", Path: path, Err: err}
 	}
 
-	return true, fst.Type == mntType, nil
-
+	// Explicitly convert to int64 as fst.Type is having data type as uint32 in darwin
+	return true, (int64)(fst.Type) == mntType, nil
 }
