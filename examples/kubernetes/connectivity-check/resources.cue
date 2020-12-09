@@ -180,6 +180,7 @@ service: [ID=_]: {
 	spec: {
 		type: *"ClusterIP" | string
 		selector: name: _selector
+		ipFamilyPolicy: *"PreferDualStack" | string
 	}
 }
 

@@ -612,6 +612,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-c
+  ipFamilyPolicy: PreferDualStack
 apiVersion: v1
 kind: Service
 ---
@@ -631,6 +632,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-c
+  ipFamilyPolicy: PreferDualStack
   clusterIP: None
 apiVersion: v1
 kind: Service
@@ -649,6 +651,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-c-host
+  ipFamilyPolicy: PreferDualStack
   clusterIP: None
 apiVersion: v1
 kind: Service
@@ -928,6 +931,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-a
+  ipFamilyPolicy: PreferDualStack
 apiVersion: v1
 kind: Service
 
@@ -1006,6 +1010,7 @@ spec:
   type: NodePort
   selector:
     name: echo-b
+  ipFamilyPolicy: PreferDualStack
 apiVersion: v1
 kind: Service
 
@@ -1090,6 +1095,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-b-host
+  ipFamilyPolicy: PreferDualStack
   clusterIP: None
 apiVersion: v1
 kind: Service
@@ -1168,6 +1174,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-c
+  ipFamilyPolicy: PreferDualStack
 apiVersion: v1
 kind: Service
 ---
@@ -1277,6 +1284,7 @@ spec:
   type: ClusterIP
   selector:
     name: echo-c-host
+  ipFamilyPolicy: PreferDualStack
   clusterIP: None
 apiVersion: v1
 kind: Service
