@@ -41,7 +41,7 @@ require (
 	github.com/go-openapi/swag v0.19.15
 	github.com/go-openapi/validate v0.20.2
 	github.com/gogo/protobuf v1.3.2
-	github.com/golang/protobuf v1.4.3
+	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
 	github.com/google/gopacket v1.1.19
 	github.com/google/gops v0.3.18
@@ -59,8 +59,8 @@ require (
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/miekg/dns v1.1.26
 	github.com/morikuni/aec v1.0.0 // indirect
-	github.com/onsi/ginkgo v1.12.1
-	github.com/onsi/gomega v1.10.5
+	github.com/onsi/ginkgo v1.16.2
+	github.com/onsi/gomega v1.13.0
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/optiopay/kafka v0.0.0-20171218140449-a1e0071f1ce8
@@ -90,7 +90,7 @@ require (
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20210506160403-92e472f520a5
 	google.golang.org/genproto v0.0.0-20210126160654-44e461bb6506
 	google.golang.org/grpc v1.29.1
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
 	gopkg.in/ini.v1 v1.62.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
