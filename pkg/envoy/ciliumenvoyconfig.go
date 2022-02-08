@@ -70,7 +70,11 @@ func ParseResources(namePrefix string, cec *cilium_v2alpha1.CiliumEnvoyConfig, p
 
 			// Fill in RDS config source if unset
 			for _, fc := range listener.FilterChains {
-				for _, filter := range fc.Filters {
+				found = false
+				for i, filter := range fc.Filters {
+					if filter.Name == "cilium.network" {
+						found = true
+					}
 					tc := filter.GetTypedConfig()
 					if tc == nil || tc.GetTypeUrl() != "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager" {
 						continue
@@ -83,6 +87,13 @@ func ParseResources(namePrefix string, cec *cilium_v2alpha1.CiliumEnvoyConfig, p
 					if !ok {
 						continue
 					}
+					if !found {
+						// Inject Cilium network filter just before the HTTP Connection Manager filter
+						fc.Filters = append(fc.Filters[:i+1], fc.Filters[i:]...)
+						fc.Filters[i] = &envoy_config_listener.Filter{
+							Name: "cilium.network",
+						}
+					}
 					updated := false
 					if rds := hcmConfig.GetRds(); rds != nil {
 						if rds.ConfigSource == nil {
@@ -90,11 +101,27 @@ func ParseResources(namePrefix string, cec *cilium_v2alpha1.CiliumEnvoyConfig, p
 							updated = true
 						}
 					}
+					found = false
+					for j, httpFilter := range hcmConfig.HttpFilters {
+						switch httpFilter.Name {
+						case "cilium.l7policy":
+							found = true
+						case "envoy.filters.http.router":
+							if !found {
+								// Inject Cilium HTTP filter just before the HTTP Router filter
+								hcmConfig.HttpFilters = append(hcmConfig.HttpFilters[:j+1], hcmConfig.HttpFilters[j:]...)
+								hcmConfig.HttpFilters[j] = getCiliumHttpFilter()
+								updated = true
+							}
+							break
+						}
+					}
 					if updated {
 						filter.ConfigType = &envoy_config_listener.Filter_TypedConfig{
 							TypedConfig: toAny(hcmConfig),
 						}
 					}
+					break // Done with this filter chain
 				}
 			}
 			name := listener.Name
