@@ -1,0 +1,57 @@
+nodeinit:
+  enabled: true
+
+kubeProxyReplacement: partial
+hostServices:
+  enabled: true
+
+externalIPs:
+  enabled: true
+
+nodePort:
+  enabled: true
+
+hostPort:
+  enabled: true
+
+bpf:
+  masquerade: false
+
+ipam:
+  mode: kubernetes
+
+image:
+  repository: quay.io/cilium/cilium
+  tag: v1.11.0
+  pullPolicy: IfNotPresent
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    image:
+      pullPolicy: IfNotPresent
+      tag: v1.11.0
+  metrics:
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+      - http
+
+operator:
+  image:
+    repository: quay.io/cilium/operator
+    tag: v1.11.0
+    pullPolicy: IfNotPresent
+    useDigest: false
+  prometheus:
+    enabled: true
+
+prometheus:
+  enabled: true
+
+

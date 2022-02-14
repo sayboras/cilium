@@ -1,0 +1,21 @@
+externalWorkloads:
+  enabled: true
+
+clustermesh:
+  useAPIServer: true
+
+  apiserver:
+    image:
+      repository: quay.io/cilium/clustermesh-apiserver
+      tag: v1.11.0
+      pullPolicy: IfNotPresent
+
+    etcd:
+      image:
+        pullPolicy: IfNotPresent
+
+    tls:
+      auto:
+        enabled: true
+        method: helm
+        schedule: "0 0 1 */4 *"

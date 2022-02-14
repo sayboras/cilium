@@ -1,0 +1,30 @@
+image:
+  repository: quay.io/cilium/cilium-ci
+  tag: latest
+  pullPolicy: IfNotPresent
+  useDigest: false
+
+operator:
+  image:
+    repository: quay.io/cilium/operator
+    suffix: -ci
+    tag: latest
+    pullPolicy: IfNotPresent
+    useDigest: false
+  extraArgs:
+    - --aws-release-excess-ips
+
+eni:
+  enabled: true
+  subnetTagsFilter: eksctl.cluster.k8s.io/v1alpha1/cluster-name=tammach-17899,kubernetes.io/role/internal-elb=1
+
+ipam:
+  mode: eni
+
+egressMasqueradeInterfaces: eth1
+tunnel: disabled
+
+cni:
+  customConf: true
+  configMap: cni-configuration
+  subnetTagsFilter: eksctl.cluster.k8s.io/v1alpha1/cluster-name=tammach-17899

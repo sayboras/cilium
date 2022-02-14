@@ -1,0 +1,20 @@
+clustermesh:
+  useAPIServer: true
+
+  apiserver:
+    image:
+      repository: quay.io/cilium/clustermesh-apiserver
+      tag: v1.11.0
+      pullPolicy: IfNotPresent
+
+    etcd:
+      image:
+        repository: quay.io/coreos/etcd
+        tag: v3.4.13
+        pullPolicy: IfNotPresent
+
+    tls:
+      auto:
+        enabled: true
+        method: cronJob
+        schedule: "0 0 1 */4 *"
