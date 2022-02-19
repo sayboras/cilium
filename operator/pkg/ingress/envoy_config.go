@@ -31,7 +31,7 @@ func getResourceNameForIngress(ingress *slim_networkingv1.Ingress) string {
 	return ciliumIngressPrefix + ingress.Namespace + "-" + ingress.Name
 }
 
-func (ic *Controller) getSecret(namespace, name string) (string, string, error) {
+func (ic *IngressController) getSecret(namespace, name string) (string, string, error) {
 	secret := v1.Secret{}
 	err := k8s.Client().CoreV1().RESTClient().Get().Resource("secrets").Namespace(namespace).Name(name).Do(context.Background()).Into(&secret)
 	if err != nil {
@@ -50,7 +50,7 @@ func (ic *Controller) getSecret(namespace, name string) (string, string, error) 
 	return string(tlsCrt), string(tlsKey), nil
 }
 
-func (ic *Controller) getTLS(ingress *slim_networkingv1.Ingress) (map[string]*envoy_config_core_v3.TransportSocket, error) {
+func (ic *IngressController) getTLS(ingress *slim_networkingv1.Ingress) (map[string]*envoy_config_core_v3.TransportSocket, error) {
 	tls := make(map[string]*envoy_config_core_v3.TransportSocket)
 	for _, tlsConfig := range ingress.Spec.TLS {
 		crt, key, err := ic.getSecret(ingress.Namespace, tlsConfig.SecretName)
@@ -94,7 +94,7 @@ func (ic *Controller) getTLS(ingress *slim_networkingv1.Ingress) (map[string]*en
 	return tls, nil
 }
 
-func (ic *Controller) amazingIngressControllerBusinessLogic(ingress *slim_networkingv1.Ingress) (*v2alpha1.CiliumEnvoyConfig, error) {
+func (ic *IngressController) amazingIngressControllerBusinessLogic(ingress *slim_networkingv1.Ingress) (*v2alpha1.CiliumEnvoyConfig, error) {
 	backendServices := getBackendServices(ingress)
 	resources, err := ic.getResources(ingress, backendServices)
 	if err != nil {
@@ -141,7 +141,7 @@ func getBackendServices(ingress *slim_networkingv1.Ingress) []*v2alpha1.Service 
 	return backendServices
 }
 
-func (ic *Controller) getResources(ingress *slim_networkingv1.Ingress, backendServices []*v2alpha1.Service) ([]v2alpha1.XDSResource, error) {
+func (ic *IngressController) getResources(ingress *slim_networkingv1.Ingress, backendServices []*v2alpha1.Service) ([]v2alpha1.XDSResource, error) {
 	var resources []v2alpha1.XDSResource
 	tls, err := ic.getTLS(ingress)
 	if err != nil {

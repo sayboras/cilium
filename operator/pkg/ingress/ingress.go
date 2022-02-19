@@ -60,7 +60,8 @@ type serviceDeletedEvent struct {
 	service *slim_corev1.Service
 }
 
-type Controller struct {
+// IngressController struct
+type IngressController struct {
 	ingressInformer     cache.Controller
 	ingressStore        cache.Store
 	serviceInformer     cache.Controller
@@ -73,49 +74,39 @@ type Controller struct {
 	maxRetries          int
 }
 
-func (ic *Controller) handleAddService(obj interface{}) {
-	service, ok := obj.(*slim_corev1.Service)
-	if !ok {
-		return
+func (ic *IngressController) handleAddService(obj interface{}) {
+	if service := k8s.ObjToV1Services(obj); service != nil {
+		ic.queue.Add(serviceAddedEvent{service: service})
 	}
-	ic.queue.Add(serviceAddedEvent{service: service})
 }
 
-func (ic *Controller) handleUpdateService(oldObj, newObj interface{}) {
-	oldService, ok := oldObj.(*slim_corev1.Service)
-	if !ok {
+func (ic *IngressController) handleUpdateService(oldObj, newObj interface{}) {
+	oldService := k8s.ObjToV1Services(oldObj)
+	if oldService != nil {
 		return
 	}
-	newService, ok := newObj.(*slim_corev1.Service)
-	if !ok {
+	newService := k8s.ObjToV1Services(newObj)
+	if newService != nil {
 		return
 	}
 	ic.queue.Add(serviceUpdatedEvent{oldService: oldService, newService: newService})
 }
 
-func (ic *Controller) handleDeleteService(obj interface{}) {
-	switch concreteObj := obj.(type) {
-	case *slim_corev1.Service:
-		ic.queue.Add(serviceDeletedEvent{service: concreteObj})
-	case cache.DeletedFinalStateUnknown:
-		service, ok := concreteObj.Obj.(*slim_corev1.Service)
-		if ok {
-			ic.queue.Add(serviceDeletedEvent{service: service})
-		}
-	default:
-		return
+func (ic *IngressController) handleDeleteService(obj interface{}) {
+	if service := k8s.ObjToV1Services(obj); service != nil {
+		ic.queue.Add(serviceDeletedEvent{service: service})
 	}
 }
 
 // NewIngressController returns a controller for ingress objects having ingressClassName as cilium
-func NewIngressController(options ...Option) (*Controller, error) {
+func NewIngressController(options ...Option) (*IngressController, error) {
 	opts := DefaultIngressOptions
 	for _, opt := range options {
 		if err := opt(&opts); err != nil {
 			return nil, fmt.Errorf("failed to apply option: %v", err)
 		}
 	}
-	ic := Controller{
+	ic := IngressController{
 		queue:      workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
 		maxRetries: opts.MaxRetries,
 	}
@@ -170,7 +161,7 @@ func NewIngressController(options ...Option) (*Controller, error) {
 }
 
 // Run kicks off the controlled loop
-func (ic *Controller) Run() {
+func (ic *IngressController) Run() {
 	defer ic.queue.ShutDown()
 	go ic.ingressInformer.Run(wait.NeverStop)
 	if !cache.WaitForCacheSync(wait.NeverStop, ic.ingressInformer.HasSynced) {
@@ -195,12 +186,12 @@ func (ic *Controller) Run() {
 	wait.Until(ic.controlLoop, time.Second, wait.NeverStop)
 }
 
-func (ic *Controller) controlLoop() {
+func (ic *IngressController) controlLoop() {
 	for ic.processEvent() {
 	}
 }
 
-func (ic *Controller) processEvent() bool {
+func (ic *IngressController) processEvent() bool {
 	event, shutdown := ic.queue.Get()
 	if shutdown {
 		return false
@@ -217,7 +208,7 @@ func (ic *Controller) processEvent() bool {
 	return true
 }
 
-func (ic *Controller) handleIngressAddedEvent(event ingressAddedEvent) error {
+func (ic *IngressController) handleIngressAddedEvent(event ingressAddedEvent) error {
 	ingressClass := event.ingress.Spec.IngressClassName
 	if ingressClass == nil || *ingressClass != ciliumIngressClassName {
 		return nil
@@ -237,7 +228,7 @@ func (ic *Controller) handleIngressAddedEvent(event ingressAddedEvent) error {
 	return nil
 }
 
-func (ic *Controller) handleIngressUpdatedEvent(event ingressUpdatedEvent) error {
+func (ic *IngressController) handleIngressUpdatedEvent(event ingressUpdatedEvent) error {
 	ingressClass := event.newIngress.Spec.IngressClassName
 	if ingressClass == nil || *ingressClass != ciliumIngressClassName {
 		return nil
@@ -257,7 +248,7 @@ func (ic *Controller) handleIngressUpdatedEvent(event ingressUpdatedEvent) error
 	return nil
 }
 
-func (ic *Controller) handleIngressDeletedEvent(event ingressDeletedEvent) error {
+func (ic *IngressController) handleIngressDeletedEvent(event ingressDeletedEvent) error {
 	log.WithField("ingress", event.ingress.Name).Info("Deleting Service for ingress")
 	if err := ic.deleteLoadBalancer(event.ingress); err != nil {
 		log.WithError(err).Warn("failed to delete load balancer")
@@ -318,7 +309,7 @@ func getIngressForStatusUpdate(slimIngress *slim_networkingv1.Ingress, lb slim_c
 	}
 }
 
-func (ic *Controller) syncLoadBalancerIPs(service *slim_corev1.Service) error {
+func (ic *IngressController) syncLoadBalancerIPs(service *slim_corev1.Service) error {
 	serviceKey, err := cache.MetaNamespaceKeyFunc(service)
 	if err != nil {
 		return err
@@ -355,11 +346,11 @@ func (ic *Controller) syncLoadBalancerIPs(service *slim_corev1.Service) error {
 	return err
 }
 
-func (ic *Controller) handleServiceAddedEvent(event serviceAddedEvent) error {
+func (ic *IngressController) handleServiceAddedEvent(event serviceAddedEvent) error {
 	return ic.syncLoadBalancerIPs(event.service)
 }
 
-func (ic *Controller) handleServiceUpdatedEvent(event serviceUpdatedEvent) error {
+func (ic *IngressController) handleServiceUpdatedEvent(event serviceUpdatedEvent) error {
 	if event.newService.ObjectMeta.GetDeletionTimestamp() != nil {
 		// This means the service is in the process of being deleted, cleaning up load balancers
 		// and such. Nothing to do in this case.
@@ -373,7 +364,7 @@ func (ic *Controller) handleServiceUpdatedEvent(event serviceUpdatedEvent) error
 	return ic.syncLoadBalancerIPs(event.newService)
 }
 
-func (ic *Controller) handleEvent(event interface{}) error {
+func (ic *IngressController) handleEvent(event interface{}) error {
 	var err error
 	switch ev := event.(type) {
 	case ingressAddedEvent:
@@ -405,7 +396,7 @@ func (ic *Controller) handleEvent(event interface{}) error {
 	return err
 }
 
-func (ic *Controller) getIngressFromCache(key string) (*slim_networkingv1.Ingress, error) {
+func (ic *IngressController) getIngressFromCache(key string) (*slim_networkingv1.Ingress, error) {
 	objFromCache, exists, err := ic.ingressStore.GetByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("Ingress cache lookup failed")
@@ -484,7 +475,7 @@ func getEndpointsForIngress(ingress *slim_networkingv1.Ingress) *v1.Endpoints {
 	}
 }
 
-func (ic *Controller) createLoadBalancer(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) createLoadBalancer(ingress *slim_networkingv1.Ingress) error {
 	svc := getServiceForIngress(ingress)
 	svcKey, err := cache.MetaNamespaceKeyFunc(svc)
 	if err != nil {
@@ -515,7 +506,7 @@ func (ic *Controller) createLoadBalancer(ingress *slim_networkingv1.Ingress) err
 	return err
 }
 
-func (ic *Controller) createEndpoints(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) createEndpoints(ingress *slim_networkingv1.Ingress) error {
 	endpoints := getEndpointsForIngress(ingress)
 	key, err := cache.MetaNamespaceKeyFunc(endpoints)
 	if err != nil {
@@ -548,7 +539,7 @@ func (ic *Controller) createEndpoints(ingress *slim_networkingv1.Ingress) error 
 	return err
 }
 
-func (ic *Controller) createEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
 	envoyConfig, err := ic.amazingIngressControllerBusinessLogic(ingress)
 	if err != nil {
 		return err
@@ -593,7 +584,7 @@ func (ic *Controller) createEnvoyConfig(ingress *slim_networkingv1.Ingress) erro
 	return err
 }
 
-func (ic *Controller) deleteEndpoints(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) deleteEndpoints(ingress *slim_networkingv1.Ingress) error {
 	endpoints := getEndpointsForIngress(ingress)
 	key, err := cache.MetaNamespaceKeyFunc(endpoints)
 	if err != nil {
@@ -617,7 +608,7 @@ func (ic *Controller) deleteEndpoints(ingress *slim_networkingv1.Ingress) error 
 	return err
 }
 
-func (ic *Controller) deleteLoadBalancer(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) deleteLoadBalancer(ingress *slim_networkingv1.Ingress) error {
 	service := getServiceForIngress(ingress)
 	key, err := cache.MetaNamespaceKeyFunc(service)
 	if err != nil {
@@ -643,43 +634,31 @@ func (ic *Controller) deleteLoadBalancer(ingress *slim_networkingv1.Ingress) err
 	return err
 }
 
-func (ic *Controller) handleAddIngress(obj interface{}) {
-	log.Info("Received ingress added event from k8s")
-	ingress, ok := obj.(*slim_networkingv1.Ingress)
-	if !ok {
-		log.Warn("failed to cast to slim ingress")
-		return
+func (ic *IngressController) handleAddIngress(obj interface{}) {
+	if ingress := k8s.ObjToV1Ingress(obj); ingress != nil {
+		ic.queue.Add(ingressAddedEvent{ingress: ingress})
 	}
-	ic.queue.Add(ingressAddedEvent{ingress: ingress})
 }
 
-func (ic *Controller) handleUpdateIngress(oldObj, newObj interface{}) {
-	oldIngress, ok := oldObj.(*slim_networkingv1.Ingress)
-	if !ok {
+func (ic *IngressController) handleUpdateIngress(oldObj, newObj interface{}) {
+	oldIngress := k8s.ObjToV1Ingress(oldObj)
+	if oldIngress == nil {
 		return
 	}
-	newIngress, ok := newObj.(*slim_networkingv1.Ingress)
-	if !ok {
+	newIngress := k8s.ObjToV1Ingress(newObj)
+	if newIngress == nil {
 		return
 	}
 	ic.queue.Add(ingressUpdatedEvent{oldIngress: oldIngress, newIngress: newIngress})
 }
 
-func (ic *Controller) handleDeleteIngress(obj interface{}) {
-	switch concreteObj := obj.(type) {
-	case *slim_networkingv1.Ingress:
-		ic.queue.Add(ingressDeletedEvent{ingress: concreteObj})
-	case cache.DeletedFinalStateUnknown:
-		ingress, ok := concreteObj.Obj.(*slim_networkingv1.Ingress)
-		if ok {
-			ic.queue.Add(ingressDeletedEvent{ingress: ingress})
-		}
-	default:
-		return
+func (ic *IngressController) handleDeleteIngress(obj interface{}) {
+	if ingress := k8s.ObjToV1Ingress(obj); ingress != nil {
+		ic.queue.Add(ingressDeletedEvent{ingress: ingress})
 	}
 }
 
-func (ic *Controller) deleteCiliumEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
+func (ic *IngressController) deleteCiliumEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
 	// check if the CiliumEnvoyConfig resource exists.
 	_, exists, err := ic.envoyConfigStore.GetByKey(ingress.Name)
 	if err != nil {
@@ -693,8 +672,7 @@ func (ic *Controller) deleteCiliumEnvoyConfig(ingress *slim_networkingv1.Ingress
 	err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Delete(context.Background(), ingress.Name, metav1.DeleteOptions{})
 	if err != nil {
 		log.WithError(err).WithField("cilium-envoy-config", ingress.Name).Error("Failed to delete CiliumEnvoyConfig for ingress")
-	} else {
-		log.WithField("cilium-envoy-config", ingress.Name).Info("Deleted CiliumEnvoyConfig")
 	}
-	return err
+	log.WithField("cilium-envoy-config", ingress.Name).Info("Deleted CiliumEnvoyConfig")
+	return nil
 }
