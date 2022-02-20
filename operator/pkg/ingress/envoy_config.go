@@ -73,7 +73,7 @@ func (em *envoyConfigManager) getByKey(key string) (*v2alpha1.CiliumEnvoyConfig,
 	return envoyConfig, exists, err
 }
 
-func getResourceNameForIngress(ingress *slim_networkingv1.Ingress) string {
+func getCECNameForIngress(ingress *slim_networkingv1.Ingress) string {
 	return ciliumIngressPrefix + ingress.Namespace + "-" + ingress.Name
 }
 
@@ -149,14 +149,14 @@ func getEnvoyConfigForIngress(k8sClient kubernetes.Interface, ingress *slim_netw
 			APIVersion: v2alpha1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: getResourceNameForIngress(ingress),
+			Name: getCECNameForIngress(ingress),
 		},
 		Spec: v2alpha1.CiliumEnvoyConfigSpec{
 			Services: []*v2alpha1.ServiceListener{
 				{
 					Name:      getServiceNameForIngress(ingress),
 					Namespace: ingress.Namespace,
-					Listener:  getResourceNameForIngress(ingress),
+					Listener:  getCECNameForIngress(ingress),
 				},
 			},
 			BackendServices: backendServices,
@@ -215,7 +215,7 @@ func getListenerResource(k8sClient kubernetes.Interface, ingress *slim_networkin
 		RouteSpecifier: &envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_Rds{
 			Rds: &envoy_extensions_filters_network_http_connection_manager_v3.Rds{
 				ConfigSource:    nil,
-				RouteConfigName: getResourceNameForIngress(ingress) + "_route",
+				RouteConfigName: getCECNameForIngress(ingress) + "_route",
 			},
 		},
 		HttpFilters: []*envoy_extensions_filters_network_http_connection_manager_v3.HttpFilter{
@@ -227,7 +227,7 @@ func getListenerResource(k8sClient kubernetes.Interface, ingress *slim_networkin
 		return v2alpha1.XDSResource{}, err
 	}
 	listener := envoy_config_listener.Listener{
-		Name: getResourceNameForIngress(ingress),
+		Name: getCECNameForIngress(ingress),
 		FilterChains: []*envoy_config_listener.FilterChain{
 			{
 				Filters: []*envoy_config_listener.Filter{
@@ -352,7 +352,7 @@ func getRouteConfigurationResource(ingress *slim_networkingv1.Ingress) (v2alpha1
 		virtualhosts = append(virtualhosts, getVirtualHost(ingress, rule))
 	}
 	routeConfig := envoy_config_route_v3.RouteConfiguration{
-		Name:         getResourceNameForIngress(ingress) + "_route",
+		Name:         getCECNameForIngress(ingress) + "_route",
 		VirtualHosts: virtualhosts,
 	}
 	routeBytes, err := proto.Marshal(&routeConfig)
