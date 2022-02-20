@@ -214,6 +214,15 @@ func getServiceForIngress(ingress *slim_networkingv1.Ingress) *v1.Service {
 			Name:      getServiceNameForIngress(ingress),
 			Namespace: ingress.Namespace,
 			Labels:    map[string]string{ciliumIngressLabelKey: "true"},
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion:         slim_networkingv1.SchemeGroupVersion.String(),
+					Kind:               "Ingress",
+					Name:               ingress.Name,
+					UID:                ingress.UID,
+					BlockOwnerDeletion: boolP(true),
+				},
+			},
 		},
 		Spec: v1.ServiceSpec{
 			Ports: ports,

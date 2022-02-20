@@ -184,17 +184,8 @@ func (ic *IngressController) handleIngressUpdatedEvent(event ingressUpdatedEvent
 }
 
 func (ic *IngressController) handleIngressDeletedEvent(event ingressDeletedEvent) error {
-	log.WithField("ingress", event.ingress.Name).Info("Deleting Service for ingress")
-	if err := ic.deleteLoadBalancer(event.ingress); err != nil {
-		log.WithError(err).Warn("failed to delete load balancer")
-		return err
-	}
-
-	log.WithField("ingress", event.ingress.Name).Info("Deleting Endpoints for ingress")
-	if err := ic.deleteEndpoints(event.ingress); err != nil {
-		log.WithError(err).Warn("failed to delete endpoints")
-		return err
-	}
+	// as ciliumEnvoyConfig is non-namespace scoped, it should be removed manually.
+	// other resources (e.g service, endpoints) will be removed automatically via ownerReferences
 	log.WithField("ingress", event.ingress.Name).Info("Deleting CiliumEnvoyConfig for ingress")
 	if err := ic.deleteCiliumEnvoyConfig(event.ingress); err != nil {
 		log.WithError(err).Warn("failed to delete cilium-envoy-config")
@@ -393,13 +384,13 @@ func (ic *IngressController) createEndpoints(ingress *slim_networkingv1.Ingress)
 }
 
 func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
-	envoyConfig, err := getEnvoyConfigForIngress(k8s.Client(), ingress)
+	desired, err := getEnvoyConfigForIngress(k8s.Client(), ingress)
 	if err != nil {
 		return err
 	}
 
 	// check if the CiliumEnvoyConfig resource already exists
-	key, err := cache.MetaNamespaceKeyFunc(envoyConfig)
+	key, err := cache.MetaNamespaceKeyFunc(desired)
 	if err != nil {
 		log.WithError(err).Warn("MetaNamespaceKeyFunc returned an error")
 		return err
@@ -410,12 +401,12 @@ func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingres
 		return err
 	}
 	if exists {
-		if envoyConfig.DeepEqual(existingEnvoyConfig) {
+		if desired.DeepEqual(existingEnvoyConfig) {
 			log.WithField("cilium-envoy-config", key).Info("No change for existing CiliumEnvoyConfig")
 			return nil
 		}
 		// Update existing CEC
-		existingEnvoyConfig.Spec = envoyConfig.Spec
+		existingEnvoyConfig.Spec = desired.Spec
 		_, err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Update(context.Background(), existingEnvoyConfig, metav1.UpdateOptions{})
 		if err != nil {
 			log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to update CiliumEnvoyConfig for ingress")
@@ -423,60 +414,11 @@ func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingres
 		log.WithField("ingress", ingress.Name).Error("Updated CiliumEnvoyConfig for ingress")
 		return nil
 	}
-	_, err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Create(context.Background(), envoyConfig, metav1.CreateOptions{})
+	_, err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Create(context.Background(), desired, metav1.CreateOptions{})
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to create CiliumEnvoyConfig for ingress")
 	}
 	log.WithField("ingress", ingress.Name).Error("Create CiliumEnvoyConfig for ingress")
-	return nil
-}
-
-func (ic *IngressController) deleteEndpoints(ingress *slim_networkingv1.Ingress) error {
-	endpoints := getEndpointsForIngress(ingress)
-	key, err := cache.MetaNamespaceKeyFunc(endpoints)
-	if err != nil {
-		log.WithError(err).Warn("MetaNamespaceKeyFunc returned an error")
-		return err
-	}
-	// check if the endpoints resource exists.
-	_, exists, err := ic.endpointManager.store.GetByKey(key)
-	if err != nil {
-		log.WithError(err).Warn("endpoints lookup returned an error")
-		return err
-	}
-	if !exists {
-		log.WithField("endpoints", key).Info("Endpoints already deleted. Continuing...")
-		return nil
-	}
-	err = k8s.Client().CoreV1().Endpoints(ingress.Namespace).Delete(context.Background(), endpoints.Name, metav1.DeleteOptions{})
-	if err != nil {
-		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to delete endpoints for ingress")
-	}
-	return nil
-}
-
-func (ic *IngressController) deleteLoadBalancer(ingress *slim_networkingv1.Ingress) error {
-	service := getServiceForIngress(ingress)
-	key, err := cache.MetaNamespaceKeyFunc(service)
-	if err != nil {
-		log.WithError(err).Warn("MetaNamespaceKeyFunc returned an error")
-		return err
-	}
-	// check if the service resource exists.
-	_, exists, err := ic.endpointManager.store.GetByKey(key)
-	if err != nil {
-		log.WithError(err).Warn("service lookup returned an error")
-		return err
-	}
-	if !exists {
-		log.WithField("service", key).Info("Service already deleted. Continuing...")
-		return nil
-	}
-	err = k8s.Client().CoreV1().Services(ingress.Namespace).Delete(context.Background(), getServiceNameForIngress(ingress), metav1.DeleteOptions{})
-	if err != nil {
-		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to delete a service for ingress")
-	}
-	log.WithField("service", key).Info("Deleted Service")
 	return nil
 }
 
@@ -506,19 +448,24 @@ func (ic *IngressController) handleDeleteIngress(obj interface{}) {
 
 func (ic *IngressController) deleteCiliumEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
 	// check if the CiliumEnvoyConfig resource exists.
-	_, exists, err := ic.envoyConfigManager.getByKey(ingress.Name)
+	resourceName := getCECNameForIngress(ingress)
+	_, exists, err := ic.envoyConfigManager.getByKey(resourceName)
 	if err != nil {
 		log.WithError(err).Warn("CiliumEnvoyConfig lookup failed")
 		return err
 	}
 	if !exists {
-		log.WithField("cilium-envoy-config", ingress.Name).Info("CiliumEnvoyConfig already deleted. Continuing...")
+		log.WithField("cilium-envoy-config", resourceName).Info("CiliumEnvoyConfig already deleted. Continuing...")
 		return nil
 	}
-	err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Delete(context.Background(), ingress.Name, metav1.DeleteOptions{})
+	err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Delete(context.Background(), resourceName, metav1.DeleteOptions{})
 	if err != nil {
-		log.WithError(err).WithField("cilium-envoy-config", ingress.Name).Error("Failed to delete CiliumEnvoyConfig for ingress")
+		log.WithError(err).WithField("cilium-envoy-config", resourceName).Error("Failed to delete CiliumEnvoyConfig for ingress")
 	}
-	log.WithField("cilium-envoy-config", ingress.Name).Info("Deleted CiliumEnvoyConfig")
+	log.WithField("cilium-envoy-config", resourceName).Info("Deleted CiliumEnvoyConfig")
 	return nil
+}
+
+func boolP(b bool) *bool {
+	return &b
 }
