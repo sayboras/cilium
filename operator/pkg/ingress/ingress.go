@@ -15,15 +15,11 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 
 	"github.com/cilium/cilium/pkg/k8s"
-	"github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
 	"github.com/cilium/cilium/pkg/k8s/informer"
 	slim_corev1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/core/v1"
 	slim_networkingv1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/networking/v1"
@@ -49,53 +45,21 @@ type ingressDeletedEvent struct {
 	ingress *slim_networkingv1.Ingress
 }
 
-type serviceAddedEvent struct {
-	service *slim_corev1.Service
-}
-type serviceUpdatedEvent struct {
-	oldService *slim_corev1.Service
-	newService *slim_corev1.Service
-}
-type serviceDeletedEvent struct {
-	service *slim_corev1.Service
+type ingressServiceUpdatedEvent struct {
+	ingressService *slim_corev1.Service
 }
 
 // IngressController struct
 type IngressController struct {
-	ingressInformer     cache.Controller
-	ingressStore        cache.Store
-	serviceInformer     cache.Controller
-	serviceStore        cache.Store
-	endpointsInformer   cache.Controller
-	endpointsStore      cache.Store
-	envoyConfigInformer cache.Controller
-	envoyConfigStore    cache.Store
-	queue               workqueue.RateLimitingInterface
-	maxRetries          int
-}
+	ingressInformer cache.Controller
+	ingressStore    cache.Store
 
-func (ic *IngressController) handleAddService(obj interface{}) {
-	if service := k8s.ObjToV1Services(obj); service != nil {
-		ic.queue.Add(serviceAddedEvent{service: service})
-	}
-}
+	serviceManager     *serviceManager
+	endpointManager    *endpointManager
+	envoyConfigManager *envoyConfigManager
 
-func (ic *IngressController) handleUpdateService(oldObj, newObj interface{}) {
-	oldService := k8s.ObjToV1Services(oldObj)
-	if oldService != nil {
-		return
-	}
-	newService := k8s.ObjToV1Services(newObj)
-	if newService != nil {
-		return
-	}
-	ic.queue.Add(serviceUpdatedEvent{oldService: oldService, newService: newService})
-}
-
-func (ic *IngressController) handleDeleteService(obj interface{}) {
-	if service := k8s.ObjToV1Services(obj); service != nil {
-		ic.queue.Add(serviceDeletedEvent{service: service})
-	}
+	queue      workqueue.RateLimitingInterface
+	maxRetries int
 }
 
 // NewIngressController returns a controller for ingress objects having ingressClassName as cilium
@@ -106,7 +70,8 @@ func NewIngressController(options ...Option) (*IngressController, error) {
 			return nil, fmt.Errorf("failed to apply option: %v", err)
 		}
 	}
-	ic := IngressController{
+
+	ic := &IngressController{
 		queue:      workqueue.NewRateLimitingQueue(workqueue.DefaultControllerRateLimiter()),
 		maxRetries: opts.MaxRetries,
 	}
@@ -122,42 +87,25 @@ func NewIngressController(options ...Option) (*IngressController, error) {
 		nil,
 	)
 
-	labelSelector := labels.NewSelector()
-	req, err := labels.NewRequirement(ciliumIngressLabelKey, selection.Exists, []string{})
+	serviceManager, err := newServiceManager(ic.queue, opts.MaxRetries)
 	if err != nil {
 		return nil, err
 	}
-	selectorFunc := func(options *metav1.ListOptions) {
-		labelSelector = labelSelector.Add(*req)
-		options.LabelSelector = labelSelector.String()
-	}
-	ic.serviceStore, ic.serviceInformer = informer.NewInformer(
-		cache.NewFilteredListWatchFromClient(k8s.WatcherClient().CoreV1().RESTClient(), "services", v1.NamespaceAll, selectorFunc),
-		&slim_corev1.Service{},
-		0,
-		cache.ResourceEventHandlerFuncs{
-			AddFunc:    ic.handleAddService,
-			UpdateFunc: ic.handleUpdateService,
-			DeleteFunc: ic.handleDeleteService,
-		},
-		nil,
-	)
-	ic.endpointsStore, ic.endpointsInformer = informer.NewInformer(
-		cache.NewFilteredListWatchFromClient(k8s.WatcherClient().CoreV1().RESTClient(), "endpoints", v1.NamespaceAll, selectorFunc),
-		&slim_corev1.Endpoints{},
-		0,
-		cache.ResourceEventHandlerFuncs{},
-		nil,
-	)
+	ic.serviceManager = serviceManager
 
-	ic.envoyConfigStore, ic.envoyConfigInformer = informer.NewInformer(
-		cache.NewListWatchFromClient(k8s.CiliumClient().CiliumV2alpha1().RESTClient(), "ciliumenvoyconfigs", v1.NamespaceAll, fields.Everything()),
-		&v2alpha1.CiliumEnvoyConfig{},
-		0,
-		cache.ResourceEventHandlerFuncs{},
-		nil,
-	)
-	return &ic, nil
+	endpointManager, err := newEndpointManager(opts.MaxRetries)
+	if err != nil {
+		return nil, err
+	}
+	ic.endpointManager = endpointManager
+
+	envoyConfigManager, err := newEnvoyConfigManager(opts.MaxRetries)
+	if err != nil {
+		return nil, err
+	}
+	ic.envoyConfigManager = envoyConfigManager
+
+	return ic, nil
 }
 
 // Run kicks off the controlled loop
@@ -167,22 +115,9 @@ func (ic *IngressController) Run() {
 	if !cache.WaitForCacheSync(wait.NeverStop, ic.ingressInformer.HasSynced) {
 		return
 	}
-	go ic.serviceInformer.Run(wait.NeverStop)
-	if !cache.WaitForCacheSync(wait.NeverStop, ic.serviceInformer.HasSynced) {
-		return
-	}
-	go ic.endpointsInformer.Run(wait.NeverStop)
-	if !cache.WaitForCacheSync(wait.NeverStop, ic.endpointsInformer.HasSynced) {
-		return
-	}
-	go ic.envoyConfigInformer.Run(wait.NeverStop)
-	if !cache.WaitForCacheSync(wait.NeverStop, ic.envoyConfigInformer.HasSynced) {
-		return
-	}
 	log.WithField("existing-ingresses", ic.ingressStore.ListKeys()).Info("ingresses synced")
-	log.WithField("existing-services", ic.serviceStore.ListKeys()).Info("services synced")
-	log.WithField("existing-endpoints", ic.endpointsStore.ListKeys()).Info("endpoints synced")
-	log.WithField("existing-envoy-config", ic.envoyConfigStore.ListKeys()).Info("envoy-config synced")
+
+	go ic.serviceManager.Run()
 	wait.Until(ic.controlLoop, time.Second, wait.NeverStop)
 }
 
@@ -254,6 +189,7 @@ func (ic *IngressController) handleIngressDeletedEvent(event ingressDeletedEvent
 		log.WithError(err).Warn("failed to delete load balancer")
 		return err
 	}
+
 	log.WithField("ingress", event.ingress.Name).Info("Deleting Endpoints for ingress")
 	if err := ic.deleteEndpoints(event.ingress); err != nil {
 		log.WithError(err).Warn("failed to delete endpoints")
@@ -265,6 +201,44 @@ func (ic *IngressController) handleIngressDeletedEvent(event ingressDeletedEvent
 		return err
 	}
 	return nil
+}
+
+func (ic *IngressController) handleIngressServiceUpdatedEvent(ingressServiceUpdated ingressServiceUpdatedEvent) error {
+	service := ingressServiceUpdated.ingressService
+	serviceKey, err := cache.MetaNamespaceKeyFunc(service)
+	if err != nil {
+		return err
+	}
+	ingressKey := getIngressKeyForService(service)
+	ingress, err := ic.getByKey(ingressKey)
+	if err != nil {
+		log.WithError(err).WithField("service", serviceKey).Warn("Failed to lookup ingress for service")
+		return err
+	}
+	log.WithField("ingress", ingressKey).WithField("service", serviceKey).
+		WithField("svc-status", service.Status.LoadBalancer).
+		WithField("ingress-status", ingress.Status.LoadBalancer).
+		Info("Checking ingress status")
+	if reflect.DeepEqual(service.Status.LoadBalancer, ingress.Status.LoadBalancer) {
+		log.Info("No change in load balancer status")
+		return nil
+	}
+
+	newIngressStatus := getIngressForStatusUpdate(ingress, service.Status.LoadBalancer)
+	log.WithField("ingress", ingressKey).WithField("service", serviceKey).
+		WithField("svc-status", service.Status.LoadBalancer).
+		WithField("new-status", newIngressStatus).
+		Info("Updating ingress status")
+	_, err = k8s.Client().NetworkingV1().Ingresses(ingress.Namespace).UpdateStatus(context.Background(), newIngressStatus, metav1.UpdateOptions{})
+	if err != nil {
+		log.WithError(err).Warn("Failed to update ingress status")
+	}
+	log.WithError(err).WithFields(logrus.Fields{
+		"service":       serviceKey,
+		"ingress":       ingressKey,
+		"load-balancer": service.Status.LoadBalancer,
+	}).Info("Updated ingress status")
+	return err
 }
 
 func toV1TypeMeta(in slim_metav1.TypeMeta) metav1.TypeMeta {
@@ -309,86 +283,24 @@ func getIngressForStatusUpdate(slimIngress *slim_networkingv1.Ingress, lb slim_c
 	}
 }
 
-func (ic *IngressController) syncLoadBalancerIPs(service *slim_corev1.Service) error {
-	serviceKey, err := cache.MetaNamespaceKeyFunc(service)
-	if err != nil {
-		return err
-	}
-	ingressKey := getIngressKeyForService(service)
-	ingress, err := ic.getIngressFromCache(ingressKey)
-	if err != nil {
-		log.WithError(err).WithField("service", serviceKey).Warn("Failed to lookup ingress for service")
-		return err
-	}
-	log.WithField("ingress", ingressKey).WithField("service", serviceKey).
-		WithField("svc-status", service.Status.LoadBalancer).
-		WithField("ingress-status", ingress.Status.LoadBalancer).
-		Info("Checking ingress status")
-	if reflect.DeepEqual(service.Status.LoadBalancer, ingress.Status.LoadBalancer) {
-		log.Info("No change in load balancer status")
-		return nil
-	}
-
-	newIngressStatus := getIngressForStatusUpdate(ingress, service.Status.LoadBalancer)
-	log.WithField("ingress", ingressKey).WithField("service", serviceKey).
-		WithField("svc-status", service.Status.LoadBalancer).
-		WithField("new-status", newIngressStatus).
-		Info("Updating ingress status")
-	_, err = k8s.Client().NetworkingV1().Ingresses(ingress.Namespace).UpdateStatus(context.Background(), newIngressStatus, metav1.UpdateOptions{})
-	if err != nil {
-		log.WithError(err).Warn("Failed to update ingress status")
-	}
-	log.WithError(err).WithFields(logrus.Fields{
-		"service":       serviceKey,
-		"ingress":       ingressKey,
-		"load-balancer": service.Status.LoadBalancer,
-	}).Info("Updated ingress status")
-	return err
-}
-
-func (ic *IngressController) handleServiceAddedEvent(event serviceAddedEvent) error {
-	return ic.syncLoadBalancerIPs(event.service)
-}
-
-func (ic *IngressController) handleServiceUpdatedEvent(event serviceUpdatedEvent) error {
-	if event.newService.ObjectMeta.GetDeletionTimestamp() != nil {
-		// This means the service is in the process of being deleted, cleaning up load balancers
-		// and such. Nothing to do in this case.
-		log.WithFields(logrus.Fields{
-			"svc-namespace": event.newService.Namespace,
-			"svc-name":      event.newService.Name,
-		}).Debug("Service is being deleted")
-		return nil
-	}
-	log.WithField("old", event.oldService).WithField("new", event.newService).Info("Handling service update")
-	return ic.syncLoadBalancerIPs(event.newService)
-}
-
 func (ic *IngressController) handleEvent(event interface{}) error {
 	var err error
 	switch ev := event.(type) {
 	case ingressAddedEvent:
-		log.Info("handling ingress added event")
+		log.WithField("ingress", ev.ingress.Name).Info("Handling ingress added event")
 		err = ic.handleIngressAddedEvent(ev)
 		break
 	case ingressUpdatedEvent:
-		log.Info("handling ingress updated event")
+		log.WithField("ingress", ev.newIngress.Name).Info("handling ingress updated event")
 		err = ic.handleIngressUpdatedEvent(ev)
 		break
 	case ingressDeletedEvent:
-		log.Info("handling ingress deleted event")
+		log.WithField("ingress", ev.ingress.Name).Info("Handling ingress deleted event")
 		err = ic.handleIngressDeletedEvent(ev)
 		break
-	case serviceAddedEvent:
-		log.Info("handling service added event")
-		err = ic.handleServiceAddedEvent(ev)
-		break
-	case serviceUpdatedEvent:
-		log.Info("handling service updated event")
-		err = ic.handleServiceUpdatedEvent(ev)
-		break
-	case serviceDeletedEvent:
-		log.Info("handling service deleted event")
+	case ingressServiceUpdatedEvent:
+		log.WithField("service", ev.ingressService.Name).Info("Handling ingress service updated event")
+		err = ic.handleIngressServiceUpdatedEvent(ev)
 		break
 	default:
 		err = fmt.Errorf("received an unknown event: %s", ev)
@@ -396,7 +308,7 @@ func (ic *IngressController) handleEvent(event interface{}) error {
 	return err
 }
 
-func (ic *IngressController) getIngressFromCache(key string) (*slim_networkingv1.Ingress, error) {
+func (ic *IngressController) getByKey(key string) (*slim_networkingv1.Ingress, error) {
 	objFromCache, exists, err := ic.ingressStore.GetByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("Ingress cache lookup failed")
@@ -421,60 +333,6 @@ func getIngressKeyForService(service *slim_corev1.Service) string {
 	return fmt.Sprintf("%s/%s", service.Namespace, ingressName)
 }
 
-func getServiceForIngress(ingress *slim_networkingv1.Ingress) *v1.Service {
-	ports := []v1.ServicePort{
-		{
-			Name:     "http",
-			Protocol: "TCP",
-			Port:     80,
-			// TODO(michi) how do we deal with multiple target ports?
-			// TODO(jarno) It seems that when service is accessed via
-			//             NodePort all these targetports are ignored anyway,
-			//             and the targetport defined in the backend service is
-			//             used regardless what is specified here.
-			TargetPort: intstr.IntOrString{IntVal: ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number},
-		},
-	}
-	if len(ingress.Spec.TLS) > 0 {
-		ports = []v1.ServicePort{
-			{
-				Name:     "https",
-				Protocol: "TCP",
-				Port:     443,
-				// TODO(michi) how do we deal with multiple target ports?
-				TargetPort: intstr.IntOrString{IntVal: ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number},
-			},
-		}
-	}
-	return &v1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      getServiceNameForIngress(ingress),
-			Namespace: ingress.Namespace,
-			Labels:    map[string]string{ciliumIngressLabelKey: "true"},
-		},
-		Spec: v1.ServiceSpec{
-			Ports: ports,
-			Type:  v1.ServiceTypeLoadBalancer,
-		},
-	}
-}
-
-func getEndpointsForIngress(ingress *slim_networkingv1.Ingress) *v1.Endpoints {
-	return &v1.Endpoints{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      getServiceNameForIngress(ingress),
-			Namespace: ingress.Namespace,
-			Labels:    map[string]string{ciliumIngressLabelKey: "true"},
-		},
-		Subsets: []v1.EndpointSubset{
-			{
-				Addresses: []v1.EndpointAddress{{IP: "192.192.192.192"}}, // dummy
-				Ports:     []v1.EndpointPort{{Port: ingress.Spec.Rules[0].HTTP.Paths[0].Backend.Service.Port.Number}},
-			},
-		},
-	}
-}
-
 func (ic *IngressController) createLoadBalancer(ingress *slim_networkingv1.Ingress) error {
 	svc := getServiceForIngress(ingress)
 	svcKey, err := cache.MetaNamespaceKeyFunc(svc)
@@ -482,27 +340,25 @@ func (ic *IngressController) createLoadBalancer(ingress *slim_networkingv1.Ingre
 		log.Warn("failed to get service key for ingress")
 		return err
 	}
-	objFromCache, exists, err := ic.serviceStore.GetByKey(svcKey)
+
+	_, exists, err := ic.serviceManager.getByKey(svcKey)
 	if err != nil {
 		log.WithError(err).Warn("service lookup returned an error")
 		return err
 	}
 	if exists {
-		_, ok := objFromCache.(*slim_corev1.Service)
-		if !ok {
-			return fmt.Errorf("got invalid object from cache")
-		}
 		// Service already exists in the cache. For now assume that it was created by the ingress
 		// controller.
 		log.WithField("service", svcKey).Info("Service already exists. Continuing...")
 		return nil
 	}
+
 	_, err = k8s.Client().CoreV1().Services(ingress.Namespace).Create(context.Background(), svc, metav1.CreateOptions{})
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to create a service for ingress")
-	} else {
-		log.WithField("service", svcKey).Info("Created Service for Ingress")
 	}
+	log.WithField("service", svcKey).Info("Created Service for Ingress")
+
 	return err
 }
 
@@ -515,32 +371,29 @@ func (ic *IngressController) createEndpoints(ingress *slim_networkingv1.Ingress)
 	}
 
 	// check if the endpoints resource already exists
-	objFromCache, exists, err := ic.endpointsStore.GetByKey(key)
+	_, exists, err := ic.endpointManager.getByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("endpoints lookup returned an error")
 		return err
 	}
 	if exists {
-		_, ok := objFromCache.(*slim_corev1.Endpoints)
-		if !ok {
-			return fmt.Errorf("got invalid object from cache")
-		}
 		// Endpoints already exists in the cache. For now assume that it was created by the ingress
 		// controller.
 		log.WithField("endpoints", key).Info("Endpoints already exists. Continuing...")
 		return nil
 	}
+
 	_, err = k8s.Client().CoreV1().Endpoints(ingress.Namespace).Create(context.Background(), endpoints, metav1.CreateOptions{})
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to create endpoints for ingress")
-	} else {
-		log.WithField("endpoints", key).Info("Created Endpoints for Ingress")
 	}
+
+	log.WithField("endpoints", key).Info("Created Endpoints for Ingress")
 	return err
 }
 
 func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
-	envoyConfig, err := ic.amazingIngressControllerBusinessLogic(ingress)
+	envoyConfig, err := getEnvoyConfigForIngress(k8s.Client(), ingress)
 	if err != nil {
 		return err
 	}
@@ -551,18 +404,14 @@ func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingres
 		log.WithError(err).Warn("MetaNamespaceKeyFunc returned an error")
 		return err
 	}
-	objFromCache, exists, err := ic.envoyConfigStore.GetByKey(key)
+	existingEnvoyConfig, exists, err := ic.envoyConfigManager.getByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("CiliumEnvoyConfig lookup failed")
 		return err
 	}
 	if exists {
-		existingEnvoyConfig, ok := objFromCache.(*v2alpha1.CiliumEnvoyConfig)
-		if !ok {
-			return fmt.Errorf("got invalid object from cache")
-		}
 		if envoyConfig.DeepEqual(existingEnvoyConfig) {
-			log.WithField("cilium-envoy-config", key).Info("Equal CiliumEnvoyConfig already exists. Continuing...")
+			log.WithField("cilium-envoy-config", key).Info("No change for existing CiliumEnvoyConfig")
 			return nil
 		}
 		// Update existing CEC
@@ -570,18 +419,16 @@ func (ic *IngressController) createEnvoyConfig(ingress *slim_networkingv1.Ingres
 		_, err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Update(context.Background(), existingEnvoyConfig, metav1.UpdateOptions{})
 		if err != nil {
 			log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to update CiliumEnvoyConfig for ingress")
-		} else {
-			log.WithField("ingress", ingress.Name).Error("Updated CiliumEnvoyConfig for ingress")
 		}
-		return err
+		log.WithField("ingress", ingress.Name).Error("Updated CiliumEnvoyConfig for ingress")
+		return nil
 	}
 	_, err = k8s.CiliumClient().CiliumV2alpha1().CiliumEnvoyConfigs().Create(context.Background(), envoyConfig, metav1.CreateOptions{})
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to create CiliumEnvoyConfig for ingress")
-	} else {
-		log.WithField("ingress", ingress.Name).Error("Create CiliumEnvoyConfig for ingress")
 	}
-	return err
+	log.WithField("ingress", ingress.Name).Error("Create CiliumEnvoyConfig for ingress")
+	return nil
 }
 
 func (ic *IngressController) deleteEndpoints(ingress *slim_networkingv1.Ingress) error {
@@ -592,7 +439,7 @@ func (ic *IngressController) deleteEndpoints(ingress *slim_networkingv1.Ingress)
 		return err
 	}
 	// check if the endpoints resource exists.
-	_, exists, err := ic.endpointsStore.GetByKey(key)
+	_, exists, err := ic.endpointManager.store.GetByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("endpoints lookup returned an error")
 		return err
@@ -605,7 +452,7 @@ func (ic *IngressController) deleteEndpoints(ingress *slim_networkingv1.Ingress)
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to delete endpoints for ingress")
 	}
-	return err
+	return nil
 }
 
 func (ic *IngressController) deleteLoadBalancer(ingress *slim_networkingv1.Ingress) error {
@@ -616,7 +463,7 @@ func (ic *IngressController) deleteLoadBalancer(ingress *slim_networkingv1.Ingre
 		return err
 	}
 	// check if the service resource exists.
-	_, exists, err := ic.serviceStore.GetByKey(key)
+	_, exists, err := ic.endpointManager.store.GetByKey(key)
 	if err != nil {
 		log.WithError(err).Warn("service lookup returned an error")
 		return err
@@ -628,10 +475,9 @@ func (ic *IngressController) deleteLoadBalancer(ingress *slim_networkingv1.Ingre
 	err = k8s.Client().CoreV1().Services(ingress.Namespace).Delete(context.Background(), getServiceNameForIngress(ingress), metav1.DeleteOptions{})
 	if err != nil {
 		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to delete a service for ingress")
-	} else {
-		log.WithField("service", key).Info("Deleted Service")
 	}
-	return err
+	log.WithField("service", key).Info("Deleted Service")
+	return nil
 }
 
 func (ic *IngressController) handleAddIngress(obj interface{}) {
@@ -660,7 +506,7 @@ func (ic *IngressController) handleDeleteIngress(obj interface{}) {
 
 func (ic *IngressController) deleteCiliumEnvoyConfig(ingress *slim_networkingv1.Ingress) error {
 	// check if the CiliumEnvoyConfig resource exists.
-	_, exists, err := ic.envoyConfigStore.GetByKey(ingress.Name)
+	_, exists, err := ic.envoyConfigManager.getByKey(ingress.Name)
 	if err != nil {
 		log.WithError(err).Warn("CiliumEnvoyConfig lookup failed")
 		return err

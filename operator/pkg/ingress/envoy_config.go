@@ -20,25 +20,68 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/cilium/cilium/pkg/envoy"
 	"github.com/cilium/cilium/pkg/k8s"
 	"github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
+	"github.com/cilium/cilium/pkg/k8s/informer"
 	slim_networkingv1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/networking/v1"
 )
+
+type envoyConfigManager struct {
+	informer   cache.Controller
+	store      cache.Store
+	maxRetries int
+}
+
+func newEnvoyConfigManager(maxRetries int) (*envoyConfigManager, error) {
+	manager := &envoyConfigManager{
+		maxRetries: maxRetries,
+	}
+
+	// setup store and informer only for endpoints having label cilium.io/ingress
+	manager.store, manager.informer = informer.NewInformer(
+		cache.NewListWatchFromClient(k8s.CiliumClient().CiliumV2alpha1().RESTClient(), v2alpha1.CECPluralName, v1.NamespaceAll, fields.Everything()),
+		&v2alpha1.CiliumEnvoyConfig{},
+		0,
+		cache.ResourceEventHandlerFuncs{},
+		nil,
+	)
+
+	go manager.informer.Run(wait.NeverStop)
+	if !cache.WaitForCacheSync(wait.NeverStop, manager.informer.HasSynced) {
+		return manager, fmt.Errorf("unable to sync envoy configs")
+	}
+	log.WithField("existing-envoy-config", manager.store.ListKeys()).Info("CiliumEnvoyConfig synced")
+	return manager, nil
+}
+
+// getByKey is a wrapper of Store.GetByKey but with concrete Endpoint object
+func (em *envoyConfigManager) getByKey(key string) (*v2alpha1.CiliumEnvoyConfig, bool, error) {
+	objFromCache, exists, err := em.store.GetByKey(key)
+	if objFromCache == nil || !exists || err != nil {
+		return nil, exists, err
+	}
+	envoyConfig, ok := objFromCache.(*v2alpha1.CiliumEnvoyConfig)
+	if !ok {
+		return nil, exists, fmt.Errorf("got invalid object from cache")
+	}
+	return envoyConfig, exists, err
+}
 
 func getResourceNameForIngress(ingress *slim_networkingv1.Ingress) string {
 	return ciliumIngressPrefix + ingress.Namespace + "-" + ingress.Name
 }
 
-func (ic *IngressController) getSecret(namespace, name string) (string, string, error) {
-	secret := v1.Secret{}
-	err := k8s.Client().CoreV1().RESTClient().Get().Resource("secrets").Namespace(namespace).Name(name).Do(context.Background()).Into(&secret)
+func getSecret(k8sClient kubernetes.Interface, namespace, name string) (string, string, error) {
+	secret, err := k8sClient.CoreV1().Secrets(namespace).Get(context.Background(), name, metav1.GetOptions{})
 	if err != nil {
 		return "", "", fmt.Errorf("failied to get secret %s/%s: %v", namespace, name, err)
 	}
-	log.WithField("data-fields", secret.Data).Info("Loaded secret. amazing")
-	log.WithField("data-string-fields", secret.StringData).Info("Loaded secret. amazing")
 	var tlsKey, tlsCrt []byte
 	var ok bool
 	if tlsKey, ok = secret.Data["tls.key"]; !ok {
@@ -50,10 +93,10 @@ func (ic *IngressController) getSecret(namespace, name string) (string, string, 
 	return string(tlsCrt), string(tlsKey), nil
 }
 
-func (ic *IngressController) getTLS(ingress *slim_networkingv1.Ingress) (map[string]*envoy_config_core_v3.TransportSocket, error) {
+func getTLS(k8sClient kubernetes.Interface, ingress *slim_networkingv1.Ingress) (map[string]*envoy_config_core_v3.TransportSocket, error) {
 	tls := make(map[string]*envoy_config_core_v3.TransportSocket)
 	for _, tlsConfig := range ingress.Spec.TLS {
-		crt, key, err := ic.getSecret(ingress.Namespace, tlsConfig.SecretName)
+		crt, key, err := getSecret(k8sClient, ingress.Namespace, tlsConfig.SecretName)
 		if err != nil {
 			return nil, err
 		}
@@ -94,16 +137,16 @@ func (ic *IngressController) getTLS(ingress *slim_networkingv1.Ingress) (map[str
 	return tls, nil
 }
 
-func (ic *IngressController) amazingIngressControllerBusinessLogic(ingress *slim_networkingv1.Ingress) (*v2alpha1.CiliumEnvoyConfig, error) {
+func getEnvoyConfigForIngress(k8sClient kubernetes.Interface, ingress *slim_networkingv1.Ingress) (*v2alpha1.CiliumEnvoyConfig, error) {
 	backendServices := getBackendServices(ingress)
-	resources, err := ic.getResources(ingress, backendServices)
+	resources, err := getResources(k8sClient, ingress, backendServices)
 	if err != nil {
 		return nil, err
 	}
 	return &v2alpha1.CiliumEnvoyConfig{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       v2alpha1.CECKindDefinition,
-			APIVersion: "cilium.io/v2alpha1",
+			APIVersion: v2alpha1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name: getResourceNameForIngress(ingress),
@@ -141,13 +184,9 @@ func getBackendServices(ingress *slim_networkingv1.Ingress) []*v2alpha1.Service 
 	return backendServices
 }
 
-func (ic *IngressController) getResources(ingress *slim_networkingv1.Ingress, backendServices []*v2alpha1.Service) ([]v2alpha1.XDSResource, error) {
+func getResources(k8sClient kubernetes.Interface, ingress *slim_networkingv1.Ingress, backendServices []*v2alpha1.Service) ([]v2alpha1.XDSResource, error) {
 	var resources []v2alpha1.XDSResource
-	tls, err := ic.getTLS(ingress)
-	if err != nil {
-		log.WithError(err).Warn("Failed to get secret for ingress")
-	}
-	listener, err := getListenerResource(ingress, tls)
+	listener, err := getListenerResource(k8sClient, ingress)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +204,12 @@ func (ic *IngressController) getResources(ingress *slim_networkingv1.Ingress, ba
 	return resources, nil
 }
 
-func getListenerResource(ingress *slim_networkingv1.Ingress, tls map[string]*envoy_config_core_v3.TransportSocket) (v2alpha1.XDSResource, error) {
+func getListenerResource(k8sClient kubernetes.Interface, ingress *slim_networkingv1.Ingress) (v2alpha1.XDSResource, error) {
+	tls, err := getTLS(k8sClient, ingress)
+	if err != nil {
+		log.WithError(err).Warn("Failed to get secret for ingress")
+	}
+
 	connectionManager := envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager{
 		StatPrefix: ingress.Name,
 		RouteSpecifier: &envoy_extensions_filters_network_http_connection_manager_v3.HttpConnectionManager_Rds{
@@ -187,7 +231,6 @@ func getListenerResource(ingress *slim_networkingv1.Ingress, tls map[string]*env
 		FilterChains: []*envoy_config_listener.FilterChain{
 			{
 				Filters: []*envoy_config_listener.Filter{
-
 					{
 						Name: "envoy.filters.network.http_connection_manager",
 						ConfigType: &envoy_config_listener.Filter_TypedConfig{
@@ -202,6 +245,7 @@ func getListenerResource(ingress *slim_networkingv1.Ingress, tls map[string]*env
 		},
 	}
 	if len(ingress.Spec.TLS) > 0 {
+		// TODO(tam) extend to list of tls
 		// just take the first one for now
 		domain := ingress.Spec.TLS[0].Hosts[0]
 		tlsconf := tls[domain]
