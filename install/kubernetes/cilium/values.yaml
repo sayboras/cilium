@@ -1521,6 +1521,10 @@ operator:
   # -- Timeout for identity heartbeats.
   identityHeartbeatTimeout: "30m0s"
 
+  # -- Enable cilium ingress controller
+  # This will automatically set enable-envoy-config as well.
+  enableIngressController: "false"
+
   # -- Enable prometheus metrics for cilium-operator on the configured port at
   # /metrics
   prometheus:

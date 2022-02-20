@@ -1129,6 +1129,10 @@
      - Affinity for cilium-operator
      - object
      - ``{"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchLabels":{"io.cilium/app":"operator"}},"topologyKey":"kubernetes.io/hostname"}]}}``
+   * - operator.enableIngressController
+     - Enable cilium ingress controller This will automatically set enable-envoy-config as well.
+     - string
+     - ``"false"``
    * - operator.enabled
      - Enable the cilium-operator component (required).
      - bool
