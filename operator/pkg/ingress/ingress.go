@@ -55,7 +55,6 @@ type IngressController struct {
 	ingressStore    cache.Store
 
 	serviceManager     *serviceManager
-	endpointManager    *endpointManager
 	envoyConfigManager *envoyConfigManager
 
 	queue      workqueue.RateLimitingInterface
@@ -92,12 +91,6 @@ func NewIngressController(options ...Option) (*IngressController, error) {
 		return nil, err
 	}
 	ic.serviceManager = serviceManager
-
-	endpointManager, err := newEndpointManager(opts.MaxRetries)
-	if err != nil {
-		return nil, err
-	}
-	ic.endpointManager = endpointManager
 
 	envoyConfigManager, err := newEnvoyConfigManager(opts.MaxRetries)
 	if err != nil {
@@ -152,10 +145,6 @@ func (ic *IngressController) handleIngressAddedEvent(event ingressAddedEvent) er
 		log.WithError(err).Warn("failed to create CiliumEnvoyConfig")
 		return err
 	}
-	if err := ic.createEndpoints(event.ingress); err != nil {
-		log.WithError(err).Warn("failed to create endpoints")
-		return err
-	}
 	if err := ic.createLoadBalancer(event.ingress); err != nil {
 		log.WithError(err).Warn("failed to create load balancer")
 		return err
@@ -170,10 +159,6 @@ func (ic *IngressController) handleIngressUpdatedEvent(event ingressUpdatedEvent
 	}
 	if err := ic.createEnvoyConfig(event.newIngress); err != nil {
 		log.WithError(err).Warn("failed to update CiliumEnvoyConfig")
-		return err
-	}
-	if err := ic.createEndpoints(event.newIngress); err != nil {
-		log.WithError(err).Warn("failed to update endpoints")
 		return err
 	}
 	if err := ic.createLoadBalancer(event.newIngress); err != nil {
@@ -350,36 +335,6 @@ func (ic *IngressController) createLoadBalancer(ingress *slim_networkingv1.Ingre
 	}
 	log.WithField("service", svcKey).Info("Created Service for Ingress")
 
-	return err
-}
-
-func (ic *IngressController) createEndpoints(ingress *slim_networkingv1.Ingress) error {
-	endpoints := getEndpointsForIngress(ingress)
-	key, err := cache.MetaNamespaceKeyFunc(endpoints)
-	if err != nil {
-		log.WithError(err).Warn("MetaNamespaceKeyFunc returned an error")
-		return err
-	}
-
-	// check if the endpoints resource already exists
-	_, exists, err := ic.endpointManager.getByKey(key)
-	if err != nil {
-		log.WithError(err).Warn("endpoints lookup returned an error")
-		return err
-	}
-	if exists {
-		// Endpoints already exists in the cache. For now assume that it was created by the ingress
-		// controller.
-		log.WithField("endpoints", key).Info("Endpoints already exists. Continuing...")
-		return nil
-	}
-
-	_, err = k8s.Client().CoreV1().Endpoints(ingress.Namespace).Create(context.Background(), endpoints, metav1.CreateOptions{})
-	if err != nil {
-		log.WithError(err).WithField("ingress", ingress.Name).Error("Failed to create endpoints for ingress")
-	}
-
-	log.WithField("endpoints", key).Info("Created Endpoints for Ingress")
 	return err
 }
 
