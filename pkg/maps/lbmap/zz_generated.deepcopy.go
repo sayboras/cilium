@@ -185,6 +185,7 @@ func (in *Backend4KeyV2) DeepCopyMapKey() bpf.MapKey {
 func (in *Backend4Value) DeepCopyInto(out *Backend4Value) {
 	*out = *in
 	in.Address.DeepCopyInto(&out.Address)
+	in.Pad.DeepCopyInto(&out.Pad)
 	return
 }
 
@@ -258,6 +259,7 @@ func (in *Backend6KeyV2) DeepCopyMapKey() bpf.MapKey {
 func (in *Backend6Value) DeepCopyInto(out *Backend6Value) {
 	*out = *in
 	in.Address.DeepCopyInto(&out.Address)
+	in.Pad.DeepCopyInto(&out.Pad)
 	return
 }
 

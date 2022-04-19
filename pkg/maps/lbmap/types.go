@@ -126,6 +126,9 @@ type BackendValue interface {
 	// Get backend flags
 	GetFlags() uint8
 
+	// Get backend preferred
+	GetPreferred() uint8
+
 	// Convert fields to network byte order.
 	ToNetwork() BackendValue
 
@@ -191,6 +194,6 @@ func svcBackend(backendID loadbalancer.BackendID, backend BackendValue) *loadbal
 	bePort := backend.GetPort()
 	beProto := loadbalancer.NONE
 	beState := loadbalancer.GetBackendStateFromFlags(backend.GetFlags())
-	beBackend := loadbalancer.NewBackendWithState(backendID, beProto, beIP, bePort, beState, true)
+	beBackend := loadbalancer.NewBackendWithState(backendID, beProto, beIP, bePort, loadbalancer.BackendPreferredNone, beState, true)
 	return beBackend
 }

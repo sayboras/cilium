@@ -26,6 +26,12 @@ import (
 	serviceStore "github.com/cilium/cilium/pkg/service/store"
 )
 
+const (
+	serviceAffinityNone   = "none"
+	serviceAffinityLocal  = "local"
+	serviceAffinityRemote = "remote"
+)
+
 const annotationTopologyAwareHints = "service.kubernetes.io/topology-aware-hints"
 
 func getAnnotationIncludeExternal(svc *slim_corev1.Service) bool {
@@ -42,6 +48,13 @@ func getAnnotationShared(svc *slim_corev1.Service) bool {
 	}
 
 	return getAnnotationIncludeExternal(svc)
+}
+
+func getAnnotationServiceAffinity(svc *slim_corev1.Service) string {
+	if value, ok := svc.ObjectMeta.Annotations[annotation.ServiceAffinity]; ok {
+		return strings.ToLower(value)
+	}
+	return serviceAffinityNone
 }
 
 func getAnnotationTopologyAwareHints(svc *slim_corev1.Service) bool {
@@ -155,6 +168,7 @@ func ParseService(svc *slim_corev1.Service, nodeAddressing types.NodeAddressing)
 
 	svcInfo.IncludeExternal = getAnnotationIncludeExternal(svc)
 	svcInfo.Shared = getAnnotationShared(svc)
+	svcInfo.ServiceAffinity = getAnnotationServiceAffinity(svc)
 
 	if svc.Spec.SessionAffinity == slim_corev1.ServiceAffinityClientIP {
 		svcInfo.SessionAffinity = true
@@ -291,6 +305,10 @@ type Service struct {
 	// Shared is true when the service should be exposed/shared to other clusters
 	Shared bool
 
+	// ServiceAffinity determines the preferred endpoint destination. Applicable
+	// values: local-node, local, remote, none (default).
+	ServiceAffinity string
+
 	// TrafficPolicy controls how backends are selected. If set to "Local", only
 	// node-local backends are chosen
 	TrafficPolicy loadbalancer.SVCTrafficPolicy
@@ -349,7 +367,7 @@ func (s *Service) DeepEqual(other *Service) bool {
 		return false
 	}
 
-	if s.Shared != other.Shared || s.IncludeExternal != other.IncludeExternal {
+	if s.Shared != other.Shared || s.IncludeExternal != other.IncludeExternal || s.ServiceAffinity != other.ServiceAffinity {
 		return false
 	}
 

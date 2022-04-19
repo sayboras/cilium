@@ -42,6 +42,9 @@ func (in *Backend) DeepEqual(other *Backend) bool {
 	if in.Terminating != other.Terminating {
 		return false
 	}
+	if in.Preferred != other.Preferred {
+		return false
+	}
 	if ((in.HintsForZones != nil) && (other.HintsForZones != nil)) || ((in.HintsForZones == nil) != (other.HintsForZones == nil)) {
 		in, other := &in.HintsForZones, &other.HintsForZones
 		if other == nil {
@@ -162,6 +165,9 @@ func (in *Service) deepEqual(other *Service) bool {
 		return false
 	}
 	if in.Shared != other.Shared {
+		return false
+	}
+	if in.ServiceAffinity != other.ServiceAffinity {
 		return false
 	}
 	if in.TrafficPolicy != other.TrafficPolicy {

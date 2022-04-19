@@ -30,7 +30,7 @@ import (
 	"github.com/cilium/cilium/pkg/ipcache"
 	"github.com/cilium/cilium/pkg/k8s"
 	v2 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2"
-	v2alpha1 "github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
+	"github.com/cilium/cilium/pkg/k8s/apis/cilium.io/v2alpha1"
 	k8smetrics "github.com/cilium/cilium/pkg/k8s/metrics"
 	slim_corev1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/core/v1"
 	slim_discover_v1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/discovery/v1"
@@ -684,6 +684,7 @@ func genCartesianProduct(
 
 			if backendPort := backend.Ports[string(fePortName)]; backendPort != nil && feFamilyIPv6 == ip.IsIPv6(parsedIP) {
 				backendState := loadbalancer.BackendStateActive
+
 				if backend.Terminating {
 					backendState = loadbalancer.BackendStateTerminating
 				}
@@ -693,7 +694,8 @@ func genCartesianProduct(
 						IP:     parsedIP,
 						L4Addr: *backendPort,
 					},
-					State: backendState,
+					State:     backendState,
+					Preferred: loadbalancer.Preferred(loadbalancer.NewBackendPreferredFlags(backend.Preferred)),
 				})
 			}
 		}
@@ -793,6 +795,7 @@ func datapathSVCs(svc *k8s.Service, endpoints *k8s.Endpoints) (svcs []loadbalanc
 		}
 	}
 
+	log.WithField("TAM", "testing").Infof("datapathSVCs %+v", svcs)
 	return svcs
 }
 

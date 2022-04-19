@@ -390,13 +390,15 @@ func (k *Backend4Key) GetID() loadbalancer.BackendID   { return loadbalancer.Bac
 // +k8s:deepcopy-gen=true
 // +k8s:deepcopy-gen:interfaces=github.com/cilium/cilium/pkg/bpf.MapValue
 type Backend4Value struct {
-	Address types.IPv4      `align:"address"`
-	Port    uint16          `align:"port"`
-	Proto   u8proto.U8proto `align:"proto"`
-	Flags   uint8           `align:"flags"`
+	Address   types.IPv4      `align:"address"`
+	Port      uint16          `align:"port"`
+	Proto     u8proto.U8proto `align:"proto"`
+	Flags     uint8           `align:"flags"`
+	Preferred uint8           `align:"preferred"`
+	Pad       pad2uint8       `align:"pad"`
 }
 
-func NewBackend4Value(ip net.IP, port uint16, proto u8proto.U8proto, state loadbalancer.BackendState) (*Backend4Value, error) {
+func NewBackend4Value(ip net.IP, port uint16, proto u8proto.U8proto, preferred loadbalancer.Preferred, state loadbalancer.BackendState) (*Backend4Value, error) {
 	ip4 := ip.To4()
 	if ip4 == nil {
 		return nil, fmt.Errorf("Not an IPv4 address")
@@ -404,9 +406,10 @@ func NewBackend4Value(ip net.IP, port uint16, proto u8proto.U8proto, state loadb
 	flags := loadbalancer.NewBackendFlags(state)
 
 	val := Backend4Value{
-		Port:  port,
-		Proto: proto,
-		Flags: flags,
+		Port:      port,
+		Proto:     proto,
+		Flags:     flags,
+		Preferred: uint8(preferred),
 	}
 	copy(val.Address[:], ip.To4())
 
@@ -420,9 +423,10 @@ func (v *Backend4Value) String() string {
 
 func (v *Backend4Value) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(v) }
 
-func (b *Backend4Value) GetAddress() net.IP { return b.Address.IP() }
-func (b *Backend4Value) GetPort() uint16    { return b.Port }
-func (b *Backend4Value) GetFlags() uint8    { return b.Flags }
+func (b *Backend4Value) GetAddress() net.IP  { return b.Address.IP() }
+func (b *Backend4Value) GetPort() uint16     { return b.Port }
+func (b *Backend4Value) GetFlags() uint8     { return b.Flags }
+func (b *Backend4Value) GetPreferred() uint8 { return b.Preferred }
 
 func (v *Backend4Value) ToNetwork() BackendValue {
 	n := *v
@@ -443,8 +447,8 @@ type Backend4V2 struct {
 }
 
 func NewBackend4V2(id loadbalancer.BackendID, ip net.IP, port uint16, proto u8proto.U8proto,
-	state loadbalancer.BackendState) (*Backend4V2, error) {
-	val, err := NewBackend4Value(ip, port, proto, state)
+	preferred loadbalancer.Preferred, state loadbalancer.BackendState) (*Backend4V2, error) {
+	val, err := NewBackend4Value(ip, port, proto, preferred, state)
 	if err != nil {
 		return nil, err
 	}

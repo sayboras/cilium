@@ -57,6 +57,7 @@ type Backend struct {
 	Ports         serviceStore.PortConfiguration
 	NodeName      string
 	Terminating   bool
+	Preferred     bool
 	HintsForZones []string
 }
 
@@ -70,7 +71,7 @@ func (e *Endpoints) String() string {
 	backends := []string{}
 	for ip, be := range e.Backends {
 		for _, port := range be.Ports {
-			backends = append(backends, fmt.Sprintf("%s/%s", net.JoinHostPort(ip, strconv.Itoa(int(port.Port))), port.Protocol))
+			backends = append(backends, fmt.Sprintf("%s/%s(%t)", net.JoinHostPort(ip, strconv.Itoa(int(port.Port))), port.Protocol, be.Preferred))
 		}
 	}
 

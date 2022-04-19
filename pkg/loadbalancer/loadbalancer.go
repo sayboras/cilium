@@ -250,6 +250,13 @@ const (
 	BackendStateMaintenanceFlag
 )
 
+type BackendPreferredFlags = uint8
+
+const (
+	BackendPreferredNone = 0
+	BackendPreferred     = 1
+)
+
 func NewBackendFlags(state BackendState) BackendStateFlags {
 	var flags BackendStateFlags
 
@@ -265,6 +272,13 @@ func NewBackendFlags(state BackendState) BackendStateFlags {
 	}
 
 	return flags
+}
+
+func NewBackendPreferredFlags(preferred bool) BackendPreferredFlags {
+	if preferred {
+		return BackendPreferred
+	}
+	return BackendPreferredNone
 }
 
 func GetBackendStateFromFlags(flags uint8) BackendState {
@@ -303,6 +317,9 @@ type ID uint32
 // BackendState is the state of a backend for load-balancing service traffic.
 type BackendState uint8
 
+// Preferred indicates if this backend is preferred to be load balanced.
+type Preferred uint8
+
 // Backend represents load balancer backend.
 type Backend struct {
 	// ID of the backend
@@ -313,6 +330,10 @@ type Backend struct {
 	L3n4Addr
 	// State of the backend for load-balancing service traffic
 	State BackendState
+
+	// Preferred indicates if the healthy backend is preferred
+	Preferred Preferred
+
 	// RestoredFromDatapath indicates whether the backend was restored from BPF maps
 	RestoredFromDatapath bool
 }
@@ -553,9 +574,10 @@ func NewL3n4AddrFromModel(base *models.FrontendAddress) (*L3n4Addr, error) {
 func NewBackend(id BackendID, protocol L4Type, ip net.IP, portNumber uint16) *Backend {
 	lbport := NewL4Addr(protocol, portNumber)
 	b := Backend{
-		ID:       BackendID(id),
-		L3n4Addr: L3n4Addr{IP: ip, L4Addr: *lbport},
-		State:    BackendStateActive,
+		ID:        BackendID(id),
+		L3n4Addr:  L3n4Addr{IP: ip, L4Addr: *lbport},
+		State:     BackendStateActive,
+		Preferred: BackendPreferredNone,
 	}
 
 	return &b
@@ -563,13 +585,14 @@ func NewBackend(id BackendID, protocol L4Type, ip net.IP, portNumber uint16) *Ba
 
 // NewBackendWithState creates the Backend struct instance from given params,
 // and sets the restore state for the Backend.
-func NewBackendWithState(id BackendID, protocol L4Type, ip net.IP, portNumber uint16,
+func NewBackendWithState(id BackendID, protocol L4Type, ip net.IP, portNumber uint16, preferred Preferred,
 	state BackendState, restored bool) *Backend {
 	lbport := NewL4Addr(protocol, portNumber)
 	b := Backend{
 		ID:                   id,
 		L3n4Addr:             L3n4Addr{IP: ip, L4Addr: *lbport},
 		State:                state,
+		Preferred:            preferred,
 		RestoredFromDatapath: restored,
 	}
 
@@ -592,7 +615,12 @@ func NewBackendFromBackendModel(base *models.BackendAddress) (*Backend, error) {
 		return nil, fmt.Errorf("invalid backend state [%s]", base.State)
 	}
 
-	return &Backend{NodeName: base.NodeName, L3n4Addr: L3n4Addr{IP: ip, L4Addr: *l4addr}, State: state}, nil
+	return &Backend{
+		NodeName:  base.NodeName,
+		L3n4Addr:  L3n4Addr{IP: ip, L4Addr: *l4addr},
+		State:     state,
+		Preferred: Preferred(NewBackendPreferredFlags(base.Preferred)),
+	}, nil
 }
 
 func NewL3n4AddrFromBackendModel(base *models.BackendAddress) (*L3n4Addr, error) {
@@ -633,10 +661,11 @@ func (b *Backend) GetBackendModel() *models.BackendAddress {
 	ip := b.IP.String()
 	stateStr, _ := b.State.String()
 	return &models.BackendAddress{
-		IP:       &ip,
-		Port:     b.Port,
-		NodeName: b.NodeName,
-		State:    stateStr,
+		IP:        &ip,
+		Port:      b.Port,
+		NodeName:  b.NodeName,
+		State:     stateStr,
+		Preferred: b.Preferred == BackendPreferred,
 	}
 }
 

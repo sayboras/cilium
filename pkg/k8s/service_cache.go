@@ -491,6 +491,8 @@ func (s *ServiceCache) correlateEndpoints(id ServiceID) (*Endpoints, bool) {
 		localEndpoints = s.filterEndpoints(localEndpoints, svc)
 
 		for ip, e := range localEndpoints.Backends {
+			e.Preferred = svcFound && svc.IncludeExternal && svc.ServiceAffinity == serviceAffinityLocal
+			log.WithField("TAM", "testing").Infof("service_cache.go local endpoint: %+v", e)
 			endpoints.Backends[ip] = e
 		}
 	}
@@ -511,12 +513,15 @@ func (s *ServiceCache) correlateEndpoints(id ServiceID) (*Endpoints, bool) {
 							"cluster":              clusterName,
 						}).Warning("Conflicting service backend IP")
 					} else {
+						e.Preferred = svc.ServiceAffinity == serviceAffinityRemote
+						log.WithField("TAM", "testing").Infof("service_cache.go external endpoint: %+v", e)
 						endpoints.Backends[ip] = e
 					}
 				}
 			}
 		}
 	}
+	log.WithField("TAM", "testing").Infof("service_cache.go endpoints: %s", endpoints.String())
 
 	// Report the service as ready if a local endpoints object exists or if
 	// external endpoints have been identified

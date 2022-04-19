@@ -284,13 +284,15 @@ func (k *Backend6Key) GetID() loadbalancer.BackendID   { return loadbalancer.Bac
 // +k8s:deepcopy-gen=true
 // +k8s:deepcopy-gen:interfaces=github.com/cilium/cilium/pkg/bpf.MapValue
 type Backend6Value struct {
-	Address types.IPv6      `align:"address"`
-	Port    uint16          `align:"port"`
-	Proto   u8proto.U8proto `align:"proto"`
-	Flags   uint8           `align:"flags"`
+	Address   types.IPv6      `align:"address"`
+	Port      uint16          `align:"port"`
+	Proto     u8proto.U8proto `align:"proto"`
+	Flags     uint8           `align:"flags"`
+	Preferred uint8           `align:"preferred"`
+	Pad       pad2uint8       `align:"pad"`
 }
 
-func NewBackend6Value(ip net.IP, port uint16, proto u8proto.U8proto, state loadbalancer.BackendState) (*Backend6Value, error) {
+func NewBackend6Value(ip net.IP, port uint16, proto u8proto.U8proto, preferred loadbalancer.Preferred, state loadbalancer.BackendState) (*Backend6Value, error) {
 	ip6 := ip.To16()
 	if ip6 == nil {
 		return nil, fmt.Errorf("Not an IPv6 address")
@@ -298,9 +300,10 @@ func NewBackend6Value(ip net.IP, port uint16, proto u8proto.U8proto, state loadb
 	flags := loadbalancer.NewBackendFlags(state)
 
 	val := Backend6Value{
-		Port:  port,
-		Proto: proto,
-		Flags: flags,
+		Port:      port,
+		Proto:     proto,
+		Flags:     flags,
+		Preferred: uint8(preferred),
 	}
 	copy(val.Address[:], ip.To16())
 
@@ -314,9 +317,10 @@ func (v *Backend6Value) String() string {
 
 func (v *Backend6Value) GetValuePtr() unsafe.Pointer { return unsafe.Pointer(v) }
 
-func (b *Backend6Value) GetAddress() net.IP { return b.Address.IP() }
-func (b *Backend6Value) GetPort() uint16    { return b.Port }
-func (b *Backend6Value) GetFlags() uint8    { return b.Flags }
+func (b *Backend6Value) GetAddress() net.IP  { return b.Address.IP() }
+func (b *Backend6Value) GetPort() uint16     { return b.Port }
+func (b *Backend6Value) GetFlags() uint8     { return b.Flags }
+func (b *Backend6Value) GetPreferred() uint8 { return b.Preferred }
 
 func (v *Backend6Value) ToNetwork() BackendValue {
 	n := *v
@@ -336,9 +340,9 @@ type Backend6V2 struct {
 	Value *Backend6Value
 }
 
-func NewBackend6V2(id loadbalancer.BackendID, ip net.IP, port uint16, proto u8proto.U8proto,
+func NewBackend6V2(id loadbalancer.BackendID, ip net.IP, port uint16, proto u8proto.U8proto, preferred loadbalancer.Preferred,
 	state loadbalancer.BackendState) (*Backend6V2, error) {
-	val, err := NewBackend6Value(ip, port, proto, state)
+	val, err := NewBackend6Value(ip, port, proto, preferred, state)
 	if err != nil {
 		return nil, err
 	}

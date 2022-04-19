@@ -41,8 +41,12 @@ func (m *LBMockMap) UpsertService(p *lbmap.UpsertServiceParams) error {
 		}
 		backendsList = append(backendsList, *b)
 	}
-	if p.UseMaglev && len(p.ActiveBackends) != 0 {
-		if err := m.UpsertMaglevLookupTable(p.ID, p.ActiveBackends, p.IPv6); err != nil {
+	backends := p.ActiveBackends
+	if len(p.PreferredBackends) > 0 {
+		backends = p.PreferredBackends
+	}
+	if p.UseMaglev && len(backends) != 0 {
+		if err := m.UpsertMaglevLookupTable(p.ID, backends, p.IPv6); err != nil {
 			return err
 		}
 	}
@@ -102,7 +106,7 @@ func (m *LBMockMap) AddBackend(b lb.Backend, ipv6 bool) error {
 		return fmt.Errorf("Backend %d already exists", id)
 	}
 
-	be := lb.NewBackendWithState(id, b.Protocol, ip, port, b.State, false)
+	be := lb.NewBackendWithState(id, b.Protocol, ip, port, b.Preferred, b.State, false)
 	m.BackendByID[id] = be
 
 	return nil
