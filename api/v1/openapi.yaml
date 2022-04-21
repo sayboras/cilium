@@ -2494,6 +2494,9 @@ definitions:
           - terminating
           - quarantined
           - maintenance
+      preferred:
+        description: Indicator if this backend is preferred. Applicable for active state only.
+        type: boolean
   LRPBackend:
     description: Pod backend of an LRP
     type: object
