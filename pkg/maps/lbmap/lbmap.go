@@ -62,6 +62,7 @@ type UpsertServiceParams struct {
 	ID                        uint16
 	IP                        net.IP
 	Port                      uint16
+	PreferredBackends         map[string]loadbalancer.BackendID // is a subset of ActiveBackends
 	ActiveBackends            map[string]loadbalancer.BackendID
 	NonActiveBackends         []loadbalancer.BackendID
 	PrevBackendsCount         int
@@ -97,8 +98,13 @@ func (lbmap *LBBPFMap) upsertServiceProto(p *UpsertServiceParams, ipv6 bool) err
 	slot := 1
 	svcVal := svcKey.NewValue().(ServiceValue)
 
-	if p.UseMaglev && len(p.ActiveBackends) != 0 {
-		if err := lbmap.UpsertMaglevLookupTable(p.ID, p.ActiveBackends, ipv6); err != nil {
+	backends := p.ActiveBackends
+	if len(p.PreferredBackends) > 0 {
+		backends = p.PreferredBackends
+	}
+
+	if p.UseMaglev && len(backends) != 0 {
+		if err := lbmap.UpsertMaglevLookupTable(p.ID, backends, ipv6); err != nil {
 			return err
 		}
 	}
@@ -136,7 +142,7 @@ func (lbmap *LBBPFMap) upsertServiceProto(p *UpsertServiceParams, ipv6 bool) err
 		return fmt.Errorf("Unable to update reverse NAT %+v => %+v: %s", revNATKey, revNATValue, err)
 	}
 
-	if err := updateMasterService(svcKey, len(p.ActiveBackends), int(p.ID), p.Type, p.Local, p.NatPolicy,
+	if err := updateMasterService(svcKey, len(backends), int(p.ID), p.Type, p.Local, p.NatPolicy,
 		p.SessionAffinity, p.SessionAffinityTimeoutSec, p.CheckSourceRange, p.L7LBProxyPort); err != nil {
 		deleteRevNatLocked(revNATKey)
 		return fmt.Errorf("Unable to update service %+v: %s", svcKey, err)
@@ -213,18 +219,42 @@ func (lbmap *LBBPFMap) UpsertMaglevLookupTable(svcID uint16, backends map[string
 }
 
 // GetOrderedBackends returns an ordered list of backends with all the sorted
-// active backend followed by non-active backends.
+// preferred backend followed by active and non-active backends.
 // Encapsulates logic to be also used in unit tests.
 func GetOrderedBackends(p *UpsertServiceParams) []loadbalancer.BackendID {
 	backendIDs := make([]loadbalancer.BackendID, 0, len(p.ActiveBackends)+len(p.NonActiveBackends))
 	for _, id := range p.ActiveBackends {
 		backendIDs = append(backendIDs, id)
 	}
+
+	preferredMap := map[loadbalancer.BackendID]struct{}{}
+	for _, id := range p.PreferredBackends {
+		preferredMap[id] = struct{}{}
+	}
+
 	// Map iterations are non-deterministic so sort the backends by their IDs
 	// in order to maintain the same order before they are populated in BPF maps.
 	// This will minimize disruption to existing connections to the backends in the datapath.
-	sort.Slice(backendIDs, func(i, j int) bool { return backendIDs[i] < backendIDs[j] })
-	// Add the non-active backends to the end of active backends list so that they are
+	sort.Slice(backendIDs, func(i, j int) bool {
+		_, isPreferred1 := preferredMap[backendIDs[i]]
+		_, isPreferred2 := preferredMap[backendIDs[j]]
+
+		if isPreferred1 && isPreferred2 {
+			return backendIDs[i] < backendIDs[j]
+		}
+
+		if isPreferred1 {
+			return true
+		}
+
+		if isPreferred2 {
+			return false
+		}
+
+		return backendIDs[i] < backendIDs[j]
+	})
+
+	// Add the non-active backends to the end of preferred/active backends list so that they are
 	// not considered while selecting backends to load-balance service traffic.
 	if len(p.NonActiveBackends) > 0 {
 		backendIDs = append(backendIDs, p.NonActiveBackends...)
