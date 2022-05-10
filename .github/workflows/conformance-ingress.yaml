@@ -71,15 +71,19 @@ jobs:
         env:
           ECHO_SERVER_IMAGE: k8s.gcr.io/ingressconformance/echoserver:v0.0.1@sha256:9b34b17f391f87fb2155f01da2f2f90b7a4a5c1110ed84cb5379faa4f570dc52
 
+      - name: Checkout ingress-controller-conformance
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+        with:
+          repository: kubernetes-sigs/ingress-controller-conformance
+          path: ingress-controller-conformance
+          ref: cec7cf25b0291933426e256065ef4afc981ea1fa
+          persist-credentials: false
+
       - name: Install Ingress conformance test tool
         timeout-minutes: 10
         run: |
-          git clone https://github.com/kubernetes-sigs/ingress-controller-conformance
           cd ingress-controller-conformance
-          git checkout ${{ env.COMMIT_HASH }}
           make build
-        env:
-          COMMIT_HASH: cec7cf25b0291933426e256065ef4afc981ea1fa
 
       - name: Wait for images to be available
         timeout-minutes: 30
