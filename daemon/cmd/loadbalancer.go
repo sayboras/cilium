@@ -79,12 +79,20 @@ func (h *putServiceID) Handle(params PutServiceIDParams) middleware.Responder {
 		svcType = loadbalancer.SVCTypeClusterIP
 	}
 
-	var svcTrafficPolicy loadbalancer.SVCTrafficPolicy
-	switch params.Config.Flags.TrafficPolicy {
-	case models.ServiceSpecFlagsTrafficPolicyLocal:
-		svcTrafficPolicy = loadbalancer.SVCTrafficPolicyLocal
+	var externalTrafficPolicy loadbalancer.SVCTrafficPolicy
+	switch params.Config.Flags.ExternalTrafficPolicy {
+	case models.ServiceSpecFlagsExternalTrafficPolicyLocal:
+		externalTrafficPolicy = loadbalancer.SVCTrafficPolicyLocal
 	default:
-		svcTrafficPolicy = loadbalancer.SVCTrafficPolicyCluster
+		externalTrafficPolicy = loadbalancer.SVCTrafficPolicyCluster
+	}
+
+	var internalTrafficPolicy loadbalancer.SVCTrafficPolicy
+	switch params.Config.Flags.InternalTrafficPolicy {
+	case models.ServiceSpecFlagsExternalTrafficPolicyLocal:
+		internalTrafficPolicy = loadbalancer.SVCTrafficPolicyLocal
+	default:
+		internalTrafficPolicy = loadbalancer.SVCTrafficPolicyCluster
 	}
 
 	svcHealthCheckNodePort := params.Config.Flags.HealthCheckNodePort
@@ -96,13 +104,14 @@ func (h *putServiceID) Handle(params PutServiceIDParams) middleware.Responder {
 	}
 
 	p := &loadbalancer.SVC{
-		Name:                svcName,
-		Namespace:           svcNamespace,
-		Type:                svcType,
-		Frontend:            frontend,
-		Backends:            backends,
-		TrafficPolicy:       svcTrafficPolicy,
-		HealthCheckNodePort: svcHealthCheckNodePort,
+		Name:                  svcName,
+		Namespace:             svcNamespace,
+		Type:                  svcType,
+		Frontend:              frontend,
+		Backends:              backends,
+		InternalTrafficPolicy: internalTrafficPolicy,
+		ExternalTrafficPolicy: externalTrafficPolicy,
+		HealthCheckNodePort:   svcHealthCheckNodePort,
 	}
 	created, id, err := h.svc.UpsertService(p)
 	if err == nil && id != frontend.ID {

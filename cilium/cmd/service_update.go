@@ -136,9 +136,9 @@ func updateService(cmd *cobra.Command, args []string) {
 	}
 
 	if strings.ToLower(k8sTrafficPolicy) == "local" {
-		spec.Flags.TrafficPolicy = models.ServiceSpecFlagsTrafficPolicyLocal
+		spec.Flags.ExternalTrafficPolicy = models.ServiceSpecFlagsExternalTrafficPolicyLocal
 	} else {
-		spec.Flags.TrafficPolicy = models.ServiceSpecFlagsTrafficPolicyCluster
+		spec.Flags.ExternalTrafficPolicy = models.ServiceSpecFlagsExternalTrafficPolicyLocal
 	}
 
 	spec.FrontendAddress = fa

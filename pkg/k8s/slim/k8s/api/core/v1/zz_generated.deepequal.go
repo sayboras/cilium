@@ -1154,6 +1154,14 @@ func (in *ServiceSpec) DeepEqual(other *ServiceSpec) bool {
 		}
 	}
 
+	if (in.InternalTrafficPolicy == nil) != (other.InternalTrafficPolicy == nil) {
+		return false
+	} else if in.InternalTrafficPolicy != nil {
+		if *in.InternalTrafficPolicy != *other.InternalTrafficPolicy {
+			return false
+		}
+	}
+
 	return true
 }
 

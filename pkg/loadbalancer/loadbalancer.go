@@ -134,8 +134,18 @@ func (s ServiceFlags) SVCType() SVCType {
 	}
 }
 
-// SVCTrafficPolicy returns a service traffic policy from the flags
-func (s ServiceFlags) SVCTrafficPolicy() SVCTrafficPolicy {
+// SVCInternalTrafficPolicy returns a service internal traffic policy from the flags
+func (s ServiceFlags) SVCInternalTrafficPolicy() SVCTrafficPolicy {
+	switch {
+	case s&serviceFlagLocalScope != 0:
+		return SVCTrafficPolicyLocal
+	default:
+		return SVCTrafficPolicyCluster
+	}
+}
+
+// SVCExternalTrafficPolicy returns a service external traffic policy from the flags
+func (s ServiceFlags) SVCExternalTrafficPolicy() SVCTrafficPolicy {
 	switch {
 	case s&serviceFlagLocalScope != 0:
 		return SVCTrafficPolicyLocal
@@ -335,7 +345,8 @@ type SVC struct {
 	Frontend                  L3n4AddrID       // SVC frontend addr and an allocated ID
 	Backends                  []Backend        // List of service backends
 	Type                      SVCType          // Service type
-	TrafficPolicy             SVCTrafficPolicy // Service traffic policy
+	InternalTrafficPolicy     SVCTrafficPolicy // Service internal traffic policy
+	ExternalTrafficPolicy     SVCTrafficPolicy // Service external traffic policy
 	NatPolicy                 SVCNatPolicy     // Service NAT 46/64 policy
 	SessionAffinity           bool
 	SessionAffinityTimeoutSec uint32
@@ -367,10 +378,11 @@ func (s *SVC) GetModel() *models.Service {
 		FrontendAddress:  s.Frontend.GetModel(),
 		BackendAddresses: make([]*models.BackendAddress, len(s.Backends)),
 		Flags: &models.ServiceSpecFlags{
-			Type:                string(s.Type),
-			TrafficPolicy:       string(s.TrafficPolicy),
-			NatPolicy:           natPolicy,
-			HealthCheckNodePort: s.HealthCheckNodePort,
+			Type:                  string(s.Type),
+			InternalTrafficPolicy: string(s.InternalTrafficPolicy),
+			ExternalTrafficPolicy: string(s.ExternalTrafficPolicy),
+			NatPolicy:             natPolicy,
+			HealthCheckNodePort:   s.HealthCheckNodePort,
 
 			Name:      s.Name,
 			Namespace: s.Namespace,

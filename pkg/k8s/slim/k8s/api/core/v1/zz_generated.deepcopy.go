@@ -859,6 +859,11 @@ func (in *ServiceSpec) DeepCopyInto(out *ServiceSpec) {
 		*out = make([]IPFamily, len(*in))
 		copy(*out, *in)
 	}
+	if in.InternalTrafficPolicy != nil {
+		in, out := &in.InternalTrafficPolicy, &out.InternalTrafficPolicy
+		*out = new(ServiceInternalTrafficPolicyType)
+		**out = **in
+	}
 	return
 }
 

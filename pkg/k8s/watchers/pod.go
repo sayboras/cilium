@@ -551,20 +551,22 @@ func (k *K8sWatcher) genServiceMappings(pod *slim_corev1.Pod, podIPs []string, l
 						if option.Config.EnableIPv4 && len(bes4) > 0 {
 							svcs = append(svcs,
 								loadbalancer.SVC{
-									Frontend:      fe,
-									Backends:      bes4,
-									Type:          loadbalancer.SVCTypeHostPort,
-									TrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+									Frontend:              fe,
+									Backends:              bes4,
+									Type:                  loadbalancer.SVCTypeHostPort,
+									InternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+									ExternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
 								})
 						}
 					} else {
 						if option.Config.EnableIPv6 && len(bes6) > 0 {
 							svcs = append(svcs,
 								loadbalancer.SVC{
-									Frontend:      fe,
-									Backends:      bes6,
-									Type:          loadbalancer.SVCTypeHostPort,
-									TrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+									Frontend:              fe,
+									Backends:              bes6,
+									Type:                  loadbalancer.SVCTypeHostPort,
+									InternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+									ExternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
 								})
 						}
 					}
@@ -626,13 +628,14 @@ func (k *K8sWatcher) upsertHostPortMapping(oldPod, newPod *slim_corev1.Pod, oldP
 
 	for _, dpSvc := range svcs {
 		p := &loadbalancer.SVC{
-			Frontend:            dpSvc.Frontend,
-			Backends:            dpSvc.Backends,
-			Type:                dpSvc.Type,
-			TrafficPolicy:       dpSvc.TrafficPolicy,
-			HealthCheckNodePort: dpSvc.HealthCheckNodePort,
-			Name:                fmt.Sprintf("%s/host-port/%d", newPod.ObjectMeta.Name, dpSvc.Frontend.L3n4Addr.Port),
-			Namespace:           newPod.ObjectMeta.Namespace,
+			Frontend:              dpSvc.Frontend,
+			Backends:              dpSvc.Backends,
+			Type:                  dpSvc.Type,
+			InternalTrafficPolicy: dpSvc.InternalTrafficPolicy,
+			ExternalTrafficPolicy: dpSvc.ExternalTrafficPolicy,
+			HealthCheckNodePort:   dpSvc.HealthCheckNodePort,
+			Name:                  fmt.Sprintf("%s/host-port/%d", newPod.ObjectMeta.Name, dpSvc.Frontend.L3n4Addr.Port),
+			Namespace:             newPod.ObjectMeta.Namespace,
 		}
 
 		if _, _, err := k.svcManager.UpsertService(p); err != nil {

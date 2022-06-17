@@ -142,12 +142,18 @@ func ParseService(svc *slim_corev1.Service, nodeAddressing types.NodeAddressing)
 		headless = true
 	}
 
-	var trafficPolicy loadbalancer.SVCTrafficPolicy
+	var externalTrafficPolicy loadbalancer.SVCTrafficPolicy
 	switch svc.Spec.ExternalTrafficPolicy {
 	case slim_corev1.ServiceExternalTrafficPolicyTypeLocal:
-		trafficPolicy = loadbalancer.SVCTrafficPolicyLocal
+		externalTrafficPolicy = loadbalancer.SVCTrafficPolicyLocal
 	default:
-		trafficPolicy = loadbalancer.SVCTrafficPolicyCluster
+		externalTrafficPolicy = loadbalancer.SVCTrafficPolicyCluster
+	}
+
+	var internalTrafficPolicy = loadbalancer.SVCTrafficPolicyCluster
+	if svc.Spec.InternalTrafficPolicy != nil &&
+		*svc.Spec.InternalTrafficPolicy == slim_corev1.ServiceInternalTrafficPolicyLocal {
+		internalTrafficPolicy = loadbalancer.SVCTrafficPolicyLocal
 	}
 
 	for _, ip := range svc.Status.LoadBalancer.Ingress {
@@ -162,7 +168,7 @@ func ParseService(svc *slim_corev1.Service, nodeAddressing types.NodeAddressing)
 	}
 
 	svcInfo := NewService(clusterIPs, svc.Spec.ExternalIPs, loadBalancerIPs,
-		lbSrcRanges, headless, trafficPolicy,
+		lbSrcRanges, headless, internalTrafficPolicy, externalTrafficPolicy,
 		uint16(svc.Spec.HealthCheckNodePort), svc.Labels, svc.Spec.Selector,
 		svc.GetNamespace(), svcType)
 
@@ -311,14 +317,18 @@ type Service struct {
 	// Applicable values: local, remote, none (default).
 	ServiceAffinity string
 
-	// TrafficPolicy controls how backends are selected. If set to "Local", only
+	// InternalTrafficPolicy controls how backends are selected for internal traffic. If set to "Local", only
 	// node-local backends are chosen
-	TrafficPolicy loadbalancer.SVCTrafficPolicy
+	InternalTrafficPolicy loadbalancer.SVCTrafficPolicy
+
+	// ExternalTrafficPolicy controls how backends are selected for external traffic. If set to "Local", only
+	// node-local backends are chosen
+	ExternalTrafficPolicy loadbalancer.SVCTrafficPolicy
 
 	// HealthCheckNodePort defines on which port the node runs a HTTP health
 	// check server which may be used by external loadbalancers to determine
 	// if a node has local backends. This will only have effect if both
-	// LoadBalancerIPs is not empty and TrafficPolicy is SVCTrafficPolicyLocal.
+	// LoadBalancerIPs is not empty and ExternalTrafficPolicy is SVCTrafficPolicyLocal.
 	HealthCheckNodePort uint16
 
 	Ports map[loadbalancer.FEPortName]*loadbalancer.L4Addr
@@ -450,7 +460,7 @@ func parseIPs(externalIPs []string) map[string]net.IP {
 
 // NewService returns a new Service with the Ports map initialized.
 func NewService(ips []net.IP, externalIPs, loadBalancerIPs, loadBalancerSourceRanges []string,
-	headless bool, trafficPolicy loadbalancer.SVCTrafficPolicy,
+	headless bool, internalTrafficPolicy loadbalancer.SVCTrafficPolicy, externalTrafficPolicy loadbalancer.SVCTrafficPolicy,
 	healthCheckNodePort uint16, labels, selector map[string]string,
 	namespace string, svcType loadbalancer.SVCType) *Service {
 
@@ -488,9 +498,10 @@ func NewService(ips []net.IP, externalIPs, loadBalancerIPs, loadBalancerSourceRa
 	return &Service{
 		FrontendIPs: ips,
 
-		IsHeadless:          headless,
-		TrafficPolicy:       trafficPolicy,
-		HealthCheckNodePort: healthCheckNodePort,
+		IsHeadless:            headless,
+		InternalTrafficPolicy: internalTrafficPolicy,
+		ExternalTrafficPolicy: externalTrafficPolicy,
+		HealthCheckNodePort:   healthCheckNodePort,
 
 		Ports:                    map[loadbalancer.FEPortName]*loadbalancer.L4Addr{},
 		NodePorts:                map[loadbalancer.FEPortName]NodePortToFrontend{},
@@ -554,7 +565,8 @@ func NewClusterService(id ServiceID, k8sService *Service, k8sEndpoints *Endpoint
 // ClusterService is a subset of what a Service can express,
 // especially, ClusterService does not have:
 // - other service types than ClusterIP
-// - an explicit traffic policy, SVCTrafficPolicyCluster is assumed
+// - an explicit external traffic policy, SVCTrafficPolicyCluster is assumed
+// - an explicit local traffic policy, SVCTrafficPolicyCluster is assumed
 // - health check node ports
 // - NodePorts
 // - external IPs
@@ -566,14 +578,15 @@ func NewClusterService(id ServiceID, k8sService *Service, k8sEndpoints *Endpoint
 // has the above wired in.
 func ParseClusterService(svc *serviceStore.ClusterService) *Service {
 	svcInfo := &Service{
-		IsHeadless:      len(svc.Frontends) == 0,
-		IncludeExternal: true,
-		Shared:          true,
-		TrafficPolicy:   loadbalancer.SVCTrafficPolicyCluster,
-		Ports:           map[loadbalancer.FEPortName]*loadbalancer.L4Addr{},
-		Labels:          svc.Labels,
-		Selector:        svc.Selector,
-		Type:            loadbalancer.SVCTypeClusterIP,
+		IsHeadless:            len(svc.Frontends) == 0,
+		IncludeExternal:       true,
+		Shared:                true,
+		InternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+		ExternalTrafficPolicy: loadbalancer.SVCTrafficPolicyCluster,
+		Ports:                 map[loadbalancer.FEPortName]*loadbalancer.L4Addr{},
+		Labels:                svc.Labels,
+		Selector:              svc.Selector,
+		Type:                  loadbalancer.SVCTypeClusterIP,
 	}
 
 	feIPs := make([]net.IP, len(svc.Frontends))
@@ -624,7 +637,8 @@ func (s *Service) EqualsClusterService(svc *serviceStore.ClusterService) bool {
 		s.IsHeadless == (len(svc.Frontends) == 0) &&
 		s.IncludeExternal == true &&
 		s.Shared == true &&
-		s.TrafficPolicy == loadbalancer.SVCTrafficPolicyCluster &&
+		s.ExternalTrafficPolicy == loadbalancer.SVCTrafficPolicyCluster &&
+		s.InternalTrafficPolicy == loadbalancer.SVCTrafficPolicyCluster &&
 		s.HealthCheckNodePort == 0 &&
 		len(s.NodePorts) == 0 &&
 		len(s.K8sExternalIPs) == 0 &&

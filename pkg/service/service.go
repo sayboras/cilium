@@ -89,7 +89,8 @@ type svcInfo struct {
 	backendByHash map[string]*lb.Backend
 
 	svcType                   lb.SVCType
-	svcTrafficPolicy          lb.SVCTrafficPolicy
+	svcInternalTrafficPolicy  lb.SVCTrafficPolicy
+	svcExternalTrafficPolicy  lb.SVCTrafficPolicy
 	svcNatPolicy              lb.SVCNatPolicy
 	sessionAffinity           bool
 	sessionAffinityTimeoutSec uint32
@@ -113,16 +114,17 @@ func (svc *svcInfo) deepCopyToLBSVC() *lb.SVC {
 		backends[i] = *backend.DeepCopy()
 	}
 	return &lb.SVC{
-		Frontend:            *svc.frontend.DeepCopy(),
-		Backends:            backends,
-		Type:                svc.svcType,
-		TrafficPolicy:       svc.svcTrafficPolicy,
-		NatPolicy:           svc.svcNatPolicy,
-		HealthCheckNodePort: svc.svcHealthCheckNodePort,
-		Name:                svc.svcName,
-		Namespace:           svc.svcNamespace,
-		L7LBProxyPort:       svc.l7LBProxyPort,
-		L7LBFrontendPorts:   svc.l7LBFrontendPorts,
+		Frontend:              *svc.frontend.DeepCopy(),
+		Backends:              backends,
+		Type:                  svc.svcType,
+		InternalTrafficPolicy: svc.svcInternalTrafficPolicy,
+		ExternalTrafficPolicy: svc.svcExternalTrafficPolicy,
+		NatPolicy:             svc.svcNatPolicy,
+		HealthCheckNodePort:   svc.svcHealthCheckNodePort,
+		Name:                  svc.svcName,
+		Namespace:             svc.svcNamespace,
+		L7LBProxyPort:         svc.l7LBProxyPort,
+		L7LBFrontendPorts:     svc.l7LBFrontendPorts,
 	}
 }
 
@@ -134,7 +136,7 @@ func (svc *svcInfo) requireNodeLocalBackends(frontend lb.L3n4AddrID) (bool, bool
 	case lb.SVCTypeLocalRedirect:
 		return false, true
 	case lb.SVCTypeNodePort, lb.SVCTypeLoadBalancer, lb.SVCTypeExternalIPs:
-		if svc.svcTrafficPolicy == lb.SVCTrafficPolicyLocal {
+		if svc.svcExternalTrafficPolicy == lb.SVCTrafficPolicyLocal {
 			return true, frontend.Scope == lb.ScopeExternal
 		}
 		fallthrough
@@ -522,11 +524,12 @@ func (s *Service) upsertService(params *lb.SVC) (bool, lb.ID, error) {
 		logfields.ServiceIP: params.Frontend.L3n4Addr,
 		logfields.Backends:  params.Backends,
 
-		logfields.ServiceType:                params.Type,
-		logfields.ServiceTrafficPolicy:       params.TrafficPolicy,
-		logfields.ServiceHealthCheckNodePort: params.HealthCheckNodePort,
-		logfields.ServiceName:                params.Name,
-		logfields.ServiceNamespace:           params.Namespace,
+		logfields.ServiceType:                  params.Type,
+		logfields.ServiceInternalTrafficPolicy: params.InternalTrafficPolicy,
+		logfields.ServiceExternalTrafficPolicy: params.ExternalTrafficPolicy,
+		logfields.ServiceHealthCheckNodePort:   params.HealthCheckNodePort,
+		logfields.ServiceName:                  params.Name,
+		logfields.ServiceNamespace:             params.Namespace,
 
 		logfields.SessionAffinity:        params.SessionAffinity,
 		logfields.SessionAffinityTimeout: params.SessionAffinityTimeoutSec,
@@ -655,7 +658,7 @@ func (s *Service) upsertService(params *lb.SVC) (bool, lb.ID, error) {
 	}
 
 	s.notifyMonitorServiceUpsert(svc.frontend, svc.backends,
-		svc.svcType, svc.svcTrafficPolicy, svc.svcName, svc.svcNamespace)
+		svc.svcType, svc.svcExternalTrafficPolicy, svc.svcName, svc.svcNamespace)
 	return new, lb.ID(svc.frontend.ID), nil
 }
 
@@ -1035,7 +1038,8 @@ func (s *Service) createSVCInfoIfNotExist(p *lb.SVC) (*svcInfo, bool, bool,
 			sessionAffinity:           p.SessionAffinity,
 			sessionAffinityTimeoutSec: p.SessionAffinityTimeoutSec,
 
-			svcTrafficPolicy:         p.TrafficPolicy,
+			svcInternalTrafficPolicy: p.InternalTrafficPolicy,
+			svcExternalTrafficPolicy: p.ExternalTrafficPolicy,
 			svcNatPolicy:             p.NatPolicy,
 			svcHealthCheckNodePort:   p.HealthCheckNodePort,
 			loadBalancerSourceRanges: p.LoadBalancerSourceRanges,
@@ -1065,7 +1069,7 @@ func (s *Service) createSVCInfoIfNotExist(p *lb.SVC) (*svcInfo, bool, bool,
 		prevSessionAffinity = svc.sessionAffinity
 		prevLoadBalancerSourceRanges = svc.loadBalancerSourceRanges
 		svc.svcType = p.Type
-		svc.svcTrafficPolicy = p.TrafficPolicy
+		svc.svcExternalTrafficPolicy = p.ExternalTrafficPolicy
 		svc.svcNatPolicy = p.NatPolicy
 		svc.svcHealthCheckNodePort = p.HealthCheckNodePort
 		svc.sessionAffinity = p.SessionAffinity
@@ -1335,13 +1339,14 @@ func (s *Service) restoreServicesLocked() error {
 		}
 
 		newSVC := &svcInfo{
-			hash:             svc.Frontend.Hash(),
-			frontend:         svc.Frontend,
-			backends:         svc.Backends,
-			backendByHash:    map[string]*lb.Backend{},
-			svcType:          svc.Type,
-			svcTrafficPolicy: svc.TrafficPolicy,
-			svcNatPolicy:     svc.NatPolicy,
+			hash:                     svc.Frontend.Hash(),
+			frontend:                 svc.Frontend,
+			backends:                 svc.Backends,
+			backendByHash:            map[string]*lb.Backend{},
+			svcType:                  svc.Type,
+			svcInternalTrafficPolicy: svc.InternalTrafficPolicy,
+			svcExternalTrafficPolicy: svc.ExternalTrafficPolicy,
+			svcNatPolicy:             svc.NatPolicy,
 
 			sessionAffinity:           svc.SessionAffinity,
 			sessionAffinityTimeoutSec: svc.SessionAffinityTimeoutSec,

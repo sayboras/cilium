@@ -2593,8 +2593,14 @@ definitions:
             - HostPort
             - LoadBalancer
             - LocalRedirect
-          trafficPolicy:
-            description: Service traffic policy
+          internalTrafficPolicy:
+            description: Internal Service traffic policy
+            type: string
+            enum:
+              - Cluster
+              - Local
+          externalTrafficPolicy:
+            description: External Service traffic policy
             type: string
             enum:
             - Cluster
