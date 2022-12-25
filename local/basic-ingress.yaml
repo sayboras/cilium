@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: basic-ingress
+  namespace: default
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+spec:
+  ingressClassName: cilium
+  defaultBackend:
+    service:
+      name: rebel-base
+      port:
+        number: 80
+  rules:
+  - host: basic.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: basic-service
+            port:
+              number: 80
+  - http:
+      paths:
+      - backend:
+          service:
+            name: rebel-base
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+    - hosts:
+        - basic.example.com
+        - another.basic.example.com
+      secretName: basic-tls

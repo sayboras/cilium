@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-service
+  annotations:
+    io.cilium/lb-protocol: "grpc"
+    io.cilium/lb-mode: "weighted-least-request"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    name: backend

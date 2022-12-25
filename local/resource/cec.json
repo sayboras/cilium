@@ -1,0 +1,262 @@
+{
+  "apiVersion": "cilium.io/v2alpha1",
+  "kind": "CiliumEnvoyConfig",
+  "metadata": {
+    "creationTimestamp": "2022-04-07T09:48:49Z",
+    "generation": 1,
+    "name": "cilium-ingress-default-multiple-tls-ingress",
+    "namespace": "default",
+    "resourceVersion": "233106",
+    "uid": "7437aa88-6c49-46f1-bc24-5ec60441cec4"
+  },
+  "spec": {
+    "backendServices": [
+      {
+        "name": "currencyservice",
+        "namespace": "default"
+      },
+      {
+        "name": "details",
+        "namespace": "default"
+      },
+      {
+        "name": "productcatalogservice",
+        "namespace": "default"
+      },
+      {
+        "name": "productpage",
+        "namespace": "default"
+      }
+    ],
+    "resources": [
+      {
+        "@type": "type.googleapis.com/envoy.config.listener.v3.Listener",
+        "filterChains": [
+          {
+            "filterChainMatch": {
+              "transportProtocol": "raw_buffer"
+            },
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.router"
+                    }
+                  ],
+                  "rds": {
+                    "routeConfigName": "cilium-ingress-default-multiple-tls-ingress_route"
+                  },
+                  "statPrefix": "cilium-ingress-default-multiple-tls-ingress"
+                }
+              }
+            ]
+          },
+          {
+            "filterChainMatch": {
+              "transportProtocol": "tls"
+            },
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.router"
+                    }
+                  ],
+                  "rds": {
+                    "routeConfigName": "cilium-ingress-default-multiple-tls-ingress_route"
+                  },
+                  "statPrefix": "cilium-ingress-default-multiple-tls-ingress"
+                }
+              }
+            ],
+            "transportSocket": {
+              "name": "envoy.transport_sockets.tls",
+              "typedConfig": {
+                "@type": "type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.`DownstreamTlsContext`",
+                "commonTlsContext": {
+                  "tlsCertificates": [
+                    {
+                      "certificateChain": {
+                        "inlineString": "-----BEGIN CERTIFICATE-----\nMIIDQTCCAimgAwIBAgIIAU/fnLfigzcwDQYJKoZIhvcNAQELBQAwIDEeMBwGA1UE\nAxMVbWluaWNhIHJvb3QgY2EgNGQ3ODY3MB4XDTIyMDQwNzA5Mzk1NloXDTI0MDUw\nNzA5Mzk1NlowHjEcMBoGA1UEAxMTYm9va2luZm8uY2lsaXVtLmNvbTCCASIwDQYJ\nKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMKCkDgl/qncqJag6vL1SwrV/6S5Rlpv\nq7yuMZ1eGtuIcOyzKAKRSRkC9q1AoZ3C3GNqhjyqVd/QzuYiqgP3cwl0U78gLMlW\n0DVHTHiHr4H8gmFqsq+g6hA0zJO2jcseCG4d685i+vZCe0w2PI2BmTVXsiUkm8we\n5hxwftvMTwD+7Owtr0YtImw+EY4gi17w6W9b41xEfvPa/HlnpGCGIyEQRmqbmD2e\nPAtrVWLBGfgtQe8BaISssDUc0px0rZU3bxrbUBmOSCx0q3z2nNe605UV34k/YTU0\nxsDNPE/a4VeoxyqyQivxUA7jWe5uZnfUSKBtoevu344/0wFmv/FtNcsCAwEAAaOB\ngDB+MA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUH\nAwIwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBT31CdxZU3uYJrz34Lm/yLiL/nD\niTAeBgNVHREEFzAVghNib29raW5mby5jaWxpdW0uY29tMA0GCSqGSIb3DQEBCwUA\nA4IBAQBaGFtX/1MYwQ264+cQY2KZGwB9+1Hf+YEDP0GDL/2hBHp1b1UU2C3h9gDU\ns+pm20A6hTUEAEuEHn7ThoE7yYnWv8M63VNniUEf82LqGSaX14BrIc7krIyd6DRO\ncLkHQ7DsAoFxfWn5uOtI5Jcj1ISg6xDrF4bebxN+6FYUDmMJ/RYA79xkZe6kBVER\nRlUCqW/DkgQtQrov+Rnjr1xyh82c+U7gFzOJmZtrwljM4hSvl9xj5AwC76qACNLe\nlreIblE5xuUzkOIT43yUi4Xyu3CAm43c5UiGRlwLiciqbiIdWpCf43XPskmXfCkL\nh/xR9y0i/sLw8O29GxDwbt6x0CIf\n-----END CERTIFICATE-----\n"
+                      },
+                      "privateKey": {
+                        "inlineString": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAwoKQOCX+qdyolqDq8vVLCtX/pLlGWm+rvK4xnV4a24hw7LMo\nApFJGQL2rUChncLcY2qGPKpV39DO5iKqA/dzCXRTvyAsyVbQNUdMeIevgfyCYWqy\nr6DqEDTMk7aNyx4Ibh3rzmL69kJ7TDY8jYGZNVeyJSSbzB7mHHB+28xPAP7s7C2v\nRi0ibD4RjiCLXvDpb1vjXER+89r8eWekYIYjIRBGapuYPZ48C2tVYsEZ+C1B7wFo\nhKywNRzSnHStlTdvGttQGY5ILHSrfPac17rTlRXfiT9hNTTGwM08T9rhV6jHKrJC\nK/FQDuNZ7m5md9RIoG2h6+7fjj/TAWa/8W01ywIDAQABAoIBAHTSN84RO8dHKNX2\n5cVv/1cNuhFz2UY9pZaXxGKwf070vmXbIB+SpKVp+z+I/sginXz0IJVU9GiNH4Zm\nsVfaiXPXMukqaNuv0TL+lHYbgBSA1MmvbIxBB/Md0vSwgq7IZeXFALgfCH1Y5naa\naHnQqXS5K9xVBWFt+WSBSB+4sIZ2hvD6S5KrxaNkssKz2XThju3cffKqNsYeTRie\npg181lTkDf/qS8jEiRSIRLT62JL+StdIsFnKJ9Gx5/HzRAQ70katszHhYyuY70gQ\njQxQTwK9sePxAXgr9nFpZQvHM/30cib6WjD/sCl83eZrgbVarQIRGGjSSzthfP/N\nz1ejLqkCgYEAw4ytwz0Skbuny2wosvVX6Px3kcJy+l2/Fbl35Jpmg9JlNRHF6phr\nKp24D4hoeX9+Mid1c2hOIe458SmCp3FSNlW2DpBHPGQZbG7J9P599vtecdd/dn7T\ncjj418tt+WeZD7xjFwoq7ecH94MzqVnveAAvV25/WXskq7dQJra8twcCgYEA/qOe\nuI0Ie3rAhbSo3hKYS0eqCd5KWdwud/Z8g+DtQ4aqD3ReyfnTfofvS7ltJkignG3X\naweoW6oeN9QHGnSEz6acIOwCaqK3ud5W3ypGJa2OKeS/V4ItVYKe/8ikqK+wf608\n2jbyJ1Onb25p6SLVku5/YQAiKNSQ/sL/PE/HNh0CgYBvYqhvd1Amdq+DLZ6ZISrr\n6TLqccowVknLxBNIwbH3EFbZvb/wetVANwpqvpZT7o0hYFyEWjt3FE0o0y461k+v\n526GKSSKf7IDk6+xv2xczJ3lVoyiIGesvkrwEE4aLCqBThtbOk1tqZVeJPu+UR4Y\nSnKs6KHdhElFDmu3QYuI7QKBgQCiBbIkc3iGOSDu8njQdLx6ierjxJFChBr9MdUg\nhKnzYWgr1TvLAC9WP2A/qoiM54Fqh2meLI0vZhs8IqkyaBlplvWY7RLMjySgG5zi\n+p8PslLWzToCkE4QLsDEuAItYzzGwJALuRJze4L6ICM7uHJ0v1RFgDQ8DqUDtUd6\nNLjo8QKBgAeXzG5VOrlAKTtkxIp3eN4OLgCSAqJpMZkTqOS4iGBR8TdXuNFxZPEm\nKv0JZLq++s1yY9ZqFEghgSPSaXCBikRsptdIR23UACq2vqHgNCoOWj1Z8gJhfPOd\nwGBy2UWPwwlxDsio7RStzMued7YzvQ+laGuuWE9Q9cJaG6h4JWQC\n-----END RSA PRIVATE KEY-----\n"
+                      }
+                    },
+                    {
+                      "certificateChain": {
+                        "inlineString": "-----BEGIN CERTIFICATE-----\nMIIDSDCCAjCgAwIBAgIIChJ6Vno57LUwDQYJKoZIhvcNAQELBQAwIDEeMBwGA1UE\nAxMVbWluaWNhIHJvb3QgY2EgNGQ3ODY3MB4XDTIyMDQwNzA5NDAxMVoXDTI0MDUw\nNzA5NDAxMVowITEfMB0GA1UEAxMWaGlwc3RlcnNob3AuY2lsaXVtLmNvbTCCASIw\nDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMX4x1UcJqYULNv5qByEm00StPsR\nLg+AyOQeaLK7zhaB+3hik36VG+ZlKjgp9x3puuAe/LRXoMNG5Ix5HQHQwb55nHlC\nu+4ov8d6JgtzN+4FFEFA3R8eGc7IULIVjjPjVm/wA7+Ul6v7E+7tXH6oIrtSokZo\nOCcx4D8dSo3SaUreCHN8MQHl0XD5hbUVl+U7TXYESK5T6UbDHQffHwIDp4bxb9Q/\nmIbHZqJ1CVAb55p7BkK3fMrSFAE6oUv58rXmu5ebiMNnZM0uVopXg4gH/gH2h1sL\nMEGewQSw5kevFHUSCFmQazA6LSZWbyodFDnhYvErrDyhC66wmj5syvRLG+MCAwEA\nAaOBhDCBgTAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsG\nAQUFBwMCMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAU99QncWVN7mCa89+C5v8i\n4i/5w4kwIQYDVR0RBBowGIIWaGlwc3RlcnNob3AuY2lsaXVtLmNvbTANBgkqhkiG\n9w0BAQsFAAOCAQEAqAYip8JE5i9kYedvfmvF1uTj+5b3WCDIFdF4FeYrKELF6RZT\nocEYNew14ii5uTW3munDZjs+1wZaFteWZlBLArqVb4oo7f1qBRe8y9gRZ36yU+P+\noCVZAVi53Z7yWzZBulGGZlWIWYtTR3igc7EEL5LBogGQNeD7TrAnoHnnn7SOly47\nBvfY5m5wqsBPqq2ns+gxZyED1nAeMKYWW2NPY5KCciabIPUBOrNdxwzBtr3lv1rE\nRKPHrPPJe9iKpppvM6K7FFlvyyqoigd+D45WotziEKzFcdn12L/nqOnxnnlRdXkP\nA4OoXDKjt+lb66PCBhHleZau3z92ryQ6xnpG7w==\n-----END CERTIFICATE-----\n"
+                      },
+                      "privateKey": {
+                        "inlineString": "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAxfjHVRwmphQs2/moHISbTRK0+xEuD4DI5B5osrvOFoH7eGKT\nfpUb5mUqOCn3Hem64B78tFegw0bkjHkdAdDBvnmceUK77ii/x3omC3M37gUUQUDd\nHx4ZzshQshWOM+NWb/ADv5SXq/sT7u1cfqgiu1KiRmg4JzHgPx1KjdJpSt4Ic3wx\nAeXRcPmFtRWX5TtNdgRIrlPpRsMdB98fAgOnhvFv1D+YhsdmonUJUBvnmnsGQrd8\nytIUATqhS/nytea7l5uIw2dkzS5WileDiAf+AfaHWwswQZ7BBLDmR68UdRIIWZBr\nMDotJlZvKh0UOeFi8SusPKELrrCaPmzK9Esb4wIDAQABAoIBAGPxJMg9rvE2zDK9\nBXZoJ3KwV/dLhAJFlKU9CMP6dZ79PbNXqHhF1FDqj3bNELjkLvhIDHEKr9kFaAnW\ndqNc/QIoqKq62t7vaWnNq3kqUHjzzXbnxPmZm5O9oqdUpHZjdVaLR4km/a7P0Q9U\netZiES6aF9wNbxOyZS/XnLSeHZOyQgPyTl4wLmBAH5IVgJ8N5eQe94kaoRTOcH7n\nzxV5Pa52gqqRLGAxMsbLs6kVHtGI2oUY9b2tweFb9wj7BxaF5NIc5UEAxpCDS9rr\nNYhrIhijnu1cEb7q3OeW4mD0DjRQ82T8kcU3Pi+Mr8jpI4BWWzLAn//qvyItp6An\nxNCNJCECgYEA6X2acaLNxqjNTPMGtw5afMcznrRc/RhAYwErtf8BPfEjgAMWOzhR\nBQW2hY3RKOFdwFr9GAVZALq+wpKh+auUqvuBy7l2jCURjhrTl7uBhskSMFwidrfa\nJxEtgCUZIoTzpeM/SaxGANhDlKXXvc2i1vrHwFChPzBrOw1s93S/fdECgYEA2Q6X\n555uFo4m6kINvj1zvujLW81s5aPXHHBJT8rmt9yKXuPtNmQboG8saqrdNDTZfam8\n9L+gjmFflfuZwfuSoAji5CNP8/vbqPr8Yo8nIE6ZJhQYQ5fkZ4txjmM4/88GCVco\nXvI/AC/ANIgl43vx8pgACcj1FuocuELK+HVe53MCgYAieRTwaiUPi6SkE82OAWSC\nv7ZzXBXOmGIJPAcEG95HEu822z3RCIONxkYoecPD0WJSIBz2CvQVE31OpO+dOSP+\nCpwjRAKotmBdJsDOyjRZfh5dXX0JIiPnWLXrEY8gdZiziVWyvuim/0cbD1FHCLFe\nJDCRyFXGSpPKaDUKZAZRwQKBgQDBeBeAFSANLLGVFkFHs2Cq5rb0YdtRqMMBDzjZ\nTYJumb4gLErwszRIwS82+ItokD7XmmbZRMDoh/R6LCP12rXrvV/3d145m+FD8krp\n0q1OR6CMZ1blUMr+XDVgdCKHKNE5nB1Y29W55dYNPNmAtaaH1GIcVqnWvd/RgX+H\nDJ8F7wKBgHA0AyFmSvgpAy4UaRh9BqsZZealkAzlSRJzzspnMw3jpRoKcZtAMx9G\nMtbahnhPO9dMGULP38swRF+mywrvALYVgetDwrYgdFB0hlZf07/2YSlmJs13ryvm\nhy5riFFyl2Qha6rTRV1lWjnkMkD4/zoW6Kxis8V9uZvV4mXgW1yr\n-----END RSA PRIVATE KEY-----\n"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "listenerFilters": [
+          {
+            "name": "envoy.filters.listener.tls_inspector"
+          }
+        ],
+        "name": "cilium-ingress-default-multiple-tls-ingress"
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.route.v3.RouteConfiguration",
+        "name": "cilium-ingress-default-multiple-tls-ingress_route",
+        "virtualHosts": [
+          {
+            "domains": [
+              "hipstershop.cilium.com",
+              "hipstershop.cilium.com:*"
+            ],
+            "name": "hipstershop.cilium.com",
+            "routes": [
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "/hipstershop.ProductCatalogService(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/productcatalogservice"
+                }
+              },
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "/hipstershop.CurrencyService(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/currencyservice"
+                }
+              }
+            ]
+          },
+          {
+            "domains": [
+              "bookinfo.cilium.com",
+              "bookinfo.cilium.com:*"
+            ],
+            "name": "bookinfo.cilium.com",
+            "routes": [
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "/details(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/details"
+                }
+              },
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/productpage"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/currencyservice",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/details",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/productcatalogservice",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/productpage",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      }
+    ],
+    "services": [
+      {
+        "listener": "cilium-ingress-default-multiple-tls-ingress",
+        "name": "cilium-ingress-multiple-tls-ingress",
+        "namespace": "default"
+      }
+    ]
+  }
+}

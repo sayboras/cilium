@@ -1,0 +1,76 @@
+static_resources:
+  listeners:
+    - name: listener_0
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 10000
+      filter_chains:
+        filters:
+          - name: envoy.filters.network.http_connection_manager
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+              stat_prefix: hello_world_service
+              http_filters:
+                - name: envoy.filters.http.router
+              route_config:
+                name: my_first_route
+                virtual_hosts:
+                  - name: direct_response_service
+                    domains: [ "*" ]
+                    routes:
+                      - match:
+                          prefix: "/"
+                        route:
+                          cluster: hello_world_service
+        transport_socket:
+          name: envoy.transport_sockets.tls
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+            common_tls_context:
+              tls_certificate_sds_secret_configs:
+                - name: server_cert
+                  sds_config:
+                    resource_api_version: V3
+                    api_config_source:
+                      api_type: GRPC
+                      transport_api_version: V3
+                      grpc_services:
+                        envoy_grpc:
+                          cluster_name: sds_server_uds
+              validation_context_sds_secret_config:
+                name: validation_context
+                sds_config:
+                  resource_api_version: V3
+                  api_config_source:
+                    api_type: GRPC
+                    transport_api_version: V3
+                    grpc_services:
+                      envoy_grpc:
+                        cluster_name: sds_server_uds
+  clusters:
+    - name: hello_world_service
+      connect_timeout: 5s
+      load_assignment:
+        cluster_name: hello_world_service
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: 127.0.0.1
+                      port_value: 8000
+    - name: sds_server_uds
+      typed_extension_protocol_options:
+        envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+          "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+          explicit_http_config:
+            http2_protocol_options: { }
+      load_assignment:
+        cluster_name: sds_server_uds
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    pipe:
+                      path: /home/tammach/xds.sock

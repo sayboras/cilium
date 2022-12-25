@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: Secret
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJRENDQWdpZ0F3SUJBZ0lSQUt2VnNXNlVnTGoyTFQxT05oRm53Tjh3RFFZSktvWklodmNOQVFFTEJRQXcKSkRFUU1BNEdBMVVFQ2hNSFFXTnRaU0JEYnpFUU1BNEdBMVVFQXhNSFpHVm1ZWFZzZERBZUZ3MHlNakEwTURFdwpPVEl4TkRCYUZ3MHlNekEwTURFd09USXhOREJhTUNReEVEQU9CZ05WQkFvVEIwRmpiV1VnUTI4eEVEQU9CZ05WCkJBTVRCMlJsWm1GMWJIUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDb3FnTzIKZEJBeFBOUnhIdW92dlMwbHF5MmFGTE1pNVVaZTJZTk9kRlJ1RlR1UWJ6ZUI0MGt1ZzZtMTFDdXBHOVE1Q0R6UQo2dkFjSUk5RDh2Z0hLaXRwUVl1Y0hNTG05NGd0dDBKS0kvNnBFcGsxL1BzTEdUK0NkckZob0g4Ui8xQ0k4T2JBCkM2RFU1alltOWhKa2x6eDNTTmNmK0ZOaG9sRlVBcnZXNVlkVm9SUjhtK3lndFNSbDc4N210Ri84V2VIN2NZSmMKOU55dkoyT0x2NlVQWkRvaE5SRzlyeGJMdVlleGo5MTJqb2FlQXlNa2IwZi9HS1VoWUpwNm9SQ2ZqNC9EQlBmSAoxaG1MczI3WE9ET3BHQWRlaDN2Q2Q1NUdPS1ZwS05TVkNKTUxaQXpKNlEyck1rRVFmTFgxT0h3RnBYYXNGcEpTCmIvYlRkUTRNYkhhQVRoamJBZ01CQUFHalRUQkxNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQVRBTUJnTlZIUk1CQWY4RUFqQUFNQllHQTFVZEVRUVBNQTJDQzJadmJ5NWlZWEl1WTI5dApNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUIvbXh4aGlnN1hSUVlMS1lnNzljUXl5NG9LOGNTYmx2SVFMRXFsCktDMy9aRFp5ZjY4WlJNT2hRam1CTko2NHBIK210RmpmNTZzVG1LVVNPeWttbDFwWVlPZXp6dzJ6a2J2MW9zVU8KcndjbzJjQVY3SjcyaVozcGRkVk5wSU1Eb3dLSUhoTDJ5RUpXbC9IRWZFOGtFdkh6N0R3Rm9wclJSdjN5S1U4eAprZHhTbzFjd29CQnV6NmJPaTBWK3podWx3ZDJFSElPbUFhaGJNZERNdW1YaXRyVzYwa1Ztd092SGk2aG93N0dPCkhHa0ZOcTlmRkZQMUlHcERFL0tvc2RtSGcvUis4MlhhQ3ZpLy9EWmtoRG1TaWZqZU45cDBXYStYcTV1NGxkZUgKblF1cEc2enNMbGQ5b3FXSHJCUWl5YVV4emxZNHhOUFRZL3BXcEp3Mkw1a1ZCN0YwCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBcUtvRHRuUVFNVHpVY1I3cUw3MHRKYXN0bWhTekl1VkdYdG1EVG5SVWJoVTdrRzgzCmdlTkpMb09wdGRRcnFSdlVPUWc4ME9yd0hDQ1BRL0w0QnlvcmFVR0xuQnpDNXZlSUxiZENTaVArcVJLWk5mejcKQ3hrL2duYXhZYUIvRWY5UWlQRG13QXVnMU9ZMkp2WVNaSmM4ZDBqWEgvaFRZYUpSVkFLNzF1V0hWYUVVZkp2cwpvTFVrWmUvTzVyUmYvRm5oKzNHQ1hQVGNyeWRqaTcrbEQyUTZJVFVSdmE4V3k3bUhzWS9kZG82R25nTWpKRzlICi94aWxJV0NhZXFFUW40K1B3d1QzeDlZWmk3TnUxemd6cVJnSFhvZDd3bmVlUmppbGFTalVsUWlUQzJRTXlla04KcXpKQkVIeTE5VGg4QmFWMnJCYVNVbS8yMDNVT0RHeDJnRTRZMndJREFRQUJBb0lCQUM1TnZvY3doZUYrbWJRVQprS1phZ1RKK05CN0E0QTBNZEsxRmVjN29FT1hIM25wZ2poU1NtVnl6dUx1NmErSVpTY0graVBPeURBa3N4eWdZClpBOVRmR2VCSHhyVXFvMU9GNHkxYXZWL3ZFSWVZUUY1V2xKSnRDM1UrQTJkU2tWZW1uVjk3VnQ3MWNPZEQvRFMKVFdwZ09yRmt4ZXA0K2lzcnJMZ3JwL1h2UGFBOERuUGlydHZzL3ZIcnBhM3BzU0szRlhJSEx3aDFOemJxRTBLUgp6cDR1TXR3eWVXanl1TkV0MkdsVVVxTSt1cTdGbHAvS05yYUtSQTJ2Wkp4aVVYYW1lbDY0akpHditDOTVLUE5mCmk4c3paSXN3c1VIcnR0WXZZOTB6cHNOUTJYdHYwb1hyR2JjRjBBSUFrUTBTMVBoc0JvWW51Snl2dTVVcHpGaVgKODd5TDRnRUNnWUVBeGt3TEZSeTEvNHNyU2F1ejduL3ZJOWlwOUZHK3c2L2YyNzJYUGY5UEJwTy9XV0N6WWExOAppc2RmaE5NaXEzNVNTeldSTEVYVXBUN2RvZEFUejNDQzVlanpPL3MyVi9tTUY4My9mZmdMbm42d0gzaU9SZ3VNCldMSGt5L09nQVRzcE5uNTh0MEVQZ1pJMEtiZlR1eWFDVEZNOGVHc0YwYTA5QXR5endCT2lTNkVDZ1lFQTJiNSsKWE5RVHRML0E0alRBQjYwL0I4UlpsT0RycUpiK2lScnJmTTNoUitUTjIzekwzOXl4THgvMldlV0pRTTdlYVhGcQp0U2RTMzhreFV1RGM5eEZYVWdRazdIeHNudHgyNW1Vd0VoVEdFVDhucVBqTGdzWWpWY0crcnkwVTFtUVRCclF0CjJkc3NqUkhwSGI3OUkvaEhmZDIyOGgxNmF6S3AyY0E0NzRDWXN2c0NnWUVBcHc4M293QytQOTFTaWMxeldISkYKMlhCV3RyUUx3RGN5cEtFVWd6SE50Ui9TYkkwd2N4RkN4SFIxZjZTVko5L1Rtdk0xTEJSa3N4YkVoK2VTV1FoVAo3emdUZTZ3SHU1Uk10MTFnYXhNSFR1OHltRURydEExVW53QzRYaThRMVJpdmZ1NlBTYUF4WFJyOGdVMFN2ekFSClJCWTM4c2RQYnJmQmwrQ3lPeGNQZXlFQ2dZQk9ZVk1OU1U0YXAxZmdWWXEyZUxlU3JTeHQraFQ2Wi9nU0ZIMm0KUEZvV3poY0lKa0VoUVVrS3BKL0NObTBVeGlLcnBDYjhOTDZSVGRRU2VGMHlGcXp2R2d6TWovRnRzZ0NlNk5mSAorbkJkN3ZUd3p6WTZ5ZVlZVFppOWFDWHpFcTBDb2NOTGc2amkwd3F1S1h6b0FNeURVMWN5aWtmeDVKZmRpV00xClczNGNGd0tCZ1FERmFBWStTREZwUEFmMm0vcUdCRHp6MDBqWUhEZ2QrNGYvL3d3Y3FabnBkNjVPdDBCdFh4YkIKdzFwYUlyOC9lSmI4akF6NmMydlNmSmUyaTJsZ2NvR0xVRzBGRnZJQnFHbkM1bEFVUk5vZjhIeTBrZVNsOU5MSQpiRmZ5a0ZDMUd0RjZpOHNxQU9TZms2K3RTQzJYNGV3RE9Ebks0bTdMWWk5WkNmMWdhN3NHcFE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+metadata:
+  name: conformance-tls
+type: kubernetes.io/tls
+---
+apiVersion: v1
+kind: Secret
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURJRENDQWdpZ0F3SUJBZ0lSQUt2VnNXNlVnTGoyTFQxT05oRm53Tjh3RFFZSktvWklodmNOQVFFTEJRQXcKSkRFUU1BNEdBMVVFQ2hNSFFXTnRaU0JEYnpFUU1BNEdBMVVFQXhNSFpHVm1ZWFZzZERBZUZ3MHlNakEwTURFdwpPVEl4TkRCYUZ3MHlNekEwTURFd09USXhOREJhTUNReEVEQU9CZ05WQkFvVEIwRmpiV1VnUTI4eEVEQU9CZ05WCkJBTVRCMlJsWm1GMWJIUXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDb3FnTzIKZEJBeFBOUnhIdW92dlMwbHF5MmFGTE1pNVVaZTJZTk9kRlJ1RlR1UWJ6ZUI0MGt1ZzZtMTFDdXBHOVE1Q0R6UQo2dkFjSUk5RDh2Z0hLaXRwUVl1Y0hNTG05NGd0dDBKS0kvNnBFcGsxL1BzTEdUK0NkckZob0g4Ui8xQ0k4T2JBCkM2RFU1alltOWhKa2x6eDNTTmNmK0ZOaG9sRlVBcnZXNVlkVm9SUjhtK3lndFNSbDc4N210Ri84V2VIN2NZSmMKOU55dkoyT0x2NlVQWkRvaE5SRzlyeGJMdVlleGo5MTJqb2FlQXlNa2IwZi9HS1VoWUpwNm9SQ2ZqNC9EQlBmSAoxaG1MczI3WE9ET3BHQWRlaDN2Q2Q1NUdPS1ZwS05TVkNKTUxaQXpKNlEyck1rRVFmTFgxT0h3RnBYYXNGcEpTCmIvYlRkUTRNYkhhQVRoamJBZ01CQUFHalRUQkxNQTRHQTFVZER3RUIvd1FFQXdJRm9EQVRCZ05WSFNVRUREQUsKQmdnckJnRUZCUWNEQVRBTUJnTlZIUk1CQWY4RUFqQUFNQllHQTFVZEVRUVBNQTJDQzJadmJ5NWlZWEl1WTI5dApNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUIvbXh4aGlnN1hSUVlMS1lnNzljUXl5NG9LOGNTYmx2SVFMRXFsCktDMy9aRFp5ZjY4WlJNT2hRam1CTko2NHBIK210RmpmNTZzVG1LVVNPeWttbDFwWVlPZXp6dzJ6a2J2MW9zVU8KcndjbzJjQVY3SjcyaVozcGRkVk5wSU1Eb3dLSUhoTDJ5RUpXbC9IRWZFOGtFdkh6N0R3Rm9wclJSdjN5S1U4eAprZHhTbzFjd29CQnV6NmJPaTBWK3podWx3ZDJFSElPbUFhaGJNZERNdW1YaXRyVzYwa1Ztd092SGk2aG93N0dPCkhHa0ZOcTlmRkZQMUlHcERFL0tvc2RtSGcvUis4MlhhQ3ZpLy9EWmtoRG1TaWZqZU45cDBXYStYcTV1NGxkZUgKblF1cEc2enNMbGQ5b3FXSHJCUWl5YVV4emxZNHhOUFRZL3BXcEp3Mkw1a1ZCN0YwCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBcUtvRHRuUVFNVHpVY1I3cUw3MHRKYXN0bWhTekl1VkdYdG1EVG5SVWJoVTdrRzgzCmdlTkpMb09wdGRRcnFSdlVPUWc4ME9yd0hDQ1BRL0w0QnlvcmFVR0xuQnpDNXZlSUxiZENTaVArcVJLWk5mejcKQ3hrL2duYXhZYUIvRWY5UWlQRG13QXVnMU9ZMkp2WVNaSmM4ZDBqWEgvaFRZYUpSVkFLNzF1V0hWYUVVZkp2cwpvTFVrWmUvTzVyUmYvRm5oKzNHQ1hQVGNyeWRqaTcrbEQyUTZJVFVSdmE4V3k3bUhzWS9kZG82R25nTWpKRzlICi94aWxJV0NhZXFFUW40K1B3d1QzeDlZWmk3TnUxemd6cVJnSFhvZDd3bmVlUmppbGFTalVsUWlUQzJRTXlla04KcXpKQkVIeTE5VGg4QmFWMnJCYVNVbS8yMDNVT0RHeDJnRTRZMndJREFRQUJBb0lCQUM1TnZvY3doZUYrbWJRVQprS1phZ1RKK05CN0E0QTBNZEsxRmVjN29FT1hIM25wZ2poU1NtVnl6dUx1NmErSVpTY0graVBPeURBa3N4eWdZClpBOVRmR2VCSHhyVXFvMU9GNHkxYXZWL3ZFSWVZUUY1V2xKSnRDM1UrQTJkU2tWZW1uVjk3VnQ3MWNPZEQvRFMKVFdwZ09yRmt4ZXA0K2lzcnJMZ3JwL1h2UGFBOERuUGlydHZzL3ZIcnBhM3BzU0szRlhJSEx3aDFOemJxRTBLUgp6cDR1TXR3eWVXanl1TkV0MkdsVVVxTSt1cTdGbHAvS05yYUtSQTJ2Wkp4aVVYYW1lbDY0akpHditDOTVLUE5mCmk4c3paSXN3c1VIcnR0WXZZOTB6cHNOUTJYdHYwb1hyR2JjRjBBSUFrUTBTMVBoc0JvWW51Snl2dTVVcHpGaVgKODd5TDRnRUNnWUVBeGt3TEZSeTEvNHNyU2F1ejduL3ZJOWlwOUZHK3c2L2YyNzJYUGY5UEJwTy9XV0N6WWExOAppc2RmaE5NaXEzNVNTeldSTEVYVXBUN2RvZEFUejNDQzVlanpPL3MyVi9tTUY4My9mZmdMbm42d0gzaU9SZ3VNCldMSGt5L09nQVRzcE5uNTh0MEVQZ1pJMEtiZlR1eWFDVEZNOGVHc0YwYTA5QXR5endCT2lTNkVDZ1lFQTJiNSsKWE5RVHRML0E0alRBQjYwL0I4UlpsT0RycUpiK2lScnJmTTNoUitUTjIzekwzOXl4THgvMldlV0pRTTdlYVhGcQp0U2RTMzhreFV1RGM5eEZYVWdRazdIeHNudHgyNW1Vd0VoVEdFVDhucVBqTGdzWWpWY0crcnkwVTFtUVRCclF0CjJkc3NqUkhwSGI3OUkvaEhmZDIyOGgxNmF6S3AyY0E0NzRDWXN2c0NnWUVBcHc4M293QytQOTFTaWMxeldISkYKMlhCV3RyUUx3RGN5cEtFVWd6SE50Ui9TYkkwd2N4RkN4SFIxZjZTVko5L1Rtdk0xTEJSa3N4YkVoK2VTV1FoVAo3emdUZTZ3SHU1Uk10MTFnYXhNSFR1OHltRURydEExVW53QzRYaThRMVJpdmZ1NlBTYUF4WFJyOGdVMFN2ekFSClJCWTM4c2RQYnJmQmwrQ3lPeGNQZXlFQ2dZQk9ZVk1OU1U0YXAxZmdWWXEyZUxlU3JTeHQraFQ2Wi9nU0ZIMm0KUEZvV3poY0lKa0VoUVVrS3BKL0NObTBVeGlLcnBDYjhOTDZSVGRRU2VGMHlGcXp2R2d6TWovRnRzZ0NlNk5mSAorbkJkN3ZUd3p6WTZ5ZVlZVFppOWFDWHpFcTBDb2NOTGc2amkwd3F1S1h6b0FNeURVMWN5aWtmeDVKZmRpV00xClczNGNGd0tCZ1FERmFBWStTREZwUEFmMm0vcUdCRHp6MDBqWUhEZ2QrNGYvL3d3Y3FabnBkNjVPdDBCdFh4YkIKdzFwYUlyOC9lSmI4akF6NmMydlNmSmUyaTJsZ2NvR0xVRzBGRnZJQnFHbkM1bEFVUk5vZjhIeTBrZVNsOU5MSQpiRmZ5a0ZDMUd0RjZpOHNxQU9TZms2K3RTQzJYNGV3RE9Ebks0bTdMWWk5WkNmMWdhN3NHcFE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+metadata:
+  name: conformance-tls-2
+type: kubernetes.io/tls
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: host-rules-wildcard-foo-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: host-rules-wildcard-foo-com
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: host-rules-wildcard-foo-com
+    spec:
+      containers:
+        - env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: INGRESS_NAME
+              value: host-rules
+            - name: SERVICE_NAME
+              value: wildcard-foo-com
+          image: k8s.gcr.io/ingressconformance/echoserver:v0.0.1@sha256:9b34b17f391f87fb2155f01da2f2f90b7a4a5c1110ed84cb5379faa4f570dc52
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: ingress-conformance-echo
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wildcard-foo-com
+spec:
+  ports:
+    - port: 8080
+      targetPort: 3000
+  selector:
+    app: host-rules-wildcard-foo-com
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: host-rules-foo-bar-com
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: host-rules-foo-bar-com
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: host-rules-foo-bar-com
+    spec:
+      containers:
+        - env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: INGRESS_NAME
+              value: host-rules
+            - name: SERVICE_NAME
+              value: foo-bar-com
+          image: k8s.gcr.io/ingressconformance/echoserver:v0.0.1@sha256:9b34b17f391f87fb2155f01da2f2f90b7a4a5c1110ed84cb5379faa4f570dc52
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: ingress-conformance-echo
+          ports:
+            - containerPort: 3000
+              name: http
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foo-bar-com
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 3000
+  selector:
+    app: host-rules-foo-bar-com
+  type: NodePort
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: host-rules
+spec:
+  ingressClassName: cilium
+  rules:
+    - host: '*.foo.com'
+      http:
+        paths:
+          - backend:
+              service:
+                name: wildcard-foo-com
+                port:
+                  number: 8080
+            path: /
+            pathType: Prefix
+    - host: foo.bar.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: foo-bar-com
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - foo.bar.com
+      secretName: conformance-tls

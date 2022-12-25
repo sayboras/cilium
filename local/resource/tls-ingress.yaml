@@ -1,0 +1,63 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: multiple-tls-ingress
+  namespace: default
+spec:
+  ingressClassName: cilium
+  defaultBackend:
+    service:
+      name: default-backend
+      port:
+        number: 80
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: http-svc
+            port:
+              number: 80
+  - host: hipstershop.cilium.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: productcatalogservice
+            port:
+              number: 3550
+        path: /hipstershop.ProductCatalogService
+        pathType: Prefix
+      - backend:
+          service:
+            name: currencyservice
+            port:
+              number: 7000
+        path: /hipstershop.CurrencyService
+        pathType: Prefix
+  - host: bookinfo.cilium.com
+    http:
+      paths:
+      - backend:
+          service:
+            name: details
+            port:
+              number: 9080
+        path: /details
+        pathType: Prefix
+      - backend:
+          service:
+            name: productpage
+            port:
+              number: 9080
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - bookinfo.cilium.com
+    secretName: demo-cert-1
+  - hosts:
+    - hipstershop.cilium.com
+    secretName: demo-cert-2

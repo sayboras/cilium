@@ -1,0 +1,85 @@
+apiVersion: cilium.io/v2
+kind: CiliumEnvoyConfig
+metadata:
+  name: cilium-ingress-default-default-backend
+  namespace: default
+  ownerReferences:
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: default-backend
+    uid: 66e30cf1-40f4-498b-97d4-0e244a1377a3
+spec:
+  backendServices:
+  - name: echo-service
+    namespace: default
+    number:
+    - "8080"
+  resources:
+  - '@type': type.googleapis.com/envoy.config.listener.v3.Listener
+    filterChains:
+    - filterChainMatch:
+        transportProtocol: raw_buffer
+      filters:
+      - name: envoy.filters.network.http_connection_manager
+        typedConfig:
+          '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          httpFilters:
+          - name: envoy.filters.http.router
+          rds:
+            routeConfigName: cilium-ingress-default-default-backend_route
+          statPrefix: cilium-ingress-default-default-backend
+    listenerFilters:
+    - name: envoy.filters.listener.tls_inspector
+    name: cilium-ingress-default-default-backend
+    socketOptions:
+    - description: Enable TCP keep-alive, annotation io.cilium/tcp-keep-alive. (default
+        to enabled)
+      intValue: "1"
+      level: "1"
+      name: "9"
+      state: STATE_LISTENING
+    - description: TCP keep-alive idle time (in seconds). Annotation io.cilium/tcp-keep-alive-idle
+        (defaults to 10s)
+      intValue: "10"
+      level: "6"
+      name: "4"
+      state: STATE_LISTENING
+    - description: TCP keep-alive probe intervals (in seconds). Annotation io.cilium/tcp-keep-alive-probe-interval
+        (defaults to 5s)
+      intValue: "5"
+      level: "6"
+      name: "5"
+      state: STATE_LISTENING
+    - description: TCP keep-alive probe max failures. Annotation io.cilium/tcp-keep-alive-probe-max-failures
+        (defaults to 10)
+      intValue: "10"
+      level: "6"
+      name: "6"
+      state: STATE_LISTENING
+  - '@type': type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+    name: cilium-ingress-default-default-backend_route
+    virtualHosts:
+    - domains:
+      - '*'
+      name: default-backend
+      routes:
+      - match:
+          prefix: /
+        route:
+          cluster: default/echo-service:8080
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/echo-service:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  services:
+  - listener: cilium-ingress-default-default-backend
+    name: cilium-ingress-default-backend
+    namespace: default

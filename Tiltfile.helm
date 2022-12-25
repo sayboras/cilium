@@ -1,0 +1,23 @@
+helm_values = [
+    # 'install/kubernetes/cilium/values/minikube.yaml',
+    # 'install/kubernetes/cilium/values/kind.yaml',
+    # 'install/kubernetes/cilium/values/aws/aws.yaml',
+]
+
+helm_sets = [
+    'kubeProxyReplacement=strict',
+    'nodeinit.enabled=true',
+    'ipam.mode=kubernetes',
+    'image.repository=quay.io/cilium/cilium',
+    'operator.replicas=1',
+    'operator.image.repository=quay.io/cilium/operator',
+    'hubble.relay.enabled=true',
+    'hubble.relay.image.tag=v1.12.0-rc2',
+    'hubble.ui.enabled=true',
+    'hubble.ui.frontend.image.tag=v0.8.4',
+    'hubble.ui.backend.image.tag=v0.8.4',
+    'ingressController.enabled=true',
+    'securityContext.privileged=true',
+    'debug.enabled=true',
+    'debug.verbose=flow',
+]

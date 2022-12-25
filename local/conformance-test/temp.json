@@ -1,0 +1,217 @@
+{
+  "apiVersion": "cilium.io/v2alpha1",
+  "kind": "CiliumEnvoyConfig",
+  "metadata": {
+    "creationTimestamp": "2022-04-25T03:57:01Z",
+    "generation": 1,
+    "name": "cilium-ingress-default-host-rules",
+    "namespace": "default",
+    "resourceVersion": "27472",
+    "uid": "416d6f9a-5173-4d2d-855c-da778b421869"
+  },
+  "spec": {
+    "backendServices": [
+      {
+        "name": "foo-bar-com",
+        "namespace": "default"
+      },
+      {
+        "name": "wildcard-foo-com",
+        "namespace": "default"
+      }
+    ],
+    "resources": [
+      {
+        "@type": "type.googleapis.com/envoy.config.listener.v3.Listener",
+        "filterChains": [
+          {
+            "filterChainMatch": {
+              "transportProtocol": "raw_buffer"
+            },
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.router"
+                    }
+                  ],
+                  "rds": {
+                    "routeConfigName": "cilium-ingress-default-host-rules_redirect"
+                  },
+                  "statPrefix": "cilium-ingress-default-host-rules"
+                }
+              }
+            ]
+          },
+          {
+            "filterChainMatch": {
+              "transportProtocol": "tls"
+            },
+            "filters": [
+              {
+                "name": "envoy.filters.network.http_connection_manager",
+                "typedConfig": {
+                  "@type": "type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager",
+                  "httpFilters": [
+                    {
+                      "name": "envoy.filters.http.router"
+                    }
+                  ],
+                  "rds": {
+                    "routeConfigName": "cilium-ingress-default-host-rules_route"
+                  },
+                  "statPrefix": "cilium-ingress-default-host-rules"
+                }
+              }
+            ],
+            "transportSocket": {
+              "name": "envoy.transport_sockets.tls",
+              "typedConfig": {
+                "@type": "type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext",
+                "commonTlsContext": {
+                  "tlsCertificates": [
+                    {
+                      "certificateChain": {
+                        "inlineString": "-----BEGIN CERTIFICATE-----\nMIIDIDCCAgigAwIBAgIRAKvVsW6UgLj2LT1ONhFnwN8wDQYJKoZIhvcNAQELBQAw\nJDEQMA4GA1UEChMHQWNtZSBDbzEQMA4GA1UEAxMHZGVmYXVsdDAeFw0yMjA0MDEw\nOTIxNDBaFw0yMzA0MDEwOTIxNDBaMCQxEDAOBgNVBAoTB0FjbWUgQ28xEDAOBgNV\nBAMTB2RlZmF1bHQwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoqgO2\ndBAxPNRxHuovvS0lqy2aFLMi5UZe2YNOdFRuFTuQbzeB40kug6m11CupG9Q5CDzQ\n6vAcII9D8vgHKitpQYucHMLm94gtt0JKI/6pEpk1/PsLGT+CdrFhoH8R/1CI8ObA\nC6DU5jYm9hJklzx3SNcf+FNholFUArvW5YdVoRR8m+ygtSRl787mtF/8WeH7cYJc\n9NyvJ2OLv6UPZDohNRG9rxbLuYexj912joaeAyMkb0f/GKUhYJp6oRCfj4/DBPfH\n1hmLs27XODOpGAdeh3vCd55GOKVpKNSVCJMLZAzJ6Q2rMkEQfLX1OHwFpXasFpJS\nb/bTdQ4MbHaAThjbAgMBAAGjTTBLMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAK\nBggrBgEFBQcDATAMBgNVHRMBAf8EAjAAMBYGA1UdEQQPMA2CC2Zvby5iYXIuY29t\nMA0GCSqGSIb3DQEBCwUAA4IBAQB/mxxhig7XRQYLKYg79cQyy4oK8cSblvIQLEql\nKC3/ZDZyf68ZRMOhQjmBNJ64pH+mtFjf56sTmKUSOykml1pYYOezzw2zkbv1osUO\nrwco2cAV7J72iZ3pddVNpIMDowKIHhL2yEJWl/HEfE8kEvHz7DwFoprRRv3yKU8x\nkdxSo1cwoBBuz6bOi0V+zhulwd2EHIOmAahbMdDMumXitrW60kVmwOvHi6how7GO\nHGkFNq9fFFP1IGpDE/KosdmHg/R+82XaCvi//DZkhDmSifjeN9p0Wa+Xq5u4ldeH\nnQupG6zsLld9oqWHrBQiyaUxzlY4xNPTY/pWpJw2L5kVB7F0\n-----END CERTIFICATE-----\n"
+                      },
+                      "privateKey": {
+                        "inlineString": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAqKoDtnQQMTzUcR7qL70tJastmhSzIuVGXtmDTnRUbhU7kG83\ngeNJLoOptdQrqRvUOQg80OrwHCCPQ/L4ByoraUGLnBzC5veILbdCSiP+qRKZNfz7\nCxk/gnaxYaB/Ef9QiPDmwAug1OY2JvYSZJc8d0jXH/hTYaJRVAK71uWHVaEUfJvs\noLUkZe/O5rRf/Fnh+3GCXPTcrydji7+lD2Q6ITURva8Wy7mHsY/ddo6GngMjJG9H\n/xilIWCaeqEQn4+PwwT3x9YZi7Nu1zgzqRgHXod7wneeRjilaSjUlQiTC2QMyekN\nqzJBEHy19Th8BaV2rBaSUm/203UODGx2gE4Y2wIDAQABAoIBAC5NvocwheF+mbQU\nkKZagTJ+NB7A4A0MdK1Fec7oEOXH3npgjhSSmVyzuLu6a+IZScH+iPOyDAksxygY\nZA9TfGeBHxrUqo1OF4y1avV/vEIeYQF5WlJJtC3U+A2dSkVemnV97Vt71cOdD/DS\nTWpgOrFkxep4+isrrLgrp/XvPaA8DnPirtvs/vHrpa3psSK3FXIHLwh1NzbqE0KR\nzp4uMtwyeWjyuNEt2GlUUqM+uq7Flp/KNraKRA2vZJxiUXamel64jJGv+C95KPNf\ni8szZIswsUHrttYvY90zpsNQ2Xtv0oXrGbcF0AIAkQ0S1PhsBoYnuJyvu5UpzFiX\n87yL4gECgYEAxkwLFRy1/4srSauz7n/vI9ip9FG+w6/f272XPf9PBpO/WWCzYa18\nisdfhNMiq35SSzWRLEXUpT7dodATz3CC5ejzO/s2V/mMF83/ffgLnn6wH3iORguM\nWLHky/OgATspNn58t0EPgZI0KbfTuyaCTFM8eGsF0a09AtyzwBOiS6ECgYEA2b5+\nXNQTtL/A4jTAB60/B8RZlODrqJb+iRrrfM3hR+TN23zL39yxLx/2WeWJQM7eaXFq\ntSdS38kxUuDc9xFXUgQk7Hxsntx25mUwEhTGET8nqPjLgsYjVcG+ry0U1mQTBrQt\n2dssjRHpHb79I/hHfd228h16azKp2cA474CYsvsCgYEApw83owC+P91Sic1zWHJF\n2XBWtrQLwDcypKEUgzHNtR/SbI0wcxFCxHR1f6SVJ9/TmvM1LBRksxbEh+eSWQhT\n7zgTe6wHu5RMt11gaxMHTu8ymEDrtA1UnwC4Xi8Q1Rivfu6PSaAxXRr8gU0SvzAR\nRBY38sdPbrfBl+CyOxcPeyECgYBOYVMNSU4ap1fgVYq2eLeSrSxt+hT6Z/gSFH2m\nPFoWzhcIJkEhQUkKpJ/CNm0UxiKrpCb8NL6RTdQSeF0yFqzvGgzMj/FtsgCe6NfH\n+nBd7vTwzzY6yeYYTZi9aCXzEq0CocNLg6ji0wquKXzoAMyDU1cyikfx5JfdiWM1\nW34cFwKBgQDFaAY+SDFpPAf2m/qGBDzz00jYHDgd+4f//wwcqZnpd65Ot0BtXxbB\nw1paIr8/eJb8jAz6c2vSfJe2i2lgcoGLUG0FFvIBqGnC5lAURNof8Hy0keSl9NLI\nbFfykFC1GtF6i8sqAOSfk6+tSC2X4ewDODnK4m7LYi9ZCf1ga7sGpQ==\n-----END RSA PRIVATE KEY-----\n"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "listenerFilters": [
+          {
+            "name": "envoy.filters.listener.tls_inspector"
+          }
+        ],
+        "name": "cilium-ingress-default-host-rules"
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.route.v3.RouteConfiguration",
+        "name": "cilium-ingress-default-host-rules_route",
+        "virtualHosts": [
+          {
+            "domains": [
+              "*.foo.com",
+              "*.foo.com:*"
+            ],
+            "name": "*.foo.com",
+            "routes": [
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/wildcard-foo-com",
+                  "maxStreamDuration": {
+                    "maxStreamDuration": "0s"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "domains": [
+              "foo.bar.com",
+              "foo.bar.com:*"
+            ],
+            "name": "foo.bar.com",
+            "routes": [
+              {
+                "match": {
+                  "safeRegex": {
+                    "googleRe2": {},
+                    "regex": "(/.*)?$"
+                  }
+                },
+                "route": {
+                  "cluster": "default/foo-bar-com",
+                  "maxStreamDuration": {
+                    "maxStreamDuration": "0s"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.route.v3.RouteConfiguration",
+        "name": "cilium-ingress-default-host-rules_redirect",
+        "virtualHosts": [
+          {
+            "domains": [
+              "*"
+            ],
+            "name": "default-redirect",
+            "routes": [
+              {
+                "match": {
+                  "prefix": "/"
+                },
+                "redirect": {
+                  "httpsRedirect": true,
+                  "responseCode": "PERMANENT_REDIRECT"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/foo-bar-com",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      },
+      {
+        "@type": "type.googleapis.com/envoy.config.cluster.v3.Cluster",
+        "connectTimeout": "5s",
+        "name": "default/wildcard-foo-com",
+        "outlierDetection": {
+          "consecutiveLocalOriginFailure": 2,
+          "splitExternalLocalOriginErrors": true
+        },
+        "type": "EDS",
+        "typedExtensionProtocolOptions": {
+          "envoy.extensions.upstreams.http.v3.HttpProtocolOptions": {
+            "@type": "type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions",
+            "useDownstreamProtocolConfig": {
+              "http2ProtocolOptions": {}
+            }
+          }
+        }
+      }
+    ],
+    "services": [
+      {
+        "listener": "cilium-ingress-default-host-rules",
+        "name": "cilium-ingress-host-rules",
+        "namespace": "default"
+      }
+    ]
+  }
+}

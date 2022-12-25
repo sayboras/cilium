@@ -1,0 +1,149 @@
+apiVersion: cilium.io/v2
+kind: CiliumEnvoyConfig
+metadata:
+  name: cilium-ingress-default-host-rules
+  namespace: default
+  ownerReferences:
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: host-rules
+    uid: f134e987-0db6-4ef8-9bf9-db7be384fc5a
+spec:
+  backendServices:
+  - name: foo-bar-com
+    namespace: default
+    number:
+    - http
+  - name: wildcard-foo-com
+    namespace: default
+    number:
+    - "8080"
+  resources:
+  - '@type': type.googleapis.com/envoy.config.listener.v3.Listener
+    filterChains:
+    - filterChainMatch:
+        transportProtocol: raw_buffer
+      filters:
+      - name: envoy.filters.network.http_connection_manager
+        typedConfig:
+          '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          httpFilters:
+          - name: envoy.filters.http.router
+          rds:
+            routeConfigName: cilium-ingress-default-host-rules_redirect
+          statPrefix: cilium-ingress-default-host-rules
+    - filterChainMatch:
+        transportProtocol: tls
+      filters:
+      - name: envoy.filters.network.http_connection_manager
+        typedConfig:
+          '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          httpFilters:
+          - name: envoy.filters.http.router
+          rds:
+            routeConfigName: cilium-ingress-default-host-rules_route
+          statPrefix: cilium-ingress-default-host-rules
+      transportSocket:
+        name: envoy.transport_sockets.tls
+        typedConfig:
+          '@type': type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          commonTlsContext:
+            tlsCertificateSdsSecretConfigs:
+            - name: cilium-secrets/default-conformance-tls
+              sdsConfig:
+                apiConfigSource:
+                  apiType: GRPC
+                  grpcServices:
+                  - envoyGrpc:
+                      clusterName: xds-grpc-cilium
+                  transportApiVersion: V3
+                resourceApiVersion: V3
+            validationContextSdsSecretConfig:
+              name: cilium-secrets/default-conformance-tls
+              sdsConfig:
+                apiConfigSource:
+                  apiType: GRPC
+                  grpcServices:
+                  - envoyGrpc:
+                      clusterName: xds-grpc-cilium
+                  transportApiVersion: V3
+                resourceApiVersion: V3
+    listenerFilters:
+    - name: envoy.filters.listener.tls_inspector
+    name: cilium-ingress-default-host-rules
+
+  - '@type': type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+    name: cilium-ingress-default-host-rules_route
+    virtualHosts:
+    - domains:
+      - '*.foo.com'
+      - '*.foo.com:*'
+      name: '*.foo.com'
+      routes:
+      - match:
+          headers:
+          - name: :authority
+            stringMatch:
+              safeRegex:
+                googleRe2: {}
+                regex: ^[^.]+[.]foo[.]com$
+          safeRegex:
+            googleRe2: {}
+            regex: (/.*)?$
+        route:
+          cluster: default/wildcard-foo-com:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+    - domains:
+      - foo.bar.com
+      - foo.bar.com:*
+      name: foo.bar.com
+      routes:
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: (/.*)?$
+        route:
+          cluster: default/foo-bar-com:http
+          maxStreamDuration:
+            maxStreamDuration: 0s
+  - '@type': type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+    name: cilium-ingress-default-host-rules_redirect
+    virtualHosts:
+    - domains:
+      - '*'
+      name: default-redirect
+      routes:
+      - match:
+          prefix: /
+        redirect:
+          httpsRedirect: true
+          responseCode: PERMANENT_REDIRECT
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/foo-bar-com:http
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/wildcard-foo-com:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  services:
+  - listener: cilium-ingress-default-host-rules
+    name: cilium-ingress-host-rules
+    namespace: default

@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+#  annotations:
+#    cert-manager.io/cluster-issuer: letsencrypt-prod
+  labels:
+    k8s-app: hubble-ui
+  name: hubble-ui-cilium-ingress
+  namespace: kube-system
+spec:
+  ingressClassName: cilium
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: hubble-ui
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+#      host: hubble-ui.demo-2.isovalent.com
+#  tls:
+#    - hosts:
+#        - hubble-ui.demo-2.isovalent.com
+#      secretName: hubble-ui-ingress-tls

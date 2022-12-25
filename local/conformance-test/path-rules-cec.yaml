@@ -1,0 +1,237 @@
+apiVersion: cilium.io/v2
+kind: CiliumEnvoyConfig
+metadata:
+  name: cilium-ingress-default-path-rules
+  namespace: default
+  ownerReferences:
+  - apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: path-rules
+    uid: 48ce1029-0348-437c-814d-b3c889e8ffdc
+spec:
+  backendServices:
+  - name: aaa-prefix
+    namespace: default
+    number:
+    - "8081"
+  - name: aaa-slash-bbb-prefix
+    namespace: default
+    number:
+    - "8080"
+  - name: aaa-slash-bbb-slash-prefix
+    namespace: default
+    number:
+    - "8080"
+  - name: foo-exact
+    namespace: default
+    number:
+    - "8080"
+  - name: foo-prefix
+    namespace: default
+    number:
+    - "8080"
+  - name: foo-slash-exact
+    namespace: default
+    number:
+    - "8080"
+  resources:
+  - '@type': type.googleapis.com/envoy.config.listener.v3.Listener
+    filterChains:
+    - filterChainMatch:
+        transportProtocol: raw_buffer
+      filters:
+      - name: envoy.filters.network.http_connection_manager
+        typedConfig:
+          '@type': type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          httpFilters:
+          - name: envoy.filters.http.router
+          rds:
+            routeConfigName: cilium-ingress-default-path-rules_route
+          statPrefix: cilium-ingress-default-path-rules
+    listenerFilters:
+    - name: envoy.filters.listener.tls_inspector
+    name: cilium-ingress-default-path-rules
+    socketOptions:
+    - description: Enable TCP keep-alive, annotation io.cilium/tcp-keep-alive. (default
+        to enabled)
+      intValue: "1"
+      level: "1"
+      name: "9"
+      state: STATE_LISTENING
+    - description: TCP keep-alive idle time (in seconds). Annotation io.cilium/tcp-keep-alive-idle
+        (defaults to 10s)
+      intValue: "10"
+      level: "6"
+      name: "4"
+      state: STATE_LISTENING
+    - description: TCP keep-alive probe intervals (in seconds). Annotation io.cilium/tcp-keep-alive-probe-interval
+        (defaults to 5s)
+      intValue: "5"
+      level: "6"
+      name: "5"
+      state: STATE_LISTENING
+    - description: TCP keep-alive probe max failures. Annotation io.cilium/tcp-keep-alive-probe-max-failures
+        (defaults to 10)
+      intValue: "10"
+      level: "6"
+      name: "6"
+      state: STATE_LISTENING
+  - '@type': type.googleapis.com/envoy.config.route.v3.RouteConfiguration
+    name: cilium-ingress-default-path-rules_route
+    virtualHosts:
+    - domains:
+      - exact-path-rules
+      - exact-path-rules:*
+      name: exact-path-rules
+      routes:
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /foo(/.*)?$
+        route:
+          cluster: default/foo-exact:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+    - domains:
+      - prefix-path-rules
+      - prefix-path-rules:*
+      name: prefix-path-rules
+      routes:
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /aaa/bbb(/.*)?$
+        route:
+          cluster: default/aaa-slash-bbb-prefix:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /foo(/.*)?$
+        route:
+          cluster: default/foo-prefix:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /aaa(/.*)?$
+        route:
+          cluster: default/aaa-prefix:8081
+          maxStreamDuration:
+            maxStreamDuration: 0s
+    - domains:
+      - mixed-path-rules
+      - mixed-path-rules:*
+      name: mixed-path-rules
+      routes:
+      - match:
+          path: /foo
+        route:
+          cluster: default/foo-exact:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /foo(/.*)?$
+        route:
+          cluster: default/foo-prefix:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+    - domains:
+      - trailing-slash-path-rules
+      - trailing-slash-path-rules:*
+      name: trailing-slash-path-rules
+      routes:
+      - match:
+          path: /foo/
+        route:
+          cluster: default/foo-slash-exact:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+      - match:
+          safeRegex:
+            googleRe2: {}
+            regex: /aaa/bbb(/.*)?$
+        route:
+          cluster: default/aaa-slash-bbb-slash-prefix:8080
+          maxStreamDuration:
+            maxStreamDuration: 0s
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/aaa-prefix:8081
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/aaa-slash-bbb-prefix:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/aaa-slash-bbb-slash-prefix:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/foo-exact:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/foo-prefix:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  - '@type': type.googleapis.com/envoy.config.cluster.v3.Cluster
+    connectTimeout: 5s
+    name: default/foo-slash-exact:8080
+    outlierDetection:
+      consecutiveLocalOriginFailure: 2
+      splitExternalLocalOriginErrors: true
+    type: EDS
+    typedExtensionProtocolOptions:
+      envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+        '@type': type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+        useDownstreamProtocolConfig:
+          http2ProtocolOptions: {}
+  services:
+  - listener: cilium-ingress-default-path-rules
+    name: cilium-ingress-path-rules
+    namespace: default

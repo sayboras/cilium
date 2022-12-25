@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: default-backend-echo-service
+  namespace: another
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: default-backend-echo-service
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: default-backend-echo-service
+    spec:
+      containers:
+        - env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: INGRESS_NAME
+              value: default-backend
+            - name: SERVICE_NAME
+              value: echo-service
+          image: k8s.gcr.io/ingressconformance/echoserver:v0.0.1@sha256:9b34b17f391f87fb2155f01da2f2f90b7a4a5c1110ed84cb5379faa4f570dc52
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: ingress-conformance-echo
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 1
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: echo-service
+  namespace: another
+spec:
+  ports:
+    - port: 8080
+      targetPort: 3000
+  selector:
+    app: default-backend-echo-service
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: default-backend
+  namespace: another
+spec:
+  defaultBackend:
+    service:
+      name: echo-service
+      port:
+        number: 8080
+  ingressClassName: cilium
+---
