@@ -53,6 +53,10 @@
      - SPIRE socket path where the SPIRE delegated api agent is listening
      - string
      - ``"/run/spire/sockets/admin.sock"``
+   * - auth.mTLS.spireServerSocketPath
+     - SPIRE server socket path where the SPIRE server is listening
+     - string
+     - ``"/var/run/spire-server/sockets/api.sock"``
    * - autoDirectNodeRoutes
      - Enable installation of PodCIDR routes between worker nodes if worker nodes share a common L2 network segment.
      - bool

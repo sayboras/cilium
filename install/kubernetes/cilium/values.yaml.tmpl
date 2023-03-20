@@ -2610,6 +2610,8 @@ auth:
   mTLS:
     # -- Enable mtls-spiffe authentication method in CiliumNetworkPolicy
     enabled: false
+    # -- SPIRE server socket path where the SPIRE server is listening
+    spireServerSocketPath: /var/run/spire-server/sockets/api.sock
     # -- SPIRE socket path where the SPIRE delegated api agent is listening
     spireAdminSocketPath: /run/spire/sockets/admin.sock
     # -- SPIFFE trust domain to use for fetching certificates

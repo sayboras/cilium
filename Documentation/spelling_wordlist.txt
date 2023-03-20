@@ -188,9 +188,9 @@ asm
 assignees
 au
 auth
-authenticator
 authMapMax
 authMapMin
+authenticator
 autoDirectNodeRoutes
 autoMount
 autoProtectPortRange
@@ -951,6 +951,7 @@ sourceContext
 spiffe
 spiffeTrustDomain
 spireAdminSocketPath
+spireServerSocketPath
 src
 srv
 ssl
