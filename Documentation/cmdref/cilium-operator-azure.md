@@ -67,7 +67,9 @@ cilium-operator-azure [flags]
       --limit-ipam-api-qps float                  Queries per second limit when accessing external IPAM APIs (default 4)
       --log-driver strings                        Logging endpoints to use for example syslog
       --log-opt map                               Log driver options for cilium-operator, configmap example for syslog driver: {"syslog.level":"info","syslog.facility":"local4"}
-      --mesh-auth-mtls-enabled                    Enable mTLS authentication in Cilium
+      --mesh-auth-mtls-enabled                    The flag to enable mTLS for the SPIRE server.
+      --mesh-auth-spiffe-trust-domain string      The trust domain for the SPIFFE identity. (default "spiffe.cilium.io")
+      --mesh-auth-spire-server-socket string      The path for the SPIRE admin agent Unix socket. (default "/var/run/spire-server/sockets/api.sock")
       --nodes-gc-interval duration                GC interval for CiliumNodes (default 5m0s)
       --operator-api-serve-addr string            Address to serve API requests (default "localhost:9234")
       --operator-pprof                            Enable serving pprof debugging API
