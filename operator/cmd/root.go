@@ -24,6 +24,7 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 
 	"github.com/cilium/cilium/operator/api"
+	"github.com/cilium/cilium/operator/auth"
 	"github.com/cilium/cilium/operator/identitygc"
 	operatorMetrics "github.com/cilium/cilium/operator/metrics"
 	operatorOption "github.com/cilium/cilium/operator/option"
@@ -111,7 +112,7 @@ var (
 			k8s.SharedResourcesCell,
 			lbipam.Cell,
 			identitygc.Cell,
-
+			auth.Cell,
 			legacyCell,
 		),
 	)
