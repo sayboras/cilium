@@ -64,7 +64,7 @@ contributors across the globe, there is almost always someone available to help.
 | auth.mTLS.port | int | `4250` | port on the agent which is used to mTLS handshakes on |
 | auth.mTLS.spiffeTrustDomain | string | `"spiffe.cilium.io"` | SPIFFE trust domain to use for fetching certificates |
 | auth.mTLS.spireAdminSocketPath | string | `"/run/spire/sockets/admin.sock"` | SPIRE socket path where the SPIRE delegated api agent is listening |
-| auth.mTLS.spireServerSocketPath | string | `"/var/run/spire-server/sockets/api.sock"` | SPIRE server socket path where the SPIRE server is listening |
+| auth.mTLS.spireServerSocketPath | string | `"/run/spire/sockets/agent.sock"` | SPIRE server socket path where the SPIRE agent is listening |
 | autoDirectNodeRoutes | bool | `false` | Enable installation of PodCIDR routes between worker nodes if worker nodes share a common L2 network segment. |
 | azure.enabled | bool | `false` | Enable Azure integration. Note that this is incompatible with AKS clusters created in BYOCNI mode: use AKS BYOCNI integration (`aksbyocni.enabled`) instead. |
 | bandwidthManager | object | `{"bbr":false,"enabled":false}` | Enable bandwidth manager to optimize TCP and UDP workloads and allow for rate-limiting traffic from individual Pods with EDT (Earliest Departure Time) through the "kubernetes.io/egress-bandwidth" Pod annotation. |
