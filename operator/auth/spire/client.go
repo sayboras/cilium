@@ -5,16 +5,16 @@ package spire
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/pflag"
+	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
+	"github.com/spiffe/go-spiffe/v2/workloadapi"
 	entryv1 "github.com/spiffe/spire-api-sdk/proto/spire/api/server/entry/v1"
 	"github.com/spiffe/spire-api-sdk/proto/spire/api/types"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 
 	"github.com/cilium/cilium/operator/auth/identity"
 	"github.com/cilium/cilium/pkg/hive/cell"
@@ -29,9 +29,8 @@ var Cell = cell.Module(
 
 // ClientConfig contains the configuration for the SPIRE client.
 type ClientConfig struct {
-	AuthMTLSEnabled       bool   `mapstructure:"mesh-auth-mtls-enabled"`
-	SpireServerSocketPath string `mapstructure:"mesh-auth-spire-server-socket"`
-	SpiffeTrustDomain     string `mapstructure:"mesh-auth-spiffe-trust-domain"`
+	AuthMTLSEnabled   bool   `mapstructure:"mesh-auth-mtls-enabled"`
+	SpiffeTrustDomain string `mapstructure:"mesh-auth-spiffe-trust-domain"`
 }
 
 // Flags adds the flags used by ClientConfig.
@@ -40,10 +39,7 @@ func (cfg ClientConfig) Flags(flags *pflag.FlagSet) {
 		"mesh-auth-mtls-enabled",
 		false,
 		"The flag to enable mTLS for the SPIRE server.")
-	flags.StringVar(&cfg.SpireServerSocketPath,
-		"mesh-auth-spire-server-socket",
-		"/var/run/spire-server/sockets/api.sock",
-		"The path for the SPIRE admin agent Unix socket.")
+
 	flags.StringVar(&cfg.SpiffeTrustDomain,
 		"mesh-auth-spiffe-trust-domain",
 		"spiffe.cilium.io",
@@ -68,15 +64,22 @@ func NewClient(cfg ClientConfig) (identity.Provider, error) {
 	if !cfg.AuthMTLSEnabled {
 		return &noopClient{}, nil
 	}
-	if _, err := os.Stat(cfg.SpireServerSocketPath); errors.Is(err, os.ErrNotExist) {
-		return nil, err
+
+	// <hackedcode blame="maartje">
+	// note this will hang till the socket and certificate is there, consider this in the future
+	source, err := workloadapi.NewX509Source(context.TODO(), workloadapi.WithClientOptions(workloadapi.WithAddr("unix:///run/spire/sockets/agent/agent.sock")))
+	if err != nil {
+		return &noopClient{}, err
 	}
 
-	conn, err := grpc.Dial(fmt.Sprintf("unix://%s", cfg.SpireServerSocketPath),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	tlsConfig := tlsconfig.MTLSClientConfig(source, source, tlsconfig.AuthorizeAny())
+
+	conn, err := grpc.Dial("spire-server.spire.svc.cluster.local:8081", grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	if err != nil {
 		return nil, err
 	}
+
+	// </hackedcode>
 
 	return &Client{
 		cfg:   cfg,
