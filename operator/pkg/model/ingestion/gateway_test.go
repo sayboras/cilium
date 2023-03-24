@@ -20,7 +20,7 @@ type gwTestCase struct {
 }
 
 var basicHTTP = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
+	AdditionalParams: map[string]string{},
 	Gateway: gatewayv1beta1.Gateway{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Gateway",
@@ -123,8 +123,8 @@ var basicHTTPListeners = []model.HTTPListener{
 }
 
 var crossNamespaceHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      backendNamespaceGateway,
+	AdditionalParams: map[string]string{},
+	Gateway:          backendNamespaceGateway,
 	HTTPRoutes: []gatewayv1beta1.HTTPRoute{
 		crossNamespaceHTTPRoute,
 	},
@@ -158,8 +158,8 @@ var crossNamespaceHTTPListeners = []model.HTTPListener{
 }
 
 var exactPathMatchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
 	HTTPRoutes: []gatewayv1beta1.HTTPRoute{
 		exactPathMatchingHTTPRoute,
 	},
@@ -206,8 +206,8 @@ var exactPathMatchingHTTPListeners = []model.HTTPListener{
 }
 
 var headerMatchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
 	HTTPRoutes: []gatewayv1beta1.HTTPRoute{
 		headerMatchingHTTPRoute,
 	},
@@ -352,10 +352,10 @@ var headerMatchingHTTPListeners = []model.HTTPListener{
 }
 
 var hostnameIntersectionHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      *hostnameIntersectionGateway,
-	HTTPRoutes:   hostnameIntersectionHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          *hostnameIntersectionGateway,
+	HTTPRoutes:       hostnameIntersectionHTTPRoutes,
+	Services:         allServices,
 }
 var hostnameIntersectionHTTPListeners = []model.HTTPListener{
 	{
@@ -447,10 +447,10 @@ var hostnameIntersectionHTTPListeners = []model.HTTPListener{
 }
 
 var listenerHostnameMatchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      *listenerHostnameMatchingGateway,
-	HTTPRoutes:   listenerHostnameMatchingHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          *listenerHostnameMatchingGateway,
+	HTTPRoutes:       listenerHostnameMatchingHTTPRoutes,
+	Services:         allServices,
 }
 var listenerHostnameMatchingHTTPListeners = []model.HTTPListener{
 	{
@@ -555,10 +555,10 @@ var listenerHostnameMatchingHTTPListeners = []model.HTTPListener{
 }
 
 var matchingAcrossHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   matchingAcrossHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       matchingAcrossHTTPRoutes,
+	Services:         allServices,
 }
 var matchingAcrossHTTPListeners = []model.HTTPListener{
 	{
@@ -610,10 +610,10 @@ var matchingAcrossHTTPListeners = []model.HTTPListener{
 }
 
 var matchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   matchingHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       matchingHTTPRoutes,
+	Services:         allServices,
 }
 var matchingHTTPListeners = []model.HTTPListener{
 	{
@@ -667,10 +667,10 @@ var matchingHTTPListeners = []model.HTTPListener{
 }
 
 var queryParamMatchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   queryParamMatchingHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       queryParamMatchingHTTPRoutes,
+	Services:         allServices,
 }
 var queryParamMatchingHTTPListeners = []model.HTTPListener{
 	{
@@ -761,10 +761,10 @@ var queryParamMatchingHTTPListeners = []model.HTTPListener{
 }
 
 var requestHeaderModifierHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   requestHeaderModifierHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       requestHeaderModifierHTTPRoutes,
+	Services:         allServices,
 }
 var requestHeaderModifierHTTPListeners = []model.HTTPListener{
 	{
@@ -908,10 +908,10 @@ var requestHeaderModifierHTTPListeners = []model.HTTPListener{
 }
 
 var simpleSameNamespaceHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   simpleSameNamespaceHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       simpleSameNamespaceHTTPRoutes,
+	Services:         allServices,
 }
 
 var simpleSameNamespaceHTTPListeners = []model.HTTPListener{
@@ -942,10 +942,10 @@ var simpleSameNamespaceHTTPListeners = []model.HTTPListener{
 }
 
 var methodMatchingHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   methodMatchingHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       methodMatchingHTTPRoutes,
+	Services:         allServices,
 }
 
 var methodMatchingHTTPListeners = []model.HTTPListener{
@@ -989,10 +989,10 @@ var methodMatchingHTTPListeners = []model.HTTPListener{
 }
 
 var requestRedirectHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   requestRedirectHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       requestRedirectHTTPRoutes,
+	Services:         allServices,
 }
 var requestRedirectHTTPListeners = []model.HTTPListener{
 	{
@@ -1052,10 +1052,10 @@ var requestRedirectHTTPListeners = []model.HTTPListener{
 }
 
 var responseHeaderModifierHTTPInput = Input{
-	GatewayClass: gatewayv1beta1.GatewayClass{},
-	Gateway:      sameNamespaceGateway,
-	HTTPRoutes:   responseHeaderModifierHTTPRoutes,
-	Services:     allServices,
+	AdditionalParams: map[string]string{},
+	Gateway:          sameNamespaceGateway,
+	HTTPRoutes:       responseHeaderModifierHTTPRoutes,
+	Services:         allServices,
 }
 var responseHeaderModifierHTTPListeners = []model.HTTPListener{
 	{

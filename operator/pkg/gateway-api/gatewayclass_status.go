@@ -11,27 +11,25 @@ import (
 )
 
 const (
-	gatewayClassAcceptedMessage    = "Valid GatewayClass"
-	gatewayClassNotAcceptedMessage = "Invalid GatewayClass"
+	gatewayClassAcceptedMessage = "Valid GatewayClass"
 )
 
 // setGatewayClassAccepted inserts or updates the Accepted condition
 // for the provided GatewayClass.
-func setGatewayClassAccepted(gwc *gatewayv1beta1.GatewayClass, accepted bool) *gatewayv1beta1.GatewayClass {
-	gwc.Status.Conditions = merge(gwc.Status.Conditions, gatewayClassAcceptedCondition(gwc, accepted))
+func setGatewayClassAccepted(gwc *gatewayv1beta1.GatewayClass, accepted bool, msg string) *gatewayv1beta1.GatewayClass {
+	gwc.Status.Conditions = merge(gwc.Status.Conditions, gatewayClassAcceptedCondition(gwc, accepted, msg))
 	return gwc
 }
 
 // gatewayClassAcceptedCondition returns the GatewayClass with Accepted status condition.
-// TODO(tam): Update GatewayClassReasonInvalidParameters message when parameter support is added.
-func gatewayClassAcceptedCondition(gwc *gatewayv1beta1.GatewayClass, accepted bool) metav1.Condition {
+func gatewayClassAcceptedCondition(gwc *gatewayv1beta1.GatewayClass, accepted bool, msg string) metav1.Condition {
 	switch accepted {
 	case true:
 		return metav1.Condition{
 			Type:               string(gatewayv1beta1.GatewayClassConditionStatusAccepted),
 			Status:             metav1.ConditionTrue,
 			Reason:             string(gatewayv1beta1.GatewayClassReasonAccepted),
-			Message:            gatewayClassAcceptedMessage,
+			Message:            msg,
 			ObservedGeneration: gwc.Generation,
 			LastTransitionTime: metav1.NewTime(time.Now()),
 		}
@@ -40,7 +38,7 @@ func gatewayClassAcceptedCondition(gwc *gatewayv1beta1.GatewayClass, accepted bo
 			Type:               string(gatewayv1beta1.GatewayClassConditionStatusAccepted),
 			Status:             metav1.ConditionFalse,
 			Reason:             string(gatewayv1beta1.GatewayClassReasonInvalidParameters),
-			Message:            gatewayClassNotAcceptedMessage,
+			Message:            msg,
 			ObservedGeneration: gwc.Generation,
 			LastTransitionTime: metav1.NewTime(time.Now()),
 		}

@@ -17,6 +17,7 @@ func Test_gatewayClassAcceptedCondition(t *testing.T) {
 	type args struct {
 		gwc      *gatewayv1beta1.GatewayClass
 		accepted bool
+		msg      string
 	}
 	tests := []struct {
 		name string
@@ -32,6 +33,7 @@ func Test_gatewayClassAcceptedCondition(t *testing.T) {
 					},
 				},
 				accepted: true,
+				msg:      "Valid GatewayClass",
 			},
 			want: metav1.Condition{
 				Type:               "Accepted",
@@ -50,6 +52,7 @@ func Test_gatewayClassAcceptedCondition(t *testing.T) {
 					},
 				},
 				accepted: false,
+				msg:      "Invalid GatewayClass",
 			},
 			want: metav1.Condition{
 				Type:               "Accepted",
@@ -62,7 +65,7 @@ func Test_gatewayClassAcceptedCondition(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := gatewayClassAcceptedCondition(tt.args.gwc, tt.args.accepted)
+			got := gatewayClassAcceptedCondition(tt.args.gwc, tt.args.accepted, tt.args.msg)
 			assert.True(t, cmp.Equal(got, tt.want, cmpopts.IgnoreFields(metav1.Condition{}, "LastTransitionTime")), "httpRouteAcceptedCondition() = %v, want %v", got, tt.want)
 		})
 	}

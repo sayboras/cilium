@@ -4,6 +4,8 @@
 package gateway_api
 
 import (
+	"context"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -11,6 +13,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	gatewayv1beta1 "sigs.k8s.io/gateway-api/apis/v1beta1"
 )
+
+type gatewayClassChecker func(ctx context.Context, client client.Client, gwc *gatewayv1beta1.GatewayClass) (ctrl.Result, error)
 
 // gatewayClassReconciler reconciles a GatewayClass object
 type gatewayClassReconciler struct {

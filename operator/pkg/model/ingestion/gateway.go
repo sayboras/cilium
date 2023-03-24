@@ -4,6 +4,10 @@
 package ingestion
 
 import (
+	"strings"
+
+	"github.com/mcuadros/go-defaults"
+	"github.com/mitchellh/mapstructure"
 	corev1 "k8s.io/api/core/v1"
 	gatewayv1alpha2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
 	gatewayv1beta1 "sigs.k8s.io/gateway-api/apis/v1beta1"
@@ -15,18 +19,24 @@ const (
 	allHosts = "*"
 )
 
+// AdditionalParameter is parametersRef configmap in GatewayClass.
+type AdditionalParameter struct {
+	ServiceType         string `mapstructure:"service-type" default:"LoadBalancer"`
+	ServiceSecurePort   int    `mapstructure:"secure-port" default:"443"`
+	ServiceInsecurePort int    `mapstructure:"insecure-port" default:"80"`
+}
+
 // Input is the input for GatewayAPI.
 type Input struct {
-	GatewayClass    gatewayv1beta1.GatewayClass
-	Gateway         gatewayv1beta1.Gateway
-	HTTPRoutes      []gatewayv1beta1.HTTPRoute
-	ReferenceGrants []gatewayv1alpha2.ReferenceGrant
-	Services        []corev1.Service
+	Gateway          gatewayv1beta1.Gateway
+	HTTPRoutes       []gatewayv1beta1.HTTPRoute
+	ReferenceGrants  []gatewayv1alpha2.ReferenceGrant
+	Services         []corev1.Service
+	AdditionalParams map[string]string
 }
 
 // GatewayAPI translates Gateway API resources into a model.
 // The current implementation only supports HTTPRoute.
-// TODO(tam): Support GatewayClass
 func GatewayAPI(input Input) []model.HTTPListener {
 	var res []model.HTTPListener
 
@@ -126,6 +136,7 @@ func GatewayAPI(input Input) []model.HTTPListener {
 			}
 		}
 
+		params := toParameter(input.AdditionalParams)
 		res = append(res, model.HTTPListener{
 			Name: string(l.Name),
 			Sources: []model.FullyQualifiedResource{
@@ -142,6 +153,11 @@ func GatewayAPI(input Input) []model.HTTPListener {
 			Hostname: toHostname(l.Hostname),
 			TLS:      toTLS(l.TLS, input.Gateway.GetNamespace()),
 			Routes:   routes,
+			Service: &model.Service{
+				Type:             params.ServiceType,
+				InsecureNodePort: model.AddressOf[uint32](uint32(params.ServiceInsecurePort)),
+				SecureNodePort:   model.AddressOf[uint32](uint32(params.ServiceSecurePort)),
+			},
 		})
 	}
 
@@ -371,4 +387,36 @@ func toStringSlice(s []gatewayv1beta1.Hostname) []string {
 		res = append(res, string(h))
 	}
 	return res
+}
+
+func toParameter(params map[string]string) AdditionalParameter {
+	p := AdditionalParameter{}
+	defaults.SetDefaults(&p)
+	decoder, err := mapstructure.NewDecoder(decoderConfig(&p))
+	if err != nil {
+		return p
+	}
+	_ = decoder.Decode(params)
+	return p
+}
+
+func decoderConfig(target any) *mapstructure.DecoderConfig {
+	return &mapstructure.DecoderConfig{
+		Result:           target,
+		WeaklyTypedInput: true,
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			mapstructure.StringToTimeDurationHookFunc(),
+			mapstructure.StringToSliceHookFunc(","),
+		),
+		ZeroFields:  true,
+		ErrorUnset:  false,
+		ErrorUnused: false,
+		// Match field FooBarBaz with "foo-bar-baz" by removing
+		// the dashes from the flag.
+		MatchName: func(mapKey, fieldName string) bool {
+			return strings.EqualFold(
+				strings.ReplaceAll(mapKey, "-", ""),
+				fieldName)
+		},
+	}
 }

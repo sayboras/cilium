@@ -83,6 +83,12 @@ func (r *gatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return fail(err)
 	}
 
+	gwcConfig, err := getParameterRef(ctx, r.Client, gwc)
+	if err != nil {
+		scopedLog.WithError(err).Error("Unable to get GatewayClass parameterRef")
+		return fail(err)
+	}
+
 	routeList := &gatewayv1beta1.HTTPRouteList{}
 	if err := r.Client.List(ctx, routeList); err != nil {
 		scopedLog.WithError(err).Error("Unable to list HTTPRoutes")
@@ -104,11 +110,11 @@ func (r *gatewayReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	routes := r.filterRoutesByGateway(ctx, gw, routeList.Items)
 	listeners := ingestion.GatewayAPI(ingestion.Input{
-		GatewayClass:    *gwc,
-		Gateway:         *gw,
-		HTTPRoutes:      routes,
-		Services:        servicesList.Items,
-		ReferenceGrants: grants.Items,
+		Gateway:          *gw,
+		HTTPRoutes:       routes,
+		Services:         servicesList.Items,
+		ReferenceGrants:  grants.Items,
+		AdditionalParams: gwcConfig.Data,
 	})
 
 	// Step 3: Translate the listeners into Cilium model

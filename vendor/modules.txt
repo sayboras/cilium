@@ -633,6 +633,9 @@ github.com/mattn/go-shellwords
 # github.com/matttproud/golang_protobuf_extensions v1.0.2
 ## explicit; go 1.9
 github.com/matttproud/golang_protobuf_extensions/pbutil
+# github.com/mcuadros/go-defaults v1.2.0
+## explicit; go 1.14
+github.com/mcuadros/go-defaults
 # github.com/mdlayher/arp v0.0.0-20191213142603-f72070a231fc
 ## explicit; go 1.12
 github.com/mdlayher/arp

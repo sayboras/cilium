@@ -106,8 +106,8 @@ func getService(resource model.FullyQualifiedResource, service *model.Service) *
 			Labels:    map[string]string{ciliumIngressLabelKey: "true"},
 			OwnerReferences: []metav1.OwnerReference{
 				{
-					APIVersion: slim_networkingv1.SchemeGroupVersion.String(),
-					Kind:       "Ingress",
+					APIVersion: resource.Version,
+					Kind:       resource.Kind,
 					Name:       resource.Name,
 					UID:        types.UID(resource.UID),
 				},
