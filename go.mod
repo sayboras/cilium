@@ -126,7 +126,7 @@ require (
 	k8s.io/utils v0.0.0-20240102154912-e7106e64919e
 	sigs.k8s.io/controller-runtime v0.17.1-0.20240327193027-21368602d84b
 	sigs.k8s.io/controller-tools v0.14.0
-	sigs.k8s.io/gateway-api v1.0.1-0.20240408121913-1e90efc0de5b
+	sigs.k8s.io/gateway-api v1.1.0-rc1
 	sigs.k8s.io/mcs-api v0.1.1-0.20230531192946-4231f56e5ff9
 	sigs.k8s.io/yaml v1.4.0
 )
@@ -223,7 +223,7 @@ require (
 	github.com/mdlayher/netlink v1.7.2 // indirect
 	github.com/mdlayher/packet v1.1.2 // indirect
 	github.com/mdlayher/socket v0.4.1 // indirect
-	github.com/miekg/dns v1.1.57 // indirect
+	github.com/miekg/dns v1.1.58 // indirect
 	github.com/mikioh/ipaddr v0.0.0-20190404000644-d465c8ab6721 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
