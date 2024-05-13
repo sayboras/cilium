@@ -1092,19 +1092,19 @@ func (h *HeaderfileWriter) writeTemplateConfig(fw *bufio.Writer, devices []*tabl
 		fmt.Fprintf(fw, "#define ENABLE_ROUTING 1\n")
 	}
 
-	if !option.Config.EnableHostLegacyRouting && option.Config.DirectRoutingDevice != "" {
-		directRoutingIface := option.Config.DirectRoutingDevice
-		directRoutingIfIndex, err := link.GetIfIndex(directRoutingIface)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(fw, "#define DIRECT_ROUTING_DEV_IFINDEX %d\n", directRoutingIfIndex)
-		if len(devices) == 1 {
-			if e.IsHost() || !option.Config.EnforceLXCFibLookup() {
-				fmt.Fprintf(fw, "#define ENABLE_SKIP_FIB 1\n")
-			}
-		}
-	}
+	//if !option.Config.EnableHostLegacyRouting && option.Config.DirectRoutingDevice != "" {
+	//	directRoutingIface := option.Config.DirectRoutingDevice
+	//	directRoutingIfIndex, err := link.GetIfIndex(directRoutingIface)
+	//	if err != nil {
+	//		return err
+	//	}
+	//	fmt.Fprintf(fw, "#define DIRECT_ROUTING_DEV_IFINDEX %d\n", directRoutingIfIndex)
+	//	if len(devices) == 1 {
+	//		if e.IsHost() || !option.Config.EnforceLXCFibLookup() {
+	//			fmt.Fprintf(fw, "#define ENABLE_SKIP_FIB 1\n")
+	//		}
+	//	}
+	//}
 
 	if e.IsHost() {
 		// Only used to differentiate between host endpoint template and other templates.
