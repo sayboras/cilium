@@ -1,0 +1,289 @@
+
+
+vi /etc/kind/k1-30.yaml
+
+---
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+featureGates:
+  ServiceTrafficDistribution: true
+nodes:
+- role: control-plane
+- role: worker
+- role: worker
+networking:
+  disableDefaultCNI: true
+
+
+[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+kind create cluster --config "/etc/kind/k1-30.yaml"
+
+
+https://itnext.io/controlling-kubernetes-traffic-with-topology-aware-routing-9b1d51a43bd7
+
+cilium install --version 1.16.0-rc.0 --namespace kube-system \
+--set routingMode=native \
+--set bpf.masquerade=true \
+--set kubeProxyReplacement=true \
+--set ipam.mode=kubernetes \
+--set autoDirectNodeRoutes=true \
+--set loadBalancer.serviceTopology=true \
+--set ipv4NativeRoutingCIDR="10.0.0.0/8"
+
+
+kubectl label nodes kind-worker topology.kubernetes.io/zone=az-a
+kubectl label nodes kind-worker2 topology.kubernetes.io/zone=az-a
+kubectl label nodes kind-worker3 topology.kubernetes.io/zone=az-b
+kubectl label nodes kind-worker4 topology.kubernetes.io/zone=az-b
+kubectl label nodes kind-worker5 topology.kubernetes.io/zone=az-c
+kubectl label nodes kind-worker6 topology.kubernetes.io/zone=az-c
+
+root@server:~# cat cm.yaml 
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx.conf
+data:
+  default.conf: |
+    server {
+        listen       80;
+        listen  [::]:80;
+        server_name  _;
+
+        add_header X-Server-Hostname $hostname;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+
+
+root@server:~# cat nginx.yaml 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nginx
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: nginx
+      containers:
+        - image: docker.io/nginx:latest
+          name: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config
+              mountPath: "/etc/nginx/conf.d"
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: nginx.conf
+            items:
+              - key: default.conf
+                path: default.conf
+
+
+
+root@server:~# yq service.yaml 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: nginx
+  type: ClusterIP
+  #trafficDistribution: PreferClose
+
+
+vi client.yaml
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: curl
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: curl
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: curl
+      containers:
+        - name: curl
+          image: docker.io/curlimages/curl:latest
+          args:
+            - sh
+            - -c
+            - 'while true; do curl -s -v nginx 2>&1 | grep X-Server-Hostname; sleep 1; done;'
+            
+
+root@server:~# kubectl get pods -o wide
+NAME                     READY   STATUS    RESTARTS   AGE     IP             NODE           NOMINATED NODE   READINESS GATES
+curl-75fd79b7-6bmhz      1/1     Running   0          2m41s   10.244.1.203   kind-worker2   <none>           <none>
+curl-75fd79b7-8n4l4      1/1     Running   0          2m41s   10.244.2.236   kind-worker    <none>           <none>
+curl-75fd79b7-ql2dc      1/1     Running   0          2m41s   10.244.2.158   kind-worker    <none>           <none>
+nginx-57fdc5ff77-769s7   1/1     Running   0          67m     10.244.1.228   kind-worker2   <none>           <none>
+nginx-57fdc5ff77-fcljt   1/1     Running   0          67m     10.244.2.53    kind-worker    <none>           <none>
+nginx-57fdc5ff77-llmfn   1/1     Running   0          67m     10.244.1.143   kind-worker2   <none>           <none>
+nginx-57fdc5ff77-rcl9g   1/1     Running   0          67m     10.244.2.185   kind-worker    <none>           <none>
+nginx-57fdc5ff77-s69d8   1/1     Running   0          67m     10.244.1.16    kind-worker2   <none>           <none>
+nginx-57fdc5ff77-ww9xf   1/1     Running   0          67m     10.244.2.141   kind-worker    <none>           <none>
+pod-worker               1/1     Running   0          73m     10.244.2.179   kind-worker    <none>           <none>
+
+  root@server:~# kubectl logs curl-75fd79b7-ql2dc | cut -f 2 -d ':' | sort | uniq -c
+     35  nginx-57fdc5ff77-fcljt
+     30  nginx-57fdc5ff77-rcl9g
+     38  nginx-57fdc5ff77-ww9xf
+root@server:~# kubectl logs curl-75fd79b7-6bmhz | cut -f 2 -d ':' | sort | uniq -c
+     36  nginx-57fdc5ff77-769s7
+     37  nginx-57fdc5ff77-llmfn
+     35  nginx-57fdc5ff77-s69d8
+
+
+
+
+root@server:~# kubectl get endpointslices.discovery.k8s.io nginx-9cvbf -o yaml
+addressType: IPv4
+apiVersion: discovery.k8s.io/v1
+endpoints:
+- addresses:
+  - 10.244.2.53
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-a
+  nodeName: kind-worker
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-fcljt
+    namespace: default
+    uid: 3d7dbf2a-723e-4ece-84e6-b1393c4d55b0
+  zone: roc-a
+- addresses:
+  - 10.244.1.16
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-b
+  nodeName: kind-worker2
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-s69d8
+    namespace: default
+    uid: e1c8cb8b-8e2d-4fe3-8bba-0ee451387d0d
+  zone: roc-b
+- addresses:
+  - 10.244.2.141
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-a
+  nodeName: kind-worker
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-ww9xf
+    namespace: default
+    uid: b2297a46-a7f0-4b0a-9b1f-c6446575eb19
+  zone: roc-a
+- addresses:
+  - 10.244.1.143
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-b
+  nodeName: kind-worker2
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-llmfn
+    namespace: default
+    uid: 6e98575b-2790-4cae-a5a5-869952bd65ce
+  zone: roc-b
+- addresses:
+  - 10.244.1.228
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-b
+  nodeName: kind-worker2
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-769s7
+    namespace: default
+    uid: 3d1e2774-a15a-42d3-ad7d-cefd0ac89cdd
+  zone: roc-b
+- addresses:
+  - 10.244.2.185
+  conditions:
+    ready: true
+    serving: true
+    terminating: false
+  hints:
+    forZones:
+    - name: roc-a
+  nodeName: kind-worker
+  targetRef:
+    kind: Pod
+    name: nginx-57fdc5ff77-rcl9g
+    namespace: default
+    uid: c4a3d768-ad55-4992-a5fb-d1ec7ade81f4
+  zone: roc-a
