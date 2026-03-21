@@ -78,12 +78,13 @@ func runTypes(cmd *cobra.Command, args []string) error {
 	for t := range sortedSeq(added.Members()) {
 		// Look up all added root types by name to: 1. avoid emitting type decls for
 		// embedded types, and 2. ensure all types with the same name deduplicated
-		// into one concrete type. This lookup will fail if there are multiple
-		// incompatible candidate types with the same name across objects.
-		typ, err := spec.AnyTypeByName(t)
+		// into one concrete type. Use AnyTypesByName and take the first match, since
+		// the builder's deduplication ensures equivalent types are interchangeable.
+		types, err := spec.AnyTypesByName(t)
 		if err != nil {
 			return fmt.Errorf("getting BTF type %v: %w", t, err)
 		}
+		typ := types[0]
 
 		// Only include structs, unions and typedefs.
 		switch typ.(type) {
